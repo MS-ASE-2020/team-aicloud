@@ -46,45 +46,45 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard',
+    redirect: '/input',
     children: [{
-      path: 'dashboard',
-      name: 'Dashboard',
-      component: () => import('@/views/dashboard/index'),
+      path: 'input',
+      name: 'input',
+      component: () => import('@/views/input/index'),
       meta: { title: 'Input', icon: 'dashboard' }
     }]
   },
 
   {
-    path: '/example',
+    path: '/feature',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
+    redirect: '/feature/column',
+    name: 'Feature',
     meta: { title: 'Feature', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
+        path: 'column',
+        name: 'Column',
+        component: () => import('@/views/column/index'),
         meta: { title: 'column', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
+        path: 'cycle',
+        name: 'Cycle',
+        component: () => import('@/views/cycle/index'),
         meta: { title: 'Cycle', icon: 'tree' }
       }
     ]
   },
 
   {
-    path: '/form',
+    path: '/model',
     component: Layout,
     children: [
       {
-        path: 'index',
+        path: '',
         name: 'Form',
-        component: () => import('@/views/form/index'),
+        component: () => import('@/views/model/index'),
         meta: { title: 'Model', icon: 'form' }
       }
     ]
@@ -95,69 +95,10 @@ export const constantRoutes = [
     component: Layout,
     children: [
       {
-        path: 'index',
+        path: '',
         name: 'Output',
         component: () => import('@/views/output/index'),
         meta: { title: 'Output', icon: 'form' }
-      }
-    ]
-  },
-
-  {
-    path: '/nested',
-    component: Layout,
-    redirect: '/nested/menu1',
-    name: 'Nested',
-    meta: {
-      title: 'Nested',
-      icon: 'nested'
-    },
-    children: [
-      {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'Menu1',
-        meta: { title: 'Menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'Menu1-1',
-            meta: { title: 'Menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'Menu1-2',
-            meta: { title: 'Menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'Menu1-2-1',
-                meta: { title: 'Menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'Menu1-2-2',
-                meta: { title: 'Menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'Menu1-3',
-            meta: { title: 'Menu1-3' }
-          }
-        ]
-      },
-      {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        name: 'Menu2',
-        meta: { title: 'menu2' }
       }
     ]
   },
