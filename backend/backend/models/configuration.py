@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import IntegerChoices
 
-class Config(models.Model):
+class Configuration(models.Model):
     class ConfigStatus(IntegerChoices):
         UNCOMITTED = 0
         COMITTED = 1
@@ -17,7 +17,6 @@ class Config(models.Model):
     create_time = models.TimeField()
     config_hash = models.BinaryField(max_length=32)
     config_status = models.IntegerField(choices=ConfigStatus)
-    
     
         
         

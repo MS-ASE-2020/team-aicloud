@@ -17,6 +17,6 @@ class Model(models.model):
         max_length=256,
         null=True,
         blank=True)
-    create_time = models.TimeField()
+    create_time = models.DateTimeField()
     model_hash = models.BinaryField(max_length=5)
     
