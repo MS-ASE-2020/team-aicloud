@@ -1,6 +1,8 @@
 from django.db import models
+from . import User
 
-class Model(models.model):
+
+class Model(models.Model):
     model_id = models.AutoField(
         verbose_name="identifier for model",
         help_text="auto-increment in database",
@@ -19,4 +21,18 @@ class Model(models.model):
         blank=True)
     create_time = models.DateTimeField()
     model_hash = models.BinaryField(max_length=5)
-    
+    user_id = models.ForeignKey(
+        User,
+        to_field='user_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_USER.USER_ID",
+        blank=False,
+        null=False,
+    )
+    user_access_id = models.ManyToManyField(
+        User,
+        related_name='to_access_users',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+    )
