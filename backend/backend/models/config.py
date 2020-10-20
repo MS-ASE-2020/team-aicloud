@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import IntegerChoices
 
-class Configuration(models.Model):
+class Config(models.Model):
     class ConfigStatus(IntegerChoices):
         UNCOMITTED = 0
         COMITTED = 1
