@@ -12,7 +12,7 @@ class Model(models.Model):
         Config, 
         to_field="config_id",
         on_delete=models.CASCADE,
-        help_text="reference to TE_CONFIG_CONFIGID")
+        help_text="reference to TE_CONFIG_CONFIG_ID")
     model_name = models.CharField(
         verbose_name="name specified by user",
         help_text="the reasonable length is 8-32, composed with 'A-Za-z0-9_",

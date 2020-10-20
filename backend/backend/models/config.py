@@ -16,7 +16,7 @@ class Config(models.Model):
     job_id = models.ForeignKey(
         Job,
         to_field="job_id",
-        help_text="reference TE_JOB_JOBID"
+        help_text="reference TE_JOB_JOB_ID"
     )
     config_name = models.CharField(
         verbose_name="name for user to identifier",
@@ -32,7 +32,7 @@ class Config(models.Model):
         upload_to='uploads/Config/OtherConfig', 
         null=True, 
         blank=True)
-    create_time = models.TimeField()
+    create_time = models.DateTimeField()
     config_hash = models.BinaryField(
         max_length=32)
     config_status = models.IntegerField(
