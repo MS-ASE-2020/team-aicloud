@@ -1,6 +1,7 @@
 from django.db import models
 from . import User
 from . import Config
+from . import ModelTypeChoice
 
 class Model(models.Model):
     model_id = models.AutoField(
@@ -16,6 +17,10 @@ class Model(models.Model):
         verbose_name="name specified by user",
         help_text="the reasonable length is 8-32, composed with 'A-Za-z0-9_",
         max_length=32)
+    model_type = models.Choices(
+        ModelTypeChoice,
+        help_text="model type description such as pretrained etc."
+    )
     model_perf = models.BinaryField(
         verbose_name="model performace record",
         help_text="calculated via test. may be optional",
