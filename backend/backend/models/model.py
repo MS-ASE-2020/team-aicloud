@@ -40,18 +40,3 @@ class Model(models.Model):
         verbose_name="the hash identifier of model",
         help_text="auto-generated hash based on time and random number",
         max_length=5)
-    user_id = models.ForeignKey(
-        User,
-        to_field='user_id',
-        on_delete=models.CASCADE,
-        help_text="reference to TE_USER.USER_ID",
-        blank=False,
-        null=False,
-    )
-    user_access_id = models.ManyToManyField(
-        User,
-        related_name='to_access_users',
-        on_delete=models.CASCADE,
-        blank=False,
-        null=False,
-    )
