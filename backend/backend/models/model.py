@@ -1,10 +1,16 @@
 from django.db import models
+from .config import Config
 
 class Model(models.model):
     model_id = models.AutoField(
         verbose_name="identifier for model",
         help_text="auto-increment in database",
         primary_key=True)
+    config_id = models.ForeignKey(
+        Config, 
+        to_field="config_id",
+        on_delete=models.CASCADE,
+        help_text="reference to TE_CONFIG_CONFIGID")
     model_name = models.CharField(
         verbose_name="name specified by user",
         help_text="the reasonable length is 8-32, composed with 'A-Za-z0-9_",
