@@ -1,4 +1,5 @@
 from django.db import models
+from . import Data
 
 
 class Project(models.Model):
@@ -27,5 +28,13 @@ class Project(models.Model):
         help_text="auto-generated hash based on time and random number",
         max_length=32,
         unique=False,
+        null=False,
+    )
+    data_id = models.ForeignKey(
+        Data,
+        to_field='data_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_DATA.DATA_ID",
+        blank=False,
         null=False,
     )

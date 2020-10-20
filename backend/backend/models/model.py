@@ -1,7 +1,8 @@
 from django.db import models
-from .config import Config
+from . import User
+from . import Config
 
-class Model(models.model):
+class Model(models.Model):
     model_id = models.AutoField(
         verbose_name="identifier for model",
         help_text="auto-increment in database",
@@ -29,10 +30,23 @@ class Model(models.model):
         blank=True)
     create_time = models.DateTimeField(
         verbose_name="the create time of model",
-        help_text="the time when model created; auto-generated"
-    )
+        help_text="the time when model created; auto-generated")
     model_hash = models.BinaryField(
         verbose_name="the hash identifier of model",
         help_text="auto-generated hash based on time and random number",
         max_length=5)
-    
+    user_id = models.ForeignKey(
+        User,
+        to_field='user_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_USER.USER_ID",
+        blank=False,
+        null=False,
+    )
+    user_access_id = models.ManyToManyField(
+        User,
+        related_name='to_access_users',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+    )
