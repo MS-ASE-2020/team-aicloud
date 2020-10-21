@@ -1,4 +1,5 @@
 from django.db import models
+from . import User, Data
 
 
 class Project(models.Model):
@@ -27,5 +28,28 @@ class Project(models.Model):
         help_text="auto-generated hash based on time and random number",
         max_length=32,
         unique=False,
+        null=False,
+    )
+    user_id = models.ForeignKey(
+        User,
+        to_field='user_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_USER.USER_ID",
+        blank=False,
+        null=False,
+    )
+    user_access_id = models.ManyToManyField(
+        User,
+        related_name='to_access_users',
+        on_delete=models.CASCADE,
+        blank=False,
+        null=False,
+    )
+    data_id = models.ForeignKey(
+        Data,
+        to_field='data_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_DATA.DATA_ID",
+        blank=False,
         null=False,
     )

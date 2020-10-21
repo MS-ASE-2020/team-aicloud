@@ -1,4 +1,5 @@
 from django.db import models
+from . import Project
 
 
 class Job(models.Model):
@@ -33,5 +34,13 @@ class Job(models.Model):
         help_text="auto-generated hash based on time and random number",
         max_length=32,
         unique=False,
+        null=False,
+    )
+    project_id = models.ForeignKey(
+        Project,
+        to_field='project_id',
+        on_delete=models.CASCADE,
+        help_text="reference to TE_PROJECT.PROJECT_ID",
+        blank=False,
         null=False,
     )
