@@ -15,9 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import data
+from .views import data, result
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('upload/data', data.upload_data),
+    path('result/<int:model_id>', result.result)
 ]
