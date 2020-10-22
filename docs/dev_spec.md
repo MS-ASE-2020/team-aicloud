@@ -231,6 +231,56 @@ Rishi 将主要分成以下模块：
 
 ### 程序接口
 
+UI基本按照处理步骤进行
+
+###### Input
+
+![](D:\AI+Cloud\team-aicloud\docs\assets\Input.png)
+
+用户点击左上角”Input"选项，进入上传文件功能，限制用户上传的文件格式和大小，并且只上传一个文件。可以选择拖拽上传或者在文件资源管理器中选择文件两种方式，用户任选一种即可。文件上传成功或失败会在顶部弹出对应成功或失败的消息提示，如果上传成功，页面下方会显示上传的数据表格的前五行内容。数据上传成功后，进入下一步。
+
+
+
+###### Select Column
+
+![](D:\AI+Cloud\team-aicloud\docs\assets\Feature1.png)
+
+用户点击下拉菜单出现上传表格的列信息，需要用户选择表格中对应时间序列和值的两列的名称，点击Upload上传成功后进入下一步。[TODO]
+
+
+
+###### Select Cycle
+
+![](D:\AI+Cloud\team-aicloud\docs\assets\Feature2.png)
+
+页面显示常见的时间序列预测中的特征值，包括但不限于关于不同时间单位的周期性以及假期等特征。用户根据实际情况勾选一个或多个周期单位，并按照提示的格式输入假期信息。如果用户对于选项存在疑问，可以通过将鼠标放置在icon上获得相应的帮助信息。用户输入和选择完成后，点击upload按钮提交。提交成功，进入下一步。[TODO]
+
+
+
+###### Model
+
+![](D:\AI+Cloud\team-aicloud\docs\assets\Model.png)
+
+这个界面帮助用户完成模型以及相应参数的选择，同时提供信息帮助用户更好的进行决策。用户点击Model Selection对应的下拉菜单可以看到提供的多个不同的模型。用户选择一个模型之后，下方显示该模型对应的可调节的参数以及预训练的参数值。用户可以通过将鼠标放置在对应的icon上了解参数对应的含义以及推荐的调参方法。 在模型选择和参数调节结束之后，用户点击"Train"按钮开始训练。
+
+
+
+###### Output
+
+![](D:\AI+Cloud\team-aicloud\docs\assets\Output.png)
+
+训练结束之后，以表格的形式输出预测结果。同时使用用户提供的时间序列、预测结果以及置信区间的相关信息绘制出曲线图。除此之外，包含
+
+- ME: Mean Error
+- RMSE: Root Mean Squared Error
+- MAE: Mean Absolute Error
+- MPE: Mean Percentage Error
+- MAPE: Mean Absolute Percentage Error
+- MASE: Mean Absolute Scaled Error
+- ACF1: Autocorrelation of errors at lag 1
+
+的表格展示模型的准确性。用户可以点击"Download"按钮，将结果保存下来。
+
 
 
 ## Process/Threading
