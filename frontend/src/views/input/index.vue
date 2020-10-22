@@ -30,14 +30,13 @@ export default {
   },
   methods: {
     onSuccess(response) {
-      console.log(response.data)
+      console.log(response)
     },
     BeforeUpload(file) {
       console.log(file)
     },
     UploadData(f) {
-      console.log(f)
-      input({"file": f.file})
+      input(f.file)
     }
   }
 }
