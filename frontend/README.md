@@ -53,3 +53,7 @@ npm run lint -- --fix
 - [vue-typescript-admin-template](https://github.com/Armour/vue-typescript-admin-template)
 
 - [awesome-project](https://github.com/PanJiaChen/vue-element-admin/issues/2312)
+
+## TODO
+- Change function of column and feature select and Add API
+- Add more information about model and become user friendly
