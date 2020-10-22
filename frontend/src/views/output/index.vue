@@ -48,8 +48,11 @@
 
 <script>
 import LineChart from './components/LineChart'
-import { getlist } from '@/api/table'
+import { getList } from '@/api/table'
 export default {
+  components: {
+    LineChart
+  },
   data() {
     return {
       list: null,
@@ -60,16 +63,13 @@ export default {
       }
     }
   },
-  components: {
-    LineChart
-  },
   created() {
     this.fetchdata()
   },
   methods: {
     fetchdata() {
       this.listLoading = true
-      getlist().then(response => {
+      getList().then(response => {
         this.list = response.data.items
         this.listLoading = false
       })
