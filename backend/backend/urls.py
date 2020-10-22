@@ -19,5 +19,5 @@ from .views import data
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('upload/data/', data.upload_data),
+    path('upload/data', data.upload_data),
 ]
