@@ -5,9 +5,6 @@
       drag
       action="/invalid"
       accept=".csv"
-      :on-success="onSuccess"
-      :auto-upload="true"
-      :before-upload="BeforeUpload"
       :http-request="UploadData"
     >
       <i class="el-icon-upload"></i>
@@ -37,7 +34,13 @@ export default {
     },
     UploadData(f) {
       console.log(f)
-      input({"file": f.file})
+      const form = new FormData()
+      form.append('file', f.file)
+      input({"file": form}).then((result) => {
+        console.log(result.code)
+      }).catch((err) => {
+        err.log()
+      });
     }
   }
 }
