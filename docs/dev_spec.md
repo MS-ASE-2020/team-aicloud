@@ -40,6 +40,193 @@ Rishi 将主要分成以下模块：
 - Model execution and parameter search module
 - Output module
 
+#### 时间序列预测模型
+
+#### AdaptiveAvgModel
+
+**基础介绍**
+
+选用最优长度区间的均值进行预测
+
+**数学定义**
+
+![](assets/adaptiveavgmodel_math.png)
+
+**超参数含义**
+
+1. round_non_negative_int_func(next_n_prediction_list : list) -> list : func
+   
+2. evaluation_function(pred : list, actual : list, model_name : string) -> double : func
+   evaluation的函数
+3. eval_len: int
+   如数学定义中所述，定义了搜索范围
+
+**基本流程**
+
+![](assets/adaptiveavgmodel_math.png)
+
+在[1, eval_len + 1]的区间内遍历区间长度，找到最优长度区间，利用最优长度区间的均值进行预测
+
+**算法优劣分析**
+
+- 优势：算法较为简单
+- 劣势：预测结果较为单一
+
+**常用场景**
+
+不适用于带有额外feature的情况
+
+
+#### LinearFit
+
+**基础介绍**
+
+利用最小二乘法进行线性回归。
+
+**数学定义**
+
+![](assets/LinearFit_math.png)
+
+**超参数含义**
+
+1. latest_n : int 用序列中latest_n项做预测
+2. add_std_factor : double 控制训练中的标准差在预测结果中的比例
+
+**基本流程**
+
+用时间序列中`latest_n`项做线性回归，并加上线性回归的标准差
+
+**算法优劣分析**
+
+- 优势：算法较为简单，可以较好地刻画序列单调性特征
+- 劣势：对于周期性、多次项的时间序列效果不好
+
+**常用场景**
+
+序列单调增长或减少，不适用于带有额外feature的情况
+
+
+#### MaxNModel
+
+**基础介绍**
+用时间序列中`latest_n`项中最大值做预测
+
+**数学定义**
+
+![](assets/maxnmodel_math.png)
+
+**超参数含义**
+
+1. lastest_n : int 用序列中lastest_n项做预测
+
+**基本流程**
+
+用时间序列中`latest_n`项中最大值做预测
+
+**算法优劣分析**
+- 优势: 算法较为简单
+- 劣势: 预测效果差
+
+**常用场景**
+不适用于带有额外feature的情况
+
+
+#### NewRandomArrivalModel
+
+**基础介绍**
+判断当前时间点是在上行段还是在下行段，根据事先选定的模拟上下行段的策略，进行预测
+
+**数学定义**
+
+指数、e指数、线性函数的数学形式
+
+![](assets/NewRandom_expectation.png)
+
+![](assets/NewRandom_exponential.png)
+
+![](assets/NewRandom_linear.png)
+
+**超参数含义**
+1. spike_detect_lag : int 
+   
+   default: 12
+
+   In spike detection algorithm, it describes the lag of the moving window
+2. spike_detect_std_threshold : int
+   
+   default: 2
+
+   In spike detection algorithm, the z-score at which the algorithm signals
+3. spike_detect_influence : double
+   
+   default: 0.5
+   
+   In spike detection algorithm, the influence (between 0 and 1) of new signals on the mean and standard deviation
+4. latest_n : int
+   用latest_n项进行预测
+5. rise_strategy : enum{"exponential", "expectation", "linear, "auto"}
+   
+   预测中上行段的策略
+   1. "exponential": rise_alpha ^ rise_step
+   2. "expectation": confidence * avg_spike_height
+   3. "linear": rise__k * rise_step
+   4. "auto": pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)
+6. decline_strategy : enum{"exponential", "expectation", "linear"}
+  
+   预测中下行段的策略
+   1. "exponential": decline_alpha ^ decline_step
+   2. "expectation": e ^ rise_step
+   3. "linear": decline__k * decline_step
+7. confidence_threshold : double 
+   
+   在上行段预测中的auto策略中，控制confidence阈值
+8. height_limit : enum{"average", "max_n"}
+   
+   在上行段预测中，设置spike_limit的策略
+   1. "average": limit = avg_spike_height
+   2. "max_n":  limit = max(spike_height[-n:])
+
+**基本流程**
+训练过程中，检测训练时间序列中的上行段和下行段，并计算以下参数用于预测
+
+1. has_spike: 是否不是单调的
+2. avg_rise_length: 上行段平均长度
+3. avg_spike_height: 平均峰值
+4. avg_decline_length: 下行段平均长度
+5. avg_valley_height: 平均谷值
+6. rise_k: avg_rise_length / avg_rise_length
+7. rise_alpha: avg_spike_height**(1/avg_rise_length)
+8. spike_interval: 每一个峰值和谷值之间的间隔
+9. expon_params: 用e指数函数对spike_interval进行回归，计算e指数的lambda
+10. last_spike_height: spike_height中的最后一个
+11. decline_alpha: last_spike_height**(1/avg_decline_length)
+12. decline_k: (avg_spike_height) / avg_decline_length
+
+
+预测阶段，判断当前时间点是在上行段还是在下行段，根据事先选定的模拟上下行段的策略，进行预测
+
+预测中上行段的策略
+   1. "exponential": rise_alpha ^ rise_step
+   2. "expectation": confidence * avg_spike_height
+   3. "linear": rise__k * rise_step
+   4. "auto": pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)
+
+预测中下行段的策略
+   1. "exponential": decline_alpha ^ decline_step
+   2. "expectation": e ^ rise_step
+   3. "linear": decline__k * decline_step
+
+
+**算法优劣分析**
+
+- 优势: 可以较好地刻画具有多个峰值的时间序列和周期性时间序列
+- 劣势: 对于不符合指数、e指数、线性概率分布函数的时间序列效果不好
+
+**常用场景**
+
+适用于有多个spike的情况，上行段和下行段符合指数、e指数、线性概率分布函数
+
+
 ## Interface/Interaction
 
 ### 程序接口
