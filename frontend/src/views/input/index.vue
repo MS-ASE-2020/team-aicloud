@@ -3,7 +3,7 @@
     <el-upload
       class="upload-demo"
       drag
-      action="#"
+      action="/invalid"
       accept=".csv"
       :on-success="onSuccess"
       :auto-upload="true"
