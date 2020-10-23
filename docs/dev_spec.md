@@ -1,7 +1,7 @@
 ## Environment/Architecture
 
 ### Overview 
-Rishi是易用的、鲁棒的时间序列预测工具。用户可以上传时间多时间序列文件、选择feature，通过Rishi提供的模型或自定义的模型进行时间序列预测。Rishi也将基于Auto-ML，提供模型融合和调参的功能。
+Rishi 是易用的、鲁棒的时间序列预测工具。用户可以上传时间多时间序列文件、选择 feature，通过 Rishi 提供的模型或自定义的模型进行时间序列预测。Rishi 也将基于 Auto-ML，提供模型融合和调参的功能。
 
 交互方式可以参考[网站](https://rjshanahan.shinyapps.io/Time-Series-Forecasting-with-Shiny/)
 
