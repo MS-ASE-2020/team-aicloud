@@ -9,9 +9,10 @@ RUN echo \
     wget -O /wait.sh https://cdn.jsdelivr.net/gh/vishnubob/wait-for-it@master/wait-for-it.sh && \
     chmod +x /wait.sh
 RUN mkdir /app
-WORKDIR /app
 COPY requirements.txt /app
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt --no-cache-dir
+WORKDIR /app
+# RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt 
+RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt --no-cache-dir
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

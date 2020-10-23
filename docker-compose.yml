@@ -7,7 +7,7 @@ services:
   backend:
     build: ./backend/
     volumes: 
-      - backend-state-volume:/app/static
+      - backend-static-volume:/app/static
 
   mysql:
     image: mysql:latest
