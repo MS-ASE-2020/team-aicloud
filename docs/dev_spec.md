@@ -32,13 +32,21 @@ Rishi 将大致分为三层，其中一层为前端，将负责与用户进行�
 
 #### 模块子系统设计
 
-Rishi 将主要分成以下模块：
+Rishi 将主要分成以下功能模块：
 
 - User interface
 - Input module
 - Data pre-processing module
 - Model execution and parameter search module
 - Output module
+
+由于 Rishi 预计通过 Django 以 Web App 的形式发布，因此在前后端的意义上，其后端主要需要有以下模块：
+
+- Account, 提供用户登陆和管理账号信息的接口
+- Project, 向用户提供建立项目，设定任务，得到结果等的接口
+- Notification, 向用户展示通知
+
+其它的模块则不需向前端提供 RESTFUL API 接口，而负责向后端提供其它内部接口。
 
 #### 时间序列预测模型
 
@@ -50,22 +58,22 @@ Rishi 将主要分成以下模块：
 
 **数学定义**
 
-![](assets/adaptiveavgmodel_math.png)
+$\text{prediction}= \text{avg}(\text{max_val}_n\{\sum_{i=0}^nts[-(i+n):i]\})$
 
 **超参数含义**
 
-1. round_non_negative_int_func(next_n_prediction_list : list) -> list : func
-   
-2. evaluation_function(pred : list, actual : list, model_name : string) -> double : func
+1. round_non_negative_int_func(next_n_prediction_list : `list) -> list : func`
+  
+2. evaluation_function(pred : list, actual : list, model_name : `string) -> double : func`
    evaluation的函数
-3. eval_len: int
+3. eval_len: `int`
    如数学定义中所述，定义了搜索范围
 
 **基本流程**
 
-![](assets/adaptiveavgmodel_math.png)
+$\text{prediction}= \text{avg}(\text{max_val}_n\{\sum_{i=0}^nts[-(i+n):i]\})$
 
-在[1, eval_len + 1]的区间内遍历区间长度，找到最优长度区间，利用最优长度区间的均值进行预测
+在 `[1, eval_len + 1]` 的区间内遍历区间长度，找到最优长度区间，利用最优长度区间的均值进行预测
 
 **算法优劣分析**
 
@@ -74,7 +82,7 @@ Rishi 将主要分成以下模块：
 
 **常用场景**
 
-不适用于带有额外feature的情况
+不适用于带有额外 feature 的情况
 
 
 #### LinearFit
@@ -84,17 +92,18 @@ Rishi 将主要分成以下模块：
 利用最小二乘法进行线性回归。
 
 **数学定义**
-
-![](assets/LinearFit_math.png)
-
+$$
+w^*, b^* = \underset{w, b}{\text{min}}||y_i-(wx_i+b)||^2 \\
+\hat{y} = w^*x + b^* + \text{add_std_factor} \times \text{std}(y - (w^*x + b^*))=
+$$
 **超参数含义**
 
-1. latest_n : int 用序列中latest_n项做预测
-2. add_std_factor : double 控制训练中的标准差在预测结果中的比例
+1. latest_n : `int` 用序列中latest_n项做预测
+2. add_std_factor : `double` 控制训练中的标准差在预测结果中的比例
 
 **基本流程**
 
-用时间序列中`latest_n`项做线性回归，并加上线性回归的标准差
+用时间序列中 `latest_n` 项做线性回归，并加上线性回归的标准差
 
 **算法优劣分析**
 
@@ -103,7 +112,7 @@ Rishi 将主要分成以下模块：
 
 **常用场景**
 
-序列单调增长或减少，不适用于带有额外feature的情况
+序列单调增长或减少，不适用于带有额外 feature 的情况
 
 
 #### MaxNModel
@@ -113,15 +122,15 @@ Rishi 将主要分成以下模块：
 
 **数学定义**
 
-![](assets/maxnmodel_math.png)
+$pred = \text{max}(ts[-\text{latest_n}:])$
 
 **超参数含义**
 
-1. lastest_n : int 用序列中lastest_n项做预测
+1. lastest_n : `int` 用序列中lastest_n项做预测
 
 **基本流程**
 
-用时间序列中`latest_n`项中最大值做预测
+用时间序列中 `latest_n` 项中最大值做预测
 
 **算法优劣分析**
 - 优势: 算法较为简单
@@ -139,52 +148,50 @@ Rishi 将主要分成以下模块：
 **数学定义**
 
 指数、e指数、线性函数的数学形式
-
-![](assets/NewRandom_expectation.png)
-
-![](assets/NewRandom_exponential.png)
-
-![](assets/NewRandom_linear.png)
-
+$$
+\lambda e^{-\lambda x} \\
+y = a^x \\
+y = wx
+$$
 **超参数含义**
-1. spike_detect_lag : int 
-   
+1. spike_detect_lag : `int `
+  
    default: 12
 
    In spike detection algorithm, it describes the lag of the moving window
-2. spike_detect_std_threshold : int
-   
+2. spike_detect_std_threshold : `int`
+  
    default: 2
 
    In spike detection algorithm, the z-score at which the algorithm signals
-3. spike_detect_influence : double
-   
+3. spike_detect_influence : `double`
+  
    default: 0.5
    
    In spike detection algorithm, the influence (between 0 and 1) of new signals on the mean and standard deviation
-4. latest_n : int
+4. latest_n : `int`
    用latest_n项进行预测
-5. rise_strategy : enum{"exponential", "expectation", "linear, "auto"}
-   
+5. rise_strategy : `enum{"exponential", "expectation", "linear, "auto"}`
+  
    预测中上行段的策略
-   1. "exponential": rise_alpha ^ rise_step
-   2. "expectation": confidence * avg_spike_height
-   3. "linear": rise__k * rise_step
-   4. "auto": pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)
-6. decline_strategy : enum{"exponential", "expectation", "linear"}
+   1. "exponential": $\text{rise_alpha}^\text{rise_step}$
+   2. "expectation": $\text{confidence} \times \text{avg_spike_height}$
+   3. "linear": $\text{rise_k} \times \text{rise_step}$
+   4. "auto": `pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)`
+6. decline_strategy : `enum{"exponential", "expectation", "linear"}`
   
    预测中下行段的策略
-   1. "exponential": decline_alpha ^ decline_step
-   2. "expectation": e ^ rise_step
-   3. "linear": decline__k * decline_step
-7. confidence_threshold : double 
-   
-   在上行段预测中的auto策略中，控制confidence阈值
-8. height_limit : enum{"average", "max_n"}
-   
+   1. "exponential": $\text{decline_alpha} ^ \text{decline_step}$
+   2. "expectation": $\text{e} ^ \text{rise_step}$
+   3. "linear": $\text{decline__k} \times \text{decline_step}$
+7. confidence_threshold : `double `
+  
+   在上行段预测中的 auto 策略中，控制 confidence 阈值
+8. height_limit : `enum{"average", "max_n"}`
+  
    在上行段预测中，设置spike_limit的策略
-   1. "average": limit = avg_spike_height
-   2. "max_n":  limit = max(spike_height[-n:])
+   1. "average": `limit = avg_spike_height`
+   2. "max_n":  `limit = max(spike_height[-n:])`
 
 **基本流程**
 训练过程中，检测训练时间序列中的上行段和下行段，并计算以下参数用于预测
@@ -194,44 +201,147 @@ Rishi 将主要分成以下模块：
 3. avg_spike_height: 平均峰值
 4. avg_decline_length: 下行段平均长度
 5. avg_valley_height: 平均谷值
-6. rise_k: avg_rise_length / avg_rise_length
-7. rise_alpha: avg_spike_height**(1/avg_rise_length)
+6. rise_k: $\frac{\text{avg_rise_length}}{\text{avg_rise_length}}$
+7. rise_alpha: $\text{avg_spike_height}^{(1/\text{avg_rise_length})}$
 8. spike_interval: 每一个峰值和谷值之间的间隔
-9. expon_params: 用e指数函数对spike_interval进行回归，计算e指数的lambda
-10. last_spike_height: spike_height中的最后一个
-11. decline_alpha: last_spike_height**(1/avg_decline_length)
-12. decline_k: (avg_spike_height) / avg_decline_length
+9. expon_params: 用e指数函数对 spike_interval 进行回归，计算 e 指数的 lambda
+10. last_spike_height: spike_height 中的最后一个
+11. decline_alpha: $\text{last_spike_height}^{(1/\text{avg_decline_length})}$
+12. decline_k: $\frac{\text{(avg_spike_height)}}{\text{avg_decline_length}}$
 
 
 预测阶段，判断当前时间点是在上行段还是在下行段，根据事先选定的模拟上下行段的策略，进行预测
 
 预测中上行段的策略
-   1. "exponential": rise_alpha ^ rise_step
-   2. "expectation": confidence * avg_spike_height
-   3. "linear": rise__k * rise_step
-   4. "auto": pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)
+   1. "exponential": $\text{rise_alpha} ^ \text{rise_step}$
+   2. "expectation":$ \text{confidence} \times \text{avg_spike_height}$
+   3. "linear": $\text{rise__k} \times \text{rise_step}$
+   4. "auto": `pred_expectation if confidence < confidence_threshold else max(pred_exponential, pred_expectation)`
 
 预测中下行段的策略
-   1. "exponential": decline_alpha ^ decline_step
-   2. "expectation": e ^ rise_step
-   3. "linear": decline__k * decline_step
+   1. "exponential": $\text{decline_alpha} ^ \text{decline_step}$
+   2. "expectation": $e ^ \text{rise_step}$
+   3. "linear": $\text{decline__k} \times \text{decline_step}$
 
 
 **算法优劣分析**
 
 - 优势: 可以较好地刻画具有多个峰值的时间序列和周期性时间序列
-- 劣势: 对于不符合指数、e指数、线性概率分布函数的时间序列效果不好
+- 劣势: 对于不符合指数、e 指数、线性概率分布函数的时间序列效果不好
 
 **常用场景**
 
-适用于有多个spike的情况，上行段和下行段符合指数、e指数、线性概率分布函数
+适用于有多个 spike 的情况，上行段和下行段符合指数、e 指数、线性概率分布函数
 
 
 ## Interface/Interaction
 
+### 用户接口
+
+UI 基本按照处理步骤进行
+
+#### Input
+
+![](assets/Input.png)
+
+用户点击左上角 ”Input" 选项，进入上传文件功能，限制用户上传的文件格式和大小，并且只上传一个文件。可以选择拖拽上传或者在文件资源管理器中选择文件两种方式，用户任选一种即可。文件上传成功或失败会在顶部弹出对应成功或失败的消息提示，如果上传成功，页面下方会显示上传的数据表格的前五行内容。数据上传成功后，进入下一步。
+
+#### Select Column
+
+![](assets/Feature1.png)
+
+用户点击下拉菜单出现上传表格的列信息，需要用户选择表格中对应时间序列和值的两列的名称，点击Upload上传成功后进入下一步。[TODO]
+
+#### Select Cycle
+
+![](assets/Feature2.png)
+
+页面显示常见的时间序列预测中的特征值，包括但不限于关于不同时间单位的周期性以及假期等特征。用户根据实际情况勾选一个或多个周期单位，并按照提示的格式输入假期信息。如果用户对于选项存在疑问，可以通过将鼠标放置在 icon 上获得相应的帮助信息。用户输入和选择完成后，点击 upload 按钮提交。提交成功，进入下一步。[TODO]
+
+#### Model
+
+![](assets/Model.png)
+
+这个界面帮助用户完成模型以及相应参数的选择，同时提供信息帮助用户更好的进行决策。用户点击 Model Selection 对应的下拉菜单可以看到提供的多个不同的模型。用户选择一个模型之后，下方显示该模型对应的可调节的参数以及预训练的参数值。用户可以通过将鼠标放置在对应的 icon 上了解参数对应的含义以及推荐的调参方法。 在模型选择和参数调节结束之后，用户点击 "Train" 按钮开始训练。
+
+#### Output
+
+![](assets/Output.png)
+
+训练结束之后，以表格的形式输出预测结果。同时使用用户提供的时间序列、预测结果以及置信区间的相关信息绘制出曲线图。除此之外，包含
+
+- ME: Mean Error
+- RMSE: Root Mean Squared Error
+- MAE: Mean Absolute Error
+- MPE: Mean Percentage Error
+- MAPE: Mean Absolute Percentage Error
+- MASE: Mean Absolute Scaled Error
+- ACF1: Autocorrelation of errors at lag 1
+
+的表格展示模型的准确性。用户可以点击 "Download" 按钮，将结果保存下来。
+
 ### 程序接口
 
+后端在分为 [Architecture Design](#architecture-design) 中的 module 时，其提供的接口大致分为两种，由 Input 和 Output Module 为前端提供的接口，以及其它模块提供的内部接口。
 
+#### RESTFUL API
+
+本程序将使用前后端分离的方式，后端的 API 通过 RESTFUL API 提供。这一节将不会详细介绍每一个接口的参数，而将简略介绍每一个模块应当提供哪些接口，以及他们的作用。
+
+##### account
+
+- 用户登陆: 提供用户名和密码，负责将用户账户登入系统
+- 用户注销: 注销用户
+- 用户注册: 为新用户注册账号
+- 用户 profile: 可以修改与账户关联的一些数据，例如用户头像，以及存储用户关于项目的默认设置等。
+
+##### project
+
+- 项目列表及创建: 在登陆的状态下，返回用户的所有项目列表。提供项目的表单，从而创建新的项目。
+- 数据上传: 输入 csv 或其它特定格式的 dataset，每个项目应当可以拥有多个 datasets
+- 数据预处理: 在已经输入 dataset 后，选定特定 dataset，返回一些信息（包括拥有多少 columns，数据格式，脏数据），提供选项给用户，目的是令用户选择时间以及目标值，以及选择数据预处理策略（剔除脏数据等）
+- 项目设置: 修改 project 的 details，包括模型参数预设置，时间预测的周期，是否考虑季节性因素等
+- Job Status: 由于模型的训练和 tuning 需要时间，需要通过此接口返回用户各个 job 的运行状态（Pending, Running, Success, Failed）
+- Job Result: 向用户呈现任务的结果，通过图以及表格的方式。此接口需要返回数据点，对应图和表格的 render 应当在前端进行，从而更方便为用户提供可交互的图。
+
+##### Notification
+
+- 通知列表: 显示用户的所有通知，以及各通知的状态（已查看，未查看）
+
+  通知会包括对用户项目中任务执行状态的通知（如任务已完成）
+
+#### 内部接口
+
+此部分将介绍各个 module 需要向其它 module 提供的内容。
+
+##### Data-preprocessing
+
+- 分析
+  - 输入：dataset
+  - 输出：dataset 的分析结果，包括 columns，数据类型，脏数据
+- 预处理
+  - 输入: 用户的选项
+  - 输出: 处理好的时间戳列和 y 值列
+
+##### Model Execution and Parameter-search
+
+此模块将是此项目的核心模块。其实现不局限于 python。容器需要编写 Dockerfile，对应的 job manager 可以通过其它语言实现，对应 search 的算法和模型选择也未知，可以是一个单独的应用，只需要提供以下的接口即可
+
+- 增加任务
+  - 输入: 模型，数据文件，以及此 job 的设置信息
+  - 结果: 将此任务分配到某个容器中进行运行。此运行不确定什么时候开始及结束
+  - 输出: 无
+- 实时状态监控
+  - 输出: 各个任务运行的状态信息，以及资源占用（资源占用会用于用户限额）
+- 结果返回
+  - 输入: 任务 id
+  - 输出: 对应任务的结果
+
+因此，此模块将通过此种方式和其它模块集成：
+
+- 用户点击任务运行后，后端将此任务及 settings 推入此模块中
+- 此模块负责任务的分配。并在过程中提供状态信息以及资源占用
+- 后端检测到此任务执行完成后，会向此模块请求对应任务的结果，模块将结果返回
 
 ## Process/Threading
 

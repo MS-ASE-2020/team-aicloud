@@ -27,12 +27,13 @@ export default {
   },
   methods: {
     onSuccess(response) {
-      console.log(response.data)
+      console.log(response)
     },
     BeforeUpload(file) {
       console.log(file)
     },
     UploadData(f) {
+<<<<<<< HEAD
       console.log(f)
       const form = new FormData()
       form.append('file', f.file)
@@ -41,6 +42,9 @@ export default {
       }).catch((err) => {
         err.log()
       });
+=======
+      input(f.file)
+>>>>>>> 32f9159fbbfc8fdc7af66d19e07cb476775db3fa
     }
   }
 }
