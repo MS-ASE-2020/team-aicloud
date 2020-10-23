@@ -419,7 +419,7 @@ UI 基本按照处理步骤进行
 
 根据需求分析和数据结构及约束，该项目的E-R图设计如下：
 
-![image-20201023101844592](C:\Users\mhzho\AppData\Roaming\Typora\typora-user-images\image-20201023101844592.png)
+![er-graph](assets/er-graph.png)
 
 根据所设计的E-R图补全数据库中的联系型部分：
 
