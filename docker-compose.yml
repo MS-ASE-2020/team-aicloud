@@ -7,12 +7,12 @@ services:
   backend:
     build: ./backend/
     volumes: 
-      - backend-static-volume:/app/static
+      - backend-static-volume:/app/backend/static
 
   mysql:
     image: mysql:latest
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: 123
       MYSQL_DATABASE: rishi
       MYSQL_ROOT_HOST: "%"
     volumes: 
@@ -20,10 +20,12 @@ services:
 
   nginx:
     build: ./
+    links: 
+      - backend
     volumes: 
       - ./docker/nginx:/etc/nginx/conf.d
-      - backend-static-volume
+      - backend-static-volume:/app/backend/static
     ports:
-      - 80
+      - 2000:80
     environment: 
       NODE_ENV: development
