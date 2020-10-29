@@ -8,6 +8,10 @@ services:
     build: ./backend/
     volumes: 
       - backend-static-volume:/app/backend/static
+    ports: 
+      - 8000
+    links: 
+      - mysql
 
   mysql:
     image: mysql:latest
