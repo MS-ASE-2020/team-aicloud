@@ -15,10 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import data, result
+from .views import data, result, login
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('upload/data', data.upload_data),
-    path('result/<int:model_id>', result.result)
+    path('api/upload/data', data.upload_data),
+    path('api/result/<int:model_id>', result.result)
+    path('api/user/login', login.user_login)
 ]
+
+# DEBUG为Fasle时执行
+if not settings.DEBUG:
+    urlpatterns += [url(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT})]

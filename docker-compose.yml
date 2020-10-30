@@ -1,0 +1,35 @@
+version: "3.2"
+volumes: 
+  mysql-data-volume:
+  backend-static-volume:
+
+services: 
+  backend:
+    build: ./backend/
+    volumes: 
+      - backend-static-volume:/app/backend/static
+    ports: 
+      - 8000
+    links: 
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_DATABASE: rishi
+      MYSQL_ROOT_HOST: "%"
+    volumes: 
+      - mysql-data-volume:/var/lib/mysql
+
+  nginx:
+    build: ./
+    links: 
+      - backend
+    volumes: 
+      - ./docker/nginx:/etc/nginx/conf.d
+      - backend-static-volume:/app/backend/static
+    ports:
+      - 2000:80
+    environment: 
+      NODE_ENV: production
