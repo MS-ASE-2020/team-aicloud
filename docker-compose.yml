@@ -5,7 +5,7 @@ volumes:
 
 services: 
   backend:
-    build: ./backend/
+    build: ./restful_backend/
     volumes: 
       - backend-static-volume:/app/backend/static
     ports: 
