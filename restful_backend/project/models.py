@@ -12,12 +12,11 @@ class Dataset(models.Model):
         unique=False,
         null=False,
     )
-    generated_uuid = str(uuid.uuid1())
-    uuid = models.CharField(
+    uuid = models.UUIDField(
         verbose_name='dataset uuid',
         help_text='generate uuid by uuid1 algorithm',
-        max_length=36,
-        default=generated_uuid,
+        default=uuid.uuid4,
+        editable=False
     )
     time_created = models.DateTimeField(
         verbose_name='creation time',
@@ -36,6 +35,7 @@ class Dataset(models.Model):
         on_delete=models.CASCADE,
         help_text='The user this dataset belongs to',
         null=False,
+        default=""
     )
 
 
@@ -57,6 +57,7 @@ class Project(models.Model):
         related_name='projects',
         on_delete=models.CASCADE,
         help_text='The user this project belongs to',
+        default="",
         null=False,
     )
     related_data = models.ForeignKey(
@@ -65,4 +66,5 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         help_text='The data this project hold',
         null=True,
+        default=""
     )
