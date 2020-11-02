@@ -21,7 +21,7 @@ class ProjectListCreateView(generics.ListCreateAPIView):
 class DatasetCreateView(generics.ListCreateAPIView):
     serializer_class = serializers.DatasetSerializer
 
-    def get_dataset(self):
+    def get_queryset(self):
         return self.request.user.datasets.all()
 
     def perform_create(self, serializer):

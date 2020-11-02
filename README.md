@@ -1,7 +1,13 @@
 # Rishi
 
+## User
+```
+username: admin
+password: admin
+```
+
 ## docker-compose usage
 ```
-chmod +x ./debug.sh
 docker-compose up --build
 ```
+The application is currently running on port **2000**
