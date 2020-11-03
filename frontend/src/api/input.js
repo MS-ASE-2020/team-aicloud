@@ -17,8 +17,8 @@ import request from '@/utils/request'
 
 export function input(params) {
   return request({
-    url: '/upload/data',
+    url: '/project/data',
     method: 'post',
-    params
+    data: params
   })
 }

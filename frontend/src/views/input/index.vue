@@ -32,7 +32,8 @@ export default {
         },
         UploadData(f) {
             const data = new FormData()
-            data.append('file', f.file)
+            data.append('upload', f.file)
+            data.append('name', 'test.csv')
             input(data)
         }
     }
