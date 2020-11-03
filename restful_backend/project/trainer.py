@@ -1,100 +1,119 @@
 import json
+import os
 from metrics import *
 import ts_models
 import datetime
 import pandas as pd
-
-
-def get_validation_period(ts_data):
-    """
-    Evaluate how long should be the validation data set
-    @param ts_data: the time series data
-    @return: an integer represents the last k points for validation
-    """
-    total_sum = sum(ts_data)
-    total_points = len(ts_data)
-    per_point_sum = total_sum / total_points
-    min_points = 5
-    max_points = 48
-    tolerance = 0.8
-    vpts = 0
-    # limit the validation points to be at least 5 data points and at most 48 data points
-    if total_points <= min_points:
-        return min_points
-
-    cumSum = sum(ts_data[-min_points+1:])
-    for i in range(min_points, min(max_points, total_points)):
-        vpts = i
-        cumSum += ts_data[-i]
-        threshold = per_point_sum * i * tolerance
-        if cumSum >= threshold:
-            break
-
-    return vpts
-
-
-def round_non_negative_int(arr):
-    return [round(p) if p > 0 else 0 for p in arr]
-
+import utils
+import hyperopt
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 class trainer():
-    def __init__(self, model_name, config, eval_lastest_n=5, metrics=("mse", "rmse")):
+    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name
         self.model = None
-        self.eval_lastest_n = eval_lastest_n
+        self.auto_tune = auto_tune
+        self.features = False
+        self.max_eval = max_eval
 
     def preprocess(self, ts_data, ts, features):
-        self.start_ts = min(ts)
-        self.interval = 1
-        self.end_ts = max(ts)
-        return ts_data
+        self.start_ts = datetime.datetime.strptime(min(ts), "%Y-%m-%d")
+        self.end_ts = datetime.datetime.strptime(max(ts), "%Y-%m-%d")
+        self.interval = (self.end_ts - self.start_ts) / (len(ts) - 1)
+        if features is None:
+            features = ts_data
+        return features, ts_data
 
-    def train(self, data_df, auto_tune=False):
+    def train(self, data_df):
         ts_data_array = data_df["TimeSeriesValues"].to_numpy()
         ts = data_df["TimeSeries"].to_numpy()
         if "Features" in data_df.columns:
             features = data_df["Features"].to_numpy()
+            self.features = True
         else:
             features = None
-        non_zero_data = self.preprocess(ts_data_array, ts, features)
+        X, y = self.preprocess(ts_data_array, ts, features)
         # train test split
-        # TODO: support multi-features
-        recent_n_validation = get_validation_period(non_zero_data)
-        if len(non_zero_data) > recent_n_validation:
-            short_term_train_data = non_zero_data[0:-recent_n_validation]
-            short_term_validation_data = non_zero_data[-recent_n_validation:]
+        # TODO: split into train val test 
+        self.recent_n_validation = utils.get_validation_period(X)
+        if len(X) > self.recent_n_validation:
+            self.X_train = X[0:-self.recent_n_validation]
+            self.y_train = y[0:-self.recent_n_validation]
+            self.X_valid = X[-self.recent_n_validation]
+            self.y_valid = y[-self.recent_n_validation]
         else:
-            short_term_train_data = non_zero_data
-            short_term_validation_data = non_zero_data + \
-                [0] * (recent_n_validation - len(non_zero_data))
+            self.X_train = X
+            self.y_train = y
+            self.X_valid = X + [0] * (self.recent_n_validation - len(X))
+            self.y_valid = y + [0] * (self.recent_n_validation - len(y))
 
-        self.model = getattr(ts_models, self.model_name)(
-            round_non_negative_int_func=round_non_negative_int,
-            **self.config)
-        self.model.fit(short_term_train_data)
-        pred = self.model.predict(self.eval_lastest_n)
-        results = dict()
-        for name in self.metrics:
-            results[name] = METRICS[name](short_term_validation_data, pred)
+        if not self.auto_tune:
+            self.model = self._train(config)["trained_Model"]
+            best = self.config
+        else:
+            space = utils.hyper_space(self.model_name.lower())
+            trials = Trials()
+            best = fmin(fn=self._train,
+                        space=space,
+                        algo=tpe.suggest,
+                        max_evals=self.max_eval, 
+                        trials=trials)
+            print(best)
+            tuned_model, min_loss = utils.getBestModelfromTrials(trials)
+            self.model = tuned_model
+        
+        pred = self._predict(self.recent_n_validation)
+        results = self._eval(pred, self.y_valid)
+        results["config"] = best 
 
         return results
 
-    def save(self, path):
-        pass
-
     def predict(self, nextKPrediction):
-        pred = self.model.predict(nextKPrediction)
+        pred = self._predict(nextKPrediction) 
         
         predictions = dict()
         for i in range(nextKPrediction):
-            # FIXME: only support day
-            predictions[datetime.datetime.strptime(self.end_ts, "%Y-%M-%d") +
-                        datetime.timedelta(days=(i + 1) * self.interval)] = pred[i]
+            ts = self.end_ts + (i + 1) * self.interval
+            ts = datetime.datetime.strftime(ts, "%Y-%m-%d %X")
+            predictions[ts] = pred[i]
 
         return predictions
 
+    # save model 
+    def save(self, path):
+        pass
+
+    def _train(self, space):
+        model = getattr(ts_models, self.model_name)(
+            round_non_negative_int_func=utils.round_non_negative_int,
+            **space)
+
+        if self.features:
+            model.fit(self.X_train, self.y_train)
+            pred = self.model.predict(self.X_train, self.recent_n_validation)
+        else:
+            model.fit(self.y_train)
+            pred = model.predict(self.recent_n_validation)
+
+        # if auto-tune, only use mse as metrics
+        if self.auto_tune:
+            loss = METRICS["mse"](self.y_valid, pred)
+            return {'loss': loss, 'status': STATUS_OK, 'trained_Model': model}
+        else:
+            return {'trained_Model': model}  
+    
+    def _eval(self, pred, truth):
+        results = dict()
+        for name in self.metrics:
+            results[name] = METRICS[name](self.y_valid, pred)
+
+        return results
+    
+    def _predict(self, nextKPrediction):
+        pred = self.model.predict(nextKPrediction) if not self.features else self.model.predict(self.X_valid, nextKPrediction)
+        return pred
 
 if __name__ == '__main__':
     config = {

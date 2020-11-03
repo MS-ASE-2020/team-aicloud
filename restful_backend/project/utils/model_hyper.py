@@ -1,4 +1,7 @@
 import json
+import os
+import numpy as np
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 def _adaptive_average_hyper(latest_n=5):
     hyper = dict()
@@ -68,15 +71,15 @@ def _random_arrival_hyper(fit_model=[ "Expon", "Weibull", "Sampling"]):
 
 # generate mdoel hyper-parameaters
 MODELS = {
-    'adaptiveaverage': _adaptive_average_hyper,
-    'adaptivemaxn': _adaptive_maxn_hyper,
-    'adrima': _adrima_hyper,
-    'prophet': _prophet_hyper,
-    'linearfit': _linear_fit_hyper,
-    'lstm': _lstm_hyper,
-    'lstmlong': _lstm_long_hyper,
-    'newrandomarrival': _new_random_arrival_hyper,
-    'randomarrival': _random_arrival_hyper
+    'adaptiveaveragemodel': _adaptive_average_hyper,
+    'adaptivemaxnmodel': _adaptive_maxn_hyper,
+    'adrimamodel': _adrima_hyper,
+    'prophetmodel': _prophet_hyper,
+    'linearfitmodel': _linear_fit_hyper,
+    'lstmmodel': _lstm_hyper,
+    'lstmlongmodel': _lstm_long_hyper,
+    'newrandomarrivalmodel': _new_random_arrival_hyper,
+    'randomarrivalmodel': _random_arrival_hyper
 }
 
 def generate_hyper(path='model_hypers.json'):
@@ -105,6 +108,35 @@ def set_model_hyper(model_name, **kwargs):
     else:
         raise Exception("unexpected model name %s" %model_name)
     
+def hyper_space(model, udf_parameter=None, path='utils/model_hypers.json'):
+    # use default configuration
+    space = {}
+    if udf_parameter is None:
+        if not os.path.exists(path):
+            generate_hyper(path)
+            print('generate hyperparameters json')
+        with open(path) as f:
+            parameters = json.load(f)[model]
+        # parameters = {name: [type, default_name if int or double else enum_list]}
+        hp_type = {"int": "uniformint", "float": "uniform", "list": "choice"}
+        for name, val in parameters.items():
+            if isinstance(val, int) or isinstance(val, float):
+                space[name] = getattr(hp, hp_type[type(val).__name__])(name, 0, 10*val)
+            elif isinstance(val, list):
+                space[name] = getattr(hp, hp_type[type(val).__name__])(name, val)
+            else:
+                raise Exception("Unexpected type: %s parameter %s in Model %s is not supported" % (val, type(val), name, model))
+    else:
+        pass
+    return space
+
+def getBestModelfromTrials(trials):
+    valid_trial_list = [trial for trial in trials
+                            if STATUS_OK == trial['result']['status']]
+    losses = [ float(trial['result']['loss']) for trial in valid_trial_list]
+    index_having_minumum_loss = np.argmin(losses)
+    best_trial_obj = valid_trial_list[index_having_minumum_loss]
+    return best_trial_obj['result']['trained_Model'], np.min(losses)
 
 if __name__ == '__main__':
     hypers = generate_hyper()
