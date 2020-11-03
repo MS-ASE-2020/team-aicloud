@@ -28,7 +28,7 @@ export default {
             console.log(response)
         },
         BeforeUpload(file) {
-            console.log(file)
+            //console.log(file)
         },
         UploadData(f) {
             const data = new FormData()

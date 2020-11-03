@@ -2,9 +2,13 @@ const Mock = require('mockjs')
 const { param2Obj } = require('./utils')
 
 const user = require('./user')
+const columns = require('./columns')
+const models = require('./models')
 
 const mocks = [
-  ...user
+  ...user,
+  ...columns,
+  ...models
 ]
 
 // for front mock

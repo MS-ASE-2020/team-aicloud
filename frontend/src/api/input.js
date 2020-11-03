@@ -1,4 +1,3 @@
-import axios from 'axios'
 import request from '@/utils/request'
 
 // export function input(file) {
@@ -15,9 +14,9 @@ import request from '@/utils/request'
 //   Axios.post("/upload/data", fd)
 // }
 
-export function input(params) {
+export function input(data) {
   return request({
-    url: '/project/data',
+    url: '/api/project/data',
     method: 'post',
     data: params
   })
