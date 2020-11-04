@@ -84,7 +84,7 @@ class Job(models.Model):
         null=True,
         blank=True,
     )
-    user_config = PickledObjectField(
+    data_config = PickledObjectField(
         null=True, 
         blank=True,
     )
