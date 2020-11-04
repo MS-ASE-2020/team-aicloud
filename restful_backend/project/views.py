@@ -49,17 +49,6 @@ class ProjectViewSet(
             "status": status.HTTP_200_OK,
         })
 
-    # @decorators.action(methods=['get'], detail=True)
-    # def get_jobs(self, request, project_id):
-    #     queryset = self.request.user.projects.all()
-    #     project = get_object_or_404(queryset, pk=project_id)
-    #     result_queryset = self.queryset.filter(related_project=project)
-    #     result_serializer = serializers.JobSerializer(result_queryset, many=True)
-    #     return Response({
-    #         "data": result_serializer.data,
-    #         "status": status.HTTP_200_OK,
-    #     })
-
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user
