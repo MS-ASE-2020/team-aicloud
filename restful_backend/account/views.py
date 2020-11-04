@@ -16,4 +16,3 @@ class UserList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         pwd = make_password(self.request.data['password'])
         serializer.save(password=pwd)
-

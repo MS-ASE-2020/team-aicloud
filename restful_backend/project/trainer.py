@@ -121,7 +121,7 @@ if __name__ == '__main__':
         "add_std_factor": 0.5
     }
     model_name = "LinearFitModel"
-    path = 'foo.csv'
+    path = '/home/yaq/team-aicloud/restful_backend/uploads/foo.csv'
     df = pd.read_csv(path)
     trainer = trainer(model_name, config)
     results = trainer.train(df)
