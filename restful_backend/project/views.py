@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, authentication, permissions, decorators, viewsets, mixins, status
+from rest_framework.decorators import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from . import models
 from . import serializers
+from .utils import *
 
 
 # Create your views here.
@@ -149,12 +151,12 @@ class JobViewSet(
 @decorators.authentication_classes([])
 @decorators.permission_classes([])
 def get_avaliable_models(request):
-    from .ts_models import MODEL_DESCRIPTIONS
+    
     """
     Return all avaliable model names
     """
     return Response({
-        "data": MODEL_DESCRIPTIONS,
+        "data": model_hyper.get_models(),
         "status": status.HTTP_200_OK,
     })
 
@@ -166,7 +168,7 @@ def get_model_hp_description(request, model_name):
     """
     Return hyperparams of specify model name
     """
-    hp_description = MODEL_HP_DESCRIPTIONS.get(model_name, None)
+    hp_description = model_hyper.get_model_hyper(model_name)
     if hp_description is not None:
         return Response({
             "data": hp_description,
