@@ -6,6 +6,169 @@
 	},
 	"item": [
 		{
+			"name": "Get All Jobs",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d861892d-740e-4b70-ad49-4bbcb9deae10",
+						"exec": [
+							"var authServiceUrl = pm.globals.get('authService');\r",
+							"var username = pm.globals.get('username');\r",
+							"var password = pm.globals.get('password');\r",
+							"\r",
+							"var sdk = require('postman-collection');\r",
+							"\r",
+							"pm.sendRequest(new sdk.Request({\r",
+							"    url: authServiceUrl,\r",
+							"    method: \"POST\",\r",
+							"    header: [\r",
+							"        new sdk.Header({\r",
+							"            key: 'content-type',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"        new sdk.Header({\r",
+							"            key: 'acccept',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"    ],\r",
+							"    body: {\r",
+							"        mode: 'formdata',\r",
+							"        formdata: [\r",
+							"            {\r",
+							"                \"key\": \"username\",\r",
+							"                \"value\": username,\r",
+							"                \"type\": \"text\"\r",
+							"            },\r",
+							"            {\r",
+							"                \"key\": \"password\",\r",
+							"                \"value\": password,\r",
+							"                \"type\": \"text\"         \r",
+							"            }\r",
+							"        ]\r",
+							"    } \r",
+							"}), function(err, response) {\r",
+							"    if (err) {\r",
+							"        throw err;\r",
+							"    }\r",
+							"    if (response.code != 200) {\r",
+							"        throw new Error('Could not log in.');\r",
+							"    }\r",
+							"    console.log(response.json())\r",
+							"    var token = response.json().token\r",
+							"    pm.globals.set(\"jwt_token\", token);\r",
+							"    console.log(`New token has been set: ${token}`);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "JWT {{jwt_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/job/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"job",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get All Jobs",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "JWT {{jwt_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/job/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"job",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 05 Nov 2020 05:43:35 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "WSGIServer/0.2 CPython/3.7.9"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept, Origin"
+						},
+						{
+							"key": "Allow",
+							"value": "GET, POST, HEAD, OPTIONS"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Length",
+							"value": "411"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "same-origin"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"test_project1\",\n            \"status\": 0,\n            \"time_created\": \"2020-11-05T13:42:47.778741+08:00\",\n            \"groupby_indexs\": null,\n            \"target_indexs\": null,\n            \"timestamp_indexs\": null,\n            \"related_user\": 1,\n            \"related_data\": 1\n        },\n        {\n            \"id\": 2,\n            \"name\": \"test_project2\",\n            \"status\": 0,\n            \"time_created\": \"2020-11-05T13:42:54.987648+08:00\",\n            \"groupby_indexs\": null,\n            \"target_indexs\": null,\n            \"timestamp_indexs\": null,\n            \"related_user\": 1,\n            \"related_data\": 2\n        }\n    ],\n    \"status\": 200\n}"
+				}
+			]
+		},
+		{
 			"name": "Login",
 			"request": {
 				"method": "POST",
@@ -84,7 +247,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:25:58 GMT"
+							"value": "Thu, 05 Nov 2020 05:40:12 GMT"
 						},
 						{
 							"key": "Server",
@@ -120,7 +283,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6Im1oemhvdSIsImV4cCI6MTYwNDQ2Nzg1OCwiZW1haWwiOiJtaHpob3U5OUBvdXRsb29rLmNvbSJ9.c04AOVQOd8p6rqC9_0_af7sclA6UeC8IUsPY0XRZ5V8\"\n}"
+					"body": "{\n    \"token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6Im1oemhvdSIsImV4cCI6MTYwNDU1NTExMiwiZW1haWwiOiJtaHpob3U5OUBvdXRsb29rLmNvbSJ9.usKzicjdqweG0X6c3T5gOq9OIFLsDxiwZqsIc_shbk0\"\n}"
 				}
 			]
 		},
@@ -280,7 +443,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:26:16 GMT"
+							"value": "Thu, 05 Nov 2020 05:41:04 GMT"
 						},
 						{
 							"key": "Server",
@@ -316,7 +479,197 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"id\": 6,\n        \"name\": \"test_dataset\",\n        \"uuid\": \"d5ec2efb-61a3-4983-86bd-c94fc11e47a5\",\n        \"time_created\": \"2020-11-04T13:26:12.482785+08:00\",\n        \"upload\": \"/uploads/foo_TlyY5cS.csv\",\n        \"related_user\": 1\n    },\n    \"status\": 201\n}"
+					"body": "{\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"test_dataset\",\n        \"uuid\": \"3f48121a-3730-4bf5-bf24-3e0b77232afc\",\n        \"time_created\": \"2020-11-05T13:41:04.645391+08:00\",\n        \"upload\": \"/uploads/foo_pJ2sTDx.csv\",\n        \"related_user\": 1\n    },\n    \"status\": 201\n}"
+				}
+			]
+		},
+		{
+			"name": "Create Job",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d773b8ac-b536-4aa8-ba04-3b70cb723017",
+						"exec": [
+							"var authServiceUrl = pm.globals.get('authService');\r",
+							"var username = pm.globals.get('username');\r",
+							"var password = pm.globals.get('password');\r",
+							"\r",
+							"var sdk = require('postman-collection');\r",
+							"\r",
+							"pm.sendRequest(new sdk.Request({\r",
+							"    url: authServiceUrl,\r",
+							"    method: \"POST\",\r",
+							"    header: [\r",
+							"        new sdk.Header({\r",
+							"            key: 'content-type',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"        new sdk.Header({\r",
+							"            key: 'acccept',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"    ],\r",
+							"    body: {\r",
+							"        mode: 'formdata',\r",
+							"        formdata: [\r",
+							"            {\r",
+							"                \"key\": \"username\",\r",
+							"                \"value\": username,\r",
+							"                \"type\": \"text\"\r",
+							"            },\r",
+							"            {\r",
+							"                \"key\": \"password\",\r",
+							"                \"value\": password,\r",
+							"                \"type\": \"text\"         \r",
+							"            }\r",
+							"        ]\r",
+							"    } \r",
+							"}), function(err, response) {\r",
+							"    if (err) {\r",
+							"        throw err;\r",
+							"    }\r",
+							"    if (response.code != 200) {\r",
+							"        throw new Error('Could not log in.');\r",
+							"    }\r",
+							"    console.log(response.json())\r",
+							"    var token = response.json().token\r",
+							"    pm.globals.set(\"jwt_token\", token);\r",
+							"    console.log(`New token has been set: ${token}`);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "JWT {{jwt_token}}"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data_id",
+							"value": "2",
+							"type": "text"
+						},
+						{
+							"key": "name",
+							"value": "test_project2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/job/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"job",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Create Job",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "JWT {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "data_id",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "test_project2",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/job/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"job",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 05 Nov 2020 05:42:55 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "WSGIServer/0.2 CPython/3.7.9"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept, Origin"
+						},
+						{
+							"key": "Allow",
+							"value": "GET, POST, HEAD, OPTIONS"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Length",
+							"value": "215"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "same-origin"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"id\": 2,\n        \"name\": \"test_project2\",\n        \"status\": 0,\n        \"time_created\": \"2020-11-05T13:42:54.987648+08:00\",\n        \"groupby_indexs\": null,\n        \"target_indexs\": null,\n        \"timestamp_indexs\": null,\n        \"related_user\": 1,\n        \"related_data\": 2\n    },\n    \"status\": 201\n}"
 				}
 			]
 		},
@@ -440,7 +793,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:26:32 GMT"
+							"value": "Thu, 05 Nov 2020 05:41:44 GMT"
 						},
 						{
 							"key": "Server",
@@ -464,7 +817,7 @@
 						},
 						{
 							"key": "Content-Length",
-							"value": "1059"
+							"value": "383"
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -476,7 +829,180 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"752f5952-80b1-4e1d-af00-11969d239f97\",\n            \"time_created\": \"2020-11-03T21:58:43.152116+08:00\",\n            \"upload\": \"/uploads/foo_LdAdFwR.csv\",\n            \"related_user\": 1\n        },\n        {\n            \"id\": 2,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"9dc1276a-2610-47ab-a340-afb10a866479\",\n            \"time_created\": \"2020-11-03T22:09:18.302431+08:00\",\n            \"upload\": \"/uploads/foo_sFkHPFc.csv\",\n            \"related_user\": 1\n        },\n        {\n            \"id\": 3,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"36de0e22-6616-4b48-89ee-7090bf525c1c\",\n            \"time_created\": \"2020-11-04T02:51:30.891662+08:00\",\n            \"upload\": null,\n            \"related_user\": 1\n        },\n        {\n            \"id\": 4,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"5313dc1b-8834-451a-a55d-bc30b0568ce4\",\n            \"time_created\": \"2020-11-04T02:52:25.599872+08:00\",\n            \"upload\": null,\n            \"related_user\": 1\n        },\n        {\n            \"id\": 5,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"f388cb61-b5b3-47c6-b40a-54445985c5b7\",\n            \"time_created\": \"2020-11-04T02:54:02.415925+08:00\",\n            \"upload\": \"/uploads/foo_64WunbF.csv\",\n            \"related_user\": 1\n        },\n        {\n            \"id\": 6,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"d5ec2efb-61a3-4983-86bd-c94fc11e47a5\",\n            \"time_created\": \"2020-11-04T13:26:12.482785+08:00\",\n            \"upload\": \"/uploads/foo_TlyY5cS.csv\",\n            \"related_user\": 1\n        }\n    ],\n    \"status\": 200\n}"
+					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"d3b68c1d-1298-4938-b1d3-1c365c195bc9\",\n            \"time_created\": \"2020-11-05T13:40:21.297985+08:00\",\n            \"upload\": \"/uploads/foo_NpTUXNn.csv\",\n            \"related_user\": 1\n        },\n        {\n            \"id\": 2,\n            \"name\": \"test_dataset\",\n            \"uuid\": \"3f48121a-3730-4bf5-bf24-3e0b77232afc\",\n            \"time_created\": \"2020-11-05T13:41:04.645391+08:00\",\n            \"upload\": \"/uploads/foo_pJ2sTDx.csv\",\n            \"related_user\": 1\n        }\n    ],\n    \"status\": 200\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Specify Job",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "48b109db-a766-492b-b85a-f7329abc3fa9",
+						"exec": [
+							"var authServiceUrl = pm.globals.get('authService');\r",
+							"var username = pm.globals.get('username');\r",
+							"var password = pm.globals.get('password');\r",
+							"\r",
+							"var sdk = require('postman-collection');\r",
+							"\r",
+							"pm.sendRequest(new sdk.Request({\r",
+							"    url: authServiceUrl,\r",
+							"    method: \"POST\",\r",
+							"    header: [\r",
+							"        new sdk.Header({\r",
+							"            key: 'content-type',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"        new sdk.Header({\r",
+							"            key: 'acccept',\r",
+							"            value: 'application/json'\r",
+							"        }),\r",
+							"    ],\r",
+							"    body: {\r",
+							"        mode: 'formdata',\r",
+							"        formdata: [\r",
+							"            {\r",
+							"                \"key\": \"username\",\r",
+							"                \"value\": username,\r",
+							"                \"type\": \"text\"\r",
+							"            },\r",
+							"            {\r",
+							"                \"key\": \"password\",\r",
+							"                \"value\": password,\r",
+							"                \"type\": \"text\"         \r",
+							"            }\r",
+							"        ]\r",
+							"    } \r",
+							"}), function(err, response) {\r",
+							"    if (err) {\r",
+							"        throw err;\r",
+							"    }\r",
+							"    if (response.code != 200) {\r",
+							"        throw new Error('Could not log in.');\r",
+							"    }\r",
+							"    console.log(response.json())\r",
+							"    var token = response.json().token\r",
+							"    pm.globals.set(\"jwt_token\", token);\r",
+							"    console.log(`New token has been set: ${token}`);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "JWT {{jwt_token}}"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/job/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"job",
+						"1",
+						""
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Get Specify Job",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "JWT {{jwt_token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/job/1/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"job",
+								"1",
+								""
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Thu, 05 Nov 2020 05:44:30 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "WSGIServer/0.2 CPython/3.7.9"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Vary",
+							"value": "Accept, Origin"
+						},
+						{
+							"key": "Allow",
+							"value": "GET, PUT, PATCH, HEAD, OPTIONS"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Length",
+							"value": "215"
+						},
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "Referrer-Policy",
+							"value": "same-origin"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"test_project1\",\n        \"status\": 0,\n        \"time_created\": \"2020-11-05T13:42:47.778741+08:00\",\n        \"groupby_indexs\": null,\n        \"target_indexs\": null,\n        \"timestamp_indexs\": null,\n        \"related_user\": 1,\n        \"related_data\": 1\n    },\n    \"status\": 200\n}"
 				}
 			]
 		},
@@ -602,7 +1128,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:26:58 GMT"
+							"value": "Thu, 05 Nov 2020 05:41:59 GMT"
 						},
 						{
 							"key": "Server",
@@ -638,494 +1164,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"test_dataset\",\n        \"uuid\": \"752f5952-80b1-4e1d-af00-11969d239f97\",\n        \"time_created\": \"2020-11-03T21:58:43.152116+08:00\",\n        \"upload\": \"/uploads/foo_LdAdFwR.csv\",\n        \"related_user\": 1\n    },\n    \"header\": [\n        {\n            \"index\": 0,\n            \"label\": \"Unknown-0\"\n        },\n        {\n            \"index\": 1,\n            \"label\": \"TimeSeries\"\n        },\n        {\n            \"index\": 2,\n            \"label\": \"TimeSeriesValues\"\n        }\n    ],\n    \"status\": 200\n}"
-				}
-			]
-		},
-		{
-			"name": "Create Project",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "d773b8ac-b536-4aa8-ba04-3b70cb723017",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "JWT {{jwt_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "data_id",
-							"value": "2",
-							"type": "text"
-						},
-						{
-							"key": "name",
-							"value": "test_project3",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Create Project",
-					"originalRequest": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "JWT {{jwt_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "data_id",
-									"value": "2",
-									"type": "text"
-								},
-								{
-									"key": "name",
-									"value": "test_project3",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:27:11 GMT"
-						},
-						{
-							"key": "Server",
-							"value": "WSGIServer/0.2 CPython/3.7.9"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept, Origin"
-						},
-						{
-							"key": "Allow",
-							"value": "GET, POST, HEAD, OPTIONS"
-						},
-						{
-							"key": "X-Frame-Options",
-							"value": "DENY"
-						},
-						{
-							"key": "Content-Length",
-							"value": "137"
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Referrer-Policy",
-							"value": "same-origin"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"id\": 9,\n        \"name\": \"test_project3\",\n        \"time_created\": \"2020-11-04T13:27:10.963168+08:00\",\n        \"related_user\": 1,\n        \"related_data\": 2\n    },\n    \"status\": 201\n}"
-				}
-			]
-		},
-		{
-			"name": "Get All Projects",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "d861892d-740e-4b70-ad49-4bbcb9deae10",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"strictSSL": false
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "JWT {{jwt_token}}"
-					}
-				],
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Get All Projects",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "JWT {{jwt_token}}"
-							}
-						],
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:27:28 GMT"
-						},
-						{
-							"key": "Server",
-							"value": "WSGIServer/0.2 CPython/3.7.9"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept, Origin"
-						},
-						{
-							"key": "Allow",
-							"value": "GET, POST, HEAD, OPTIONS"
-						},
-						{
-							"key": "X-Frame-Options",
-							"value": "DENY"
-						},
-						{
-							"key": "Content-Length",
-							"value": "1066"
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Referrer-Policy",
-							"value": "same-origin"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"test_project\",\n            \"time_created\": \"2020-11-03T22:56:34.848061+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 1\n        },\n        {\n            \"id\": 2,\n            \"name\": \"test_project2\",\n            \"time_created\": \"2020-11-03T23:02:05.495172+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 3,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T02:43:43.810757+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 4,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T02:44:02.153379+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 5,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T02:44:56.249824+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 6,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T05:08:36.015517+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 7,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T05:10:12.879011+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 8,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T05:10:56.288445+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        },\n        {\n            \"id\": 9,\n            \"name\": \"test_project3\",\n            \"time_created\": \"2020-11-04T13:27:10.963168+08:00\",\n            \"related_user\": 1,\n            \"related_data\": 2\n        }\n    ],\n    \"status\": 200\n}"
-				}
-			]
-		},
-		{
-			"name": "Get Specify Project",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "48b109db-a766-492b-b85a-f7329abc3fa9",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "JWT {{jwt_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/1/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						"1",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Get Specify Project",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "JWT {{jwt_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/1/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								"1",
-								""
-							]
-						}
-					},
-					"_postman_previewlanguage": null,
-					"header": null,
-					"cookie": [],
-					"body": null
+					"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"test_dataset\",\n        \"uuid\": \"d3b68c1d-1298-4938-b1d3-1c365c195bc9\",\n        \"time_created\": \"2020-11-05T13:40:21.297985+08:00\",\n        \"upload\": \"/uploads/foo_NpTUXNn.csv\",\n        \"related_user\": 1\n    },\n    \"header\": [\n        {\n            \"index\": 0,\n            \"label\": \"Unknown-0\"\n        },\n        {\n            \"index\": 1,\n            \"label\": \"TimeSeries\"\n        },\n        {\n            \"index\": 2,\n            \"label\": \"TimeSeriesValues\"\n        }\n    ],\n    \"status\": 200\n}"
 				}
 			]
 		},
@@ -1292,7 +1331,7 @@
 			]
 		},
 		{
-			"name": "Get All Model Names and Descriptions",
+			"name": "Get All Model Names",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -1342,7 +1381,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:28:20 GMT"
+							"value": "Thu, 05 Nov 2020 06:15:11 GMT"
 						},
 						{
 							"key": "Server",
@@ -1366,7 +1405,7 @@
 						},
 						{
 							"key": "Content-Length",
-							"value": "358"
+							"value": "139"
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -1378,7 +1417,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"ARIMA\": \"=> ARIMA\",\n        \"AdaptiveAverageNModel\": \"=> AdaptiveAverageNModel\",\n        \"AdaptiveMaxNModel\": \"=> AdaptiveMaxNModel\",\n        \"LinearFitModel\": \"=> LinearFitModel\",\n        \"LstmLongModel\": \"=> LstmLongModel\",\n        \"LstmModel\": \"=> LstmModel\",\n        \"MaxNModel\": \"=> MaxNModel\",\n        \"NewRandomArrivalModel\": \"=> NewRandomArrivalModel\",\n        \"RandomArrivalModel\": \"=> RandomArrivalModel\"\n    },\n    \"status\": 200\n}"
+					"body": "{\n    \"data\": [\n        \"AdaptiveAverage\",\n        \"AdaptiveMaxN\",\n        \"ARIMA\",\n        \"Prophet\",\n        \"LinearFit\",\n        \"LSTM\",\n        \"LSTMLong\",\n        \"NewRandomArrival\",\n        \"RandomArrival\"\n    ],\n    \"status\": 200\n}"
 				}
 			]
 		},
@@ -1388,7 +1427,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://127.0.0.1:8000/api/model/MaxNModel/",
+					"raw": "http://127.0.0.1:8000/api/model/LinearFit/",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -1400,7 +1439,7 @@
 					"path": [
 						"api",
 						"model",
-						"MaxNModel",
+						"LinearFit",
 						""
 					]
 				}
@@ -1412,7 +1451,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://127.0.0.1:8000/api/model/MaxNModel/",
+							"raw": "http://127.0.0.1:8000/api/model/LinearFit/",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -1424,7 +1463,7 @@
 							"path": [
 								"api",
 								"model",
-								"MaxNModel",
+								"LinearFit",
 								""
 							]
 						}
@@ -1435,7 +1474,7 @@
 					"header": [
 						{
 							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:28:37 GMT"
+							"value": "Thu, 05 Nov 2020 06:18:46 GMT"
 						},
 						{
 							"key": "Server",
@@ -1459,7 +1498,7 @@
 						},
 						{
 							"key": "Content-Length",
-							"value": "141"
+							"value": "167"
 						},
 						{
 							"key": "X-Content-Type-Options",
@@ -1471,589 +1510,9 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\n    \"data\": [\n        {\n            \"name\": \"latest_n\",\n            \"description\": \"use the lastest n samples of the sequence for prediction\",\n            \"type\": \"int\",\n            \"default\": 3\n        }\n    ],\n    \"status\": 200\n}"
+					"body": "{\n    \"data\": [\n        {\n            \"label\": \"latest_n\",\n            \"intro\": \"hyper-parameters description\",\n            \"val\": 5\n        },\n        {\n            \"label\": \"add_std_factor\",\n            \"intro\": \"hyper-parameters description\",\n            \"val\": 0.1\n        }\n    ],\n    \"status\": 200\n}"
 				}
 			]
-		},
-		{
-			"name": "Create Job For Specify Project",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "a13b1027-bf48-4ed9-a8ca-bc0aecdde54a",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "JWT {{jwt_token}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": [
-						{
-							"key": "name",
-							"value": "job_2",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/1/job/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						"1",
-						"job",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Create Job For Specify Project",
-					"originalRequest": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "JWT {{jwt_token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "name",
-									"value": "job_2",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/1/job/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								"1",
-								"job",
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:28:50 GMT"
-						},
-						{
-							"key": "Server",
-							"value": "WSGIServer/0.2 CPython/3.7.9"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept, Origin"
-						},
-						{
-							"key": "Allow",
-							"value": "GET, POST, HEAD, OPTIONS"
-						},
-						{
-							"key": "X-Frame-Options",
-							"value": "DENY"
-						},
-						{
-							"key": "Content-Length",
-							"value": "185"
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Referrer-Policy",
-							"value": "same-origin"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"id\": 3,\n        \"name\": \"job_2\",\n        \"hyper_params\": null,\n        \"data_config\": null,\n        \"other_config\": null,\n        \"status\": 0,\n        \"time_created\": \"2020-11-04T13:28:50.446792+08:00\",\n        \"related_project\": 1\n    },\n    \"status\": 201\n}"
-				}
-			]
-		},
-		{
-			"name": "Get All Jobs For Specify Project",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "108dcbd9-ab1a-47bc-b07f-7a0fbc030a1c",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "JWT {{jwt_token}}"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/1/job/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						"1",
-						"job",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Get All Jobs For Specify Project",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "JWT {{jwt_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/1/job/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								"1",
-								"job",
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:29:01 GMT"
-						},
-						{
-							"key": "Server",
-							"value": "WSGIServer/0.2 CPython/3.7.9"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept, Origin"
-						},
-						{
-							"key": "Allow",
-							"value": "GET, POST, HEAD, OPTIONS"
-						},
-						{
-							"key": "X-Frame-Options",
-							"value": "DENY"
-						},
-						{
-							"key": "Content-Length",
-							"value": "599"
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Referrer-Policy",
-							"value": "same-origin"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"name\": \"job_1\",\n            \"hyper_params\": \"gAJYAAAAAHEALg==\",\n            \"data_config\": \"gAJYAAAAAHEALg==\",\n            \"other_config\": \"gAJYAAAAAHEALg==\",\n            \"status\": 0,\n            \"time_created\": \"2020-11-04T10:36:23.567744+08:00\",\n            \"related_project\": 1\n        },\n        {\n            \"id\": 2,\n            \"name\": \"job_2\",\n            \"hyper_params\": \"gAJYAAAAAHEALg==\",\n            \"data_config\": \"gAJYAAAAAHEALg==\",\n            \"other_config\": \"gAJYAAAAAHEALg==\",\n            \"status\": 0,\n            \"time_created\": \"2020-11-04T10:36:37.697188+08:00\",\n            \"related_project\": 1\n        },\n        {\n            \"id\": 3,\n            \"name\": \"job_2\",\n            \"hyper_params\": null,\n            \"data_config\": null,\n            \"other_config\": null,\n            \"status\": 0,\n            \"time_created\": \"2020-11-04T13:28:50.446792+08:00\",\n            \"related_project\": 1\n        }\n    ],\n    \"status\": 200\n}"
-				}
-			]
-		},
-		{
-			"name": "Get Specify Job For Specify Project",
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"id": "6ec18302-38ea-4db4-ba93-09588831a5cc",
-						"exec": [
-							"var authServiceUrl = pm.globals.get('authService');\r",
-							"var username = pm.globals.get('username');\r",
-							"var password = pm.globals.get('password');\r",
-							"\r",
-							"var sdk = require('postman-collection');\r",
-							"\r",
-							"pm.sendRequest(new sdk.Request({\r",
-							"    url: authServiceUrl,\r",
-							"    method: \"POST\",\r",
-							"    header: [\r",
-							"        new sdk.Header({\r",
-							"            key: 'content-type',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"        new sdk.Header({\r",
-							"            key: 'acccept',\r",
-							"            value: 'application/json'\r",
-							"        }),\r",
-							"    ],\r",
-							"    body: {\r",
-							"        mode: 'formdata',\r",
-							"        formdata: [\r",
-							"            {\r",
-							"                \"key\": \"username\",\r",
-							"                \"value\": username,\r",
-							"                \"type\": \"text\"\r",
-							"            },\r",
-							"            {\r",
-							"                \"key\": \"password\",\r",
-							"                \"value\": password,\r",
-							"                \"type\": \"text\"         \r",
-							"            }\r",
-							"        ]\r",
-							"    } \r",
-							"}), function(err, response) {\r",
-							"    if (err) {\r",
-							"        throw err;\r",
-							"    }\r",
-							"    if (response.code != 200) {\r",
-							"        throw new Error('Could not log in.');\r",
-							"    }\r",
-							"    console.log(response.json())\r",
-							"    var token = response.json().token\r",
-							"    pm.globals.set(\"jwt_token\", token);\r",
-							"    console.log(`New token has been set: ${token}`);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"type": "text",
-						"value": "JWT {{jwt_token}}"
-					}
-				],
-				"body": {
-					"mode": "formdata",
-					"formdata": []
-				},
-				"url": {
-					"raw": "http://127.0.0.1:8000/api/project/1/job/1/",
-					"protocol": "http",
-					"host": [
-						"127",
-						"0",
-						"0",
-						"1"
-					],
-					"port": "8000",
-					"path": [
-						"api",
-						"project",
-						"1",
-						"job",
-						"1",
-						""
-					]
-				}
-			},
-			"response": [
-				{
-					"name": "Get Specify Job For Specify Project",
-					"originalRequest": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "JWT {{jwt_token}}"
-							}
-						],
-						"body": {
-							"mode": "formdata",
-							"formdata": []
-						},
-						"url": {
-							"raw": "http://127.0.0.1:8000/api/project/1/job/1/",
-							"protocol": "http",
-							"host": [
-								"127",
-								"0",
-								"0",
-								"1"
-							],
-							"port": "8000",
-							"path": [
-								"api",
-								"project",
-								"1",
-								"job",
-								"1",
-								""
-							]
-						}
-					},
-					"status": "OK",
-					"code": 200,
-					"_postman_previewlanguage": "json",
-					"header": [
-						{
-							"key": "Date",
-							"value": "Wed, 04 Nov 2020 05:29:12 GMT"
-						},
-						{
-							"key": "Server",
-							"value": "WSGIServer/0.2 CPython/3.7.9"
-						},
-						{
-							"key": "Content-Type",
-							"value": "application/json"
-						},
-						{
-							"key": "Vary",
-							"value": "Accept, Origin"
-						},
-						{
-							"key": "Allow",
-							"value": "GET, PUT, PATCH, HEAD, OPTIONS"
-						},
-						{
-							"key": "X-Frame-Options",
-							"value": "DENY"
-						},
-						{
-							"key": "Content-Length",
-							"value": "227"
-						},
-						{
-							"key": "X-Content-Type-Options",
-							"value": "nosniff"
-						},
-						{
-							"key": "Referrer-Policy",
-							"value": "same-origin"
-						}
-					],
-					"cookie": [],
-					"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"name\": \"job_1\",\n        \"hyper_params\": \"gAJYAAAAAHEALg==\",\n        \"data_config\": \"gAJYAAAAAHEALg==\",\n        \"other_config\": \"gAJYAAAAAHEALg==\",\n        \"status\": 0,\n        \"time_created\": \"2020-11-04T10:36:23.567744+08:00\",\n        \"related_project\": 1\n    },\n    \"status\": 200\n}"
-				}
-			]
-		},
-		{
-			"name": "Select Feature for Specify Dataset",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Set Hyperparams For Specify Project (Commit Job)",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Run Job by Job Id",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Job Status",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": ""
-				}
-			},
-			"response": []
 		}
 	],
 	"protocolProfileBehavior": {}
