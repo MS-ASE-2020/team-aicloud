@@ -90,64 +90,6 @@ class DatasetViewSet(
             "status": status.HTTP_200_OK,
         })
     
-    def list(self, request):
-        result_queryset = self.queryset.filter(related_user=self.request.user)
-        result_serializer = serializers.DatasetSerializer(result_queryset, many=True)
-        return Response({
-            "data": result_serializer.data,
-            "status": status.HTTP_200_OK,
-        })
-
-# class JobViewSet(
-#     mixins.CreateModelMixin, # .create(request) for creating a job for the project
-#     mixins.ListModelMixin, # .list(request) for listing all jobs of the project
-#     mixins.RetrieveModelMixin, # .retrieve(request) for returning a specify job
-#     mixins.UpdateModelMixin, # .update(request) for updating
-#     viewsets.GenericViewSet,
-# ):
-#     serializer_class = serializers.JobSerializer
-#     authentication_classes = [JSONWebTokenAuthentication]
-#     queryset = models.Job.objects.all()
-
-#     @decorators.parser_classes([MultiPartParser])
-#     def create(self, request, project_pk=None,):
-#         project = self.request.user.projects.filter(id=project_pk).get()
-#         job = models.Job.objects.create(
-#             name=self.request.data['name'],
-#             related_project=project,
-#         )
-#         result_serializer = serializers.JobSerializer(job)
-#         return Response({
-#             "data": result_serializer.data,
-#             "status": status.HTTP_201_CREATED,
-#         })
-    
-#     def retrieve(self, request, pk=None, project_pk=None):
-#         project = self.request.user.projects.filter(id=project_pk).get()
-#         queryset = project.jobs.all()
-#         job = get_object_or_404(queryset, pk=pk)
-#         serializer = serializers.JobSerializer(job)
-#         return Response({
-#             "data": serializer.data,
-#             "status": status.HTTP_200_OK,
-#         })
-    
-#     def list(self, request, project_pk=None):
-#         project = self.request.user.projects.filter(id=project_pk).get()
-#         result_queryset = self.queryset.filter(related_project=project)
-#         result_serializer = serializers.JobSerializer(result_queryset, many=True)
-#         return Response({
-#             "data": result_serializer.data,
-#             "status": status.HTTP_200_OK,
-#         })
-
-#     # def partial_update(self, request, pk=None, project_pk=None):
-#     #     project = self.request.user.projects.filter(id=project_pk).get()
-#     #     queryset = project.jobs.all()
-#     #     job = get_object_or_404(queryset, pk=pk)
-#     #     serializer = serializers.JobSerializer(job)
-
-
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
 @decorators.permission_classes([])

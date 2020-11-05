@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getModels(params) {
     return request({
-        url: '/models',
+        url: '/model/',
         method: 'get',
         params
     })
@@ -16,11 +16,13 @@ export function postModel(data) {
     })
 }
 
-export function getParams(params) {
+export function getParams(model_name) {
     return request({
-        url: '/params',
+        url: '/model/' + String(model_name),
         method: 'get',
-        params
+        params: {
+            model_name
+        }
     })
 }
 
