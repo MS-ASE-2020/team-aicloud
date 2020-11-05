@@ -14,5 +14,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(project_router.urls)),
     path('model/', views.get_avaliable_models),
-    path('model/<str:model_name>/', views.get_model_hp_description),
+    path('model/<str:model_name>', views.get_model_hp_description),
 ]

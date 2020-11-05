@@ -13,7 +13,7 @@ def _adaptive_maxn_hyper(latest_n=5):
     hyper['latest_n'] = latest_n
     return hyper
 
-def _adrima_hyper(latest_n=5):
+def _arima_hyper(latest_n=5):
     hyper = dict()
     hyper['latest_n'] = latest_n
     return hyper
@@ -71,15 +71,15 @@ def _random_arrival_hyper(fit_model=[ "Expon", "Weibull", "Sampling"]):
 
 # generate mdoel hyper-parameaters
 MODELS = {
-    'adaptiveaveragemodel': _adaptive_average_hyper,
-    'adaptivemaxnmodel': _adaptive_maxn_hyper,
-    'adrimamodel': _adrima_hyper,
-    'prophetmodel': _prophet_hyper,
-    'linearfitmodel': _linear_fit_hyper,
-    'lstmmodel': _lstm_hyper,
-    'lstmlongmodel': _lstm_long_hyper,
-    'newrandomarrivalmodel': _new_random_arrival_hyper,
-    'randomarrivalmodel': _random_arrival_hyper
+    'AdaptiveAverage': _adaptive_average_hyper,
+    'AdaptiveMaxN': _adaptive_maxn_hyper,
+    'ARIMA': _arima_hyper,
+    'Prophet': _prophet_hyper,
+    'LinearFit': _linear_fit_hyper,
+    'LSTM': _lstm_hyper,
+    'LSTMLong': _lstm_long_hyper,
+    'NewRandomArrival': _new_random_arrival_hyper,
+    'RandomArrival': _random_arrival_hyper
 }
 
 def generate_hyper(path='model_hypers.json'):
@@ -90,13 +90,27 @@ def generate_hyper(path='model_hypers.json'):
 
     with open(path, 'w') as f:
         json.dump(hypers, f)
-    
     return hypers
 
+def get_models():
+    models = []
+    for name in MODELS.keys():
+        models.append(name)
+    
+    return models
+
 def get_model_hyper(model_name):
-    if model_name.lower() in MODELS.keys():
-        hypers = MODELS[model_name.lower()]()
-        return hypers
+    model_hypers = []
+    if model_name in MODELS.keys():
+        hypers = MODELS[model_name]()
+        for key, val in hypers.items():
+            model_hyper = dict()
+            model_hyper["label"] = key
+            # TODO: add model hyper intro
+            model_hyper["intro"] = "hyper-parameters description"
+            model_hyper["val"] = val
+            model_hypers.append(model_hyper)
+        return model_hypers
     else:
         raise Exception("unexpected model name %s" %model_name)
 
@@ -140,7 +154,7 @@ def getBestModelfromTrials(trials):
 
 if __name__ == '__main__':
     hypers = generate_hyper()
-    print(hypers)
+    print(get_model())
     print(get_model_hyper('AdaptiveMaxN'))
 
     

@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" :model="form" label-width="150px">
+    <el-form ref="form" label-width="150px">
       <el-form-item label="Model">
-        <el-select v-model="form.model" placeholder="Select your model" @change="AddParam()">
+        <el-select v-model="selected_model" placeholder="Select your model" @change="AddParam()">
           <el-option
             v-for="item in models"
-            :key="item.name"
-            :label="item.name"
-            :value="item.name"
+            :key="item"
+            :label="item"
+            :value="item"
           >
-            <span style="float: left">{{ item.name}}</span>
+            <span style="float: left">{{ item }}</span>
           </el-option>
         </el-select>
       </el-form-item>
@@ -21,7 +21,7 @@
         :label="param.label"
         :key="param.label"
         >
-        <el-input v-model="param.value" type="textarea" />
+        <el-input v-model="param.val" type="textarea" aria-placeholder=param.val />
         <el-tooltip class="item" effect="dark" placement="right-start">
           <i class="el-icon-info"></i>
           <div slot="content">{{param.intro}}</div>
@@ -45,10 +45,7 @@ export default {
       Selected: false,
       models: [],
       parameters: [],
-      form: {
-        model: '',
-        parameter: []
-      }
+      selected_model: ''
     }
   },
   created() {
@@ -56,20 +53,13 @@ export default {
   },
   methods: {
     fetchModels() {
-      getModels().then(response => {
-        console.log(response)
-        this.models = response.data.models
+      getModels(this.selected_model).then(response => {
+        this.models = response.data.data
       }).catch( err => {
         console.log(err)
       })
     },
     onSubmit() {
-      for(var param in this.parameters){
-        this.form.parameter.push({
-          'name':param.name,
-          'value':param.value
-        })
-      }
       postParams(this.parameters)
       this.$message('Start!')
     },
@@ -80,13 +70,11 @@ export default {
       })
     },
     AddParam() {
-      postModel(this.form.model).then(response => {
-        console.log(response)
-      }).catch(err =>
-      console.log(err))
-
-      getParams().then(response => {
-        this.parameters = response.data.params
+      getParams(this.selected_model).then(response => {
+        console.log(this.parameters)
+        console.log(response.data.data)
+        this.parameters = response.data.data
+        console.log(this.parameters)
       }).catch(err =>{
         console.log(err)
       })

@@ -1,11 +1,7 @@
 import json
 import os
 from hyperopt import hp
-from utils.model_hyper import generate_hyper
-
-
-
-
+from .model_hyper import generate_hyper
 
 
 if __name__ == '__main__':
