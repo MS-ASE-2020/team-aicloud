@@ -2,14 +2,6 @@ from rest_framework import serializers
 from . import models
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Project
-        db_table = 't_project'
-        fields = '__all__'
-        read_only_fields = ['time_created']
-        lookup_field = 'id'
-
 class DatasetSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Dataset
@@ -26,10 +18,17 @@ class JobSerializer(serializers.ModelSerializer):
         read_only_fields = ['time_created']
         lookup_field = 'id'
 
-class ModelSerializer(serializers.ModelSerializer):
+class SeriesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Model
-        db_table = 't_model'
+        model = models.Series
+        db_table = 't_series'
+        fields = '__all__'
+        lookup_field = 'id'
+
+class PredictorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Predictor
+        db_table = 't_predictor'
         fields = '__all__'
         read_only_fields = ['time_created']
         lookup_field = 'id'
