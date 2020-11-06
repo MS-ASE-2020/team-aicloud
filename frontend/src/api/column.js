@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function getColumn(params) {
   return request({
-      url:'/select/column',
+      url:'/column/',
       method: 'get',
       params
   })
@@ -10,7 +10,7 @@ export function getColumn(params) {
 
 export function postColumn(params) {
   return request({
-    url:'/select/column',
+    url:'/column/',
     method: 'post',
     data:params
   }
