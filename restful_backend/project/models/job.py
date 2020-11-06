@@ -16,7 +16,7 @@ class Job(models.Model):
     )
     status = models.IntegerField(
         choices=CmdStatus.choices,
-        default=CmdStatus.UNCOMITTED,
+        default=CmdStatus.CREATED,
     )
     time_created = models.DateTimeField(
         verbose_name='creation time',

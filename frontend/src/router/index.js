@@ -46,46 +46,39 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/input',
+    redirect: '/upload',
     children: [{
-      path: 'input',
-      name: 'input',
-      component: () => import('@/views/input/index'),
-      meta: { title: 'Input', icon: 'dashboard' }
+      path: 'upload',
+      name: 'upload',
+      component: () => import('@/views/upload/index'),
+      meta: { title: 'Upload', icon: 'dashboard' }
     }]
   },
 
   {
-    path: '/feature',
+    path: '/job',
     component: Layout,
-    redirect: '/feature/column',
-    name: 'Feature',
-    meta: { title: 'Feature', icon: 'el-icon-s-help' },
+    redirect: '/job/dataset',
+    name: 'NewJob',
+    meta: { title: 'New Job', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'column',
-        name: 'Column',
-        component: () => import('@/views/column/index'),
-        meta: { title: 'column', icon: 'table' }
+        path: 'dataset',
+        name: 'DataSet',
+        component: () => import('@/views/dataset/index'),
+        meta: { title: 'DataSet', icon: 'table' }
       },
       {
-        path: 'cycle',
-        name: 'Cycle',
-        component: () => import('@/views/cycle/index'),
-        meta: { title: 'Cycle', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/model',
-    component: Layout,
-    children: [
+        path: 'columns',
+        name: 'Columns',
+        component: () => import('@/views/column/index'),
+        meta: { title: 'Columns', icon: 'tree' }
+      },
       {
-        path: '',
-        name: 'Form',
+        path: 'models',
+        name: 'Models',
         component: () => import('@/views/model/index'),
-        meta: { title: 'Model', icon: 'form' }
+        meta: { title: 'Models', icon: 'table'}
       }
     ]
   },
@@ -104,12 +97,12 @@ export const constantRoutes = [
   },
 
   {
-    path: 'external-link',
+    path: 'external',
     component: Layout,
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: { title: 'External', icon: 'link' }
       }
     ]
   },

@@ -2,8 +2,8 @@ from django.db import models
 
 
 class CmdStatus(models.IntegerChoices):
-    UNCOMITTED = 0
-    COMITTED = 1
-    DONE = 2
-    NOTIFIED = 3
+    CREATED = 0
+    UNCOMITTED = 1
+    COMITTED = 2
+    DONE = 3
     EXCEPTION = 4

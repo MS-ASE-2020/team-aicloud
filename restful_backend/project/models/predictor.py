@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils import timezone, crypto
 from picklefield.fields import PickledObjectField
-from .status import CmdStatus
-
+from .series import Series
 
 class Predictor(models.Model):
     name = models.CharField(
@@ -12,14 +11,17 @@ class Predictor(models.Model):
         default=crypto.get_random_string,
     )
     model_file = PickledObjectField()
-    status = models.IntegerField(
-        choices=CmdStatus.choices,
-        default=CmdStatus.UNCOMITTED,
-    )
     time_created = models.DateTimeField(
         verbose_name="the create time of model",
         help_text="the time when model created; auto-generated",
         null=True,
         blank=False,
         default=timezone.now,
+    )
+    related_series = models.ForeignKey(
+        Series,
+        related_name="predictor",
+        null=False,
+        blank=False,
+        on_delete=models.CASCADE
     )
