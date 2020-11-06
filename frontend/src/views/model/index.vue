@@ -21,11 +21,11 @@
         :label="param.label"
         :key="param.label"
         >
-        <el-input v-model="param.val" type="textarea" aria-placeholder=param.val />
+        <el-input v-model="param.val" type="textarea" placeholder=param.val maxlength="150px"></el-input>
         <el-tooltip class="item" effect="dark" placement="right-start">
           <i class="el-icon-info"></i>
-          <div slot="content">{{param.intro}}</div>
-        </el-tooltip>
+            <div slot="content">{{param.intro}}</div>          
+          </el-tooltip>
       </el-form-item>
       </div>
       <el-form-item>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import {getModels, postModel, getParams, postParams} from '@/api/model'
+import { getModels, postModel, getParams, postParams } from '@/api/model'
 
 export default {
   data() {
@@ -49,13 +49,13 @@ export default {
     }
   },
   created() {
-      this.fetchModels()
+    this.fetchModels()
   },
   methods: {
     fetchModels() {
-      getModels(this.selected_model).then(response => {
+      getModels().then(response => {
         this.models = response.data.data
-      }).catch( err => {
+      }).catch(err => {
         console.log(err)
       })
     },
@@ -71,11 +71,8 @@ export default {
     },
     AddParam() {
       getParams(this.selected_model).then(response => {
-        console.log(this.parameters)
-        console.log(response.data.data)
         this.parameters = response.data.data
-        console.log(this.parameters)
-      }).catch(err =>{
+      }).catch(err => {
         console.log(err)
       })
 
