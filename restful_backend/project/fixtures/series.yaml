@@ -1,0 +1,25 @@
+- model: project.dataset
+  pk: 1
+  fields:
+    name: test_data
+    related_user: 1
+    upload: foo.csv
+- model: project.series
+  pk: 1
+  fields:
+    cluster_key: features1
+    status: 0
+    feature_indexs: null
+    related_job: 1
+    related_data: 1
+- model: project.job
+  pk: 1
+  fields:
+    name: test_job
+    status: 0
+    groupby_indexs: null
+    target_indexs: null
+    timestamp_indexs: null
+    related_user: 1
+    related_data: 1
+

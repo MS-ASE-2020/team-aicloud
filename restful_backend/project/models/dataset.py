@@ -22,12 +22,14 @@ class Dataset(models.Model):
         verbose_name='creation time',
         help_text='the time at which the user uploaded the data; auto-generated',
         null=False,
+        blank=False,
         default=timezone.now,
     )
     upload = models.FileField(
         verbose_name='data file',
         upload_to='uploads',  # TODO: path <user>/<project>/
         null=False,
+        blank=False
     )
     related_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
