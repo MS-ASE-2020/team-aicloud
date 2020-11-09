@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, authentication, permissions, decorators, viewsets, mixins, status
-from rest_framework.decorators import APIView
+from rest_framework.decorators import APIView, action
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
@@ -117,6 +117,33 @@ class JobViewSet(
             status=status.HTTP_200_OK,
             data=job_serialzier.data
         )
+
+    """
+    return series' available features, groupby_key, groupby_val
+    """
+    @action(methods=['get'], detail=True, url_path='ts_details', url_name='ts_details')
+    def get_ts_details(self, request, pk=None):
+        import pandas as pd
+        job_obj = self.get_object()
+        groupby_key = job_obj.groupby_indexs
+        # FIXME: csv reading may be redundant
+        data_path = job_obj.related_data.upload.path
+        df = pd.read_csv(data_path)
+        headers = df.columns
+        groupby_key = groupby_key.strip('][').split(', ')
+        target_idx = job_obj.target_indexs.strip('][').split(',')[0]
+        ts_idx = job_obj.timestamp_indexs.strip('][').split(',')[0]
+        groupby_key = list(map(lambda x: headers[int(x)], groupby_key))
+        features = list(set(headers) - set(groupby_key) - set([headers[int(target_idx)]]) - set([headers[int(ts_idx)]]))
+        ts_details = [{"ts_id": x.pk, "groupby_val": x.cluster_key, "groupby_key": groupby_key} for x in job_obj.series.all()]
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                "features": features,
+                "ts_details": ts_details
+            }
+        )
+
 
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user

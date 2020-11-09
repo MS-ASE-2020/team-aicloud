@@ -10,7 +10,30 @@
 
 2. 9 提交job的ts, group_by, target设置: `/job/job_id/` PUT
    index名称参见swagger
-3. 数据集header和预览数据: `/data/data_id/` GET
+3. 查看ts可用的features, groupby_key, groupby_val
+   ```
+   {
+    "features": [],
+    "ts_details": [
+        {
+            "ts_id": 1,
+            "groupby_val": "('asiasoutheast', 'FS')",
+            "groupby_key": [
+                "Region",
+                "VMSeries"
+            ]
+        },
+        {
+            "ts_id": 2,
+            "groupby_val": "('ussouth', 'A')",
+            "groupby_key": [
+                "Region",
+                "VMSeries"
+            ]
+        }
+    ]
+   ```
+4. 数据集header和预览数据: `/data/data_id/` GET
    ```json
    {
     "data": {
