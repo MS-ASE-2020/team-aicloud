@@ -58,16 +58,10 @@ export const constantRoutes = [
   {
     path: '/job',
     component: Layout,
-    redirect: '/job/dataset',
+    redirect: '/job/columns',
     name: 'NewJob',
     meta: { title: 'New Job', icon: 'el-icon-s-help' },
     children: [
-      {
-        path: 'dataset',
-        name: 'DataSet',
-        component: () => import('@/views/dataset/index'),
-        meta: { title: 'DataSet', icon: 'table' }
-      },
       {
         path: 'columns',
         name: 'Columns',
