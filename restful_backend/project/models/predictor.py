@@ -23,5 +23,6 @@ class Predictor(models.Model):
         related_name="predictor",
         null=False,
         blank=False,
+        default=0,
         on_delete=models.CASCADE
     )
