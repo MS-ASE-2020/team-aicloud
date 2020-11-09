@@ -135,11 +135,12 @@ class JobViewSet(
         ts_idx = job_obj.timestamp_indexs.strip('][').split(',')[0]
         groupby_key = list(map(lambda x: headers[int(x)], groupby_key))
         features = list(set(headers) - set(groupby_key) - set([headers[int(target_idx)]]) - set([headers[int(ts_idx)]]))
-        ts_details = [{"ts_id": x.pk, "groupby_val": x.cluster_key, "groupby_key": groupby_key} for x in job_obj.series.all()]
+        ts_details = [{"ts_id": x.pk, "groupby_val": x.cluster_key} for x in job_obj.series.all()]
         return Response(
             status=status.HTTP_200_OK,
             data={
                 "features": features,
+                "groupby_key": groupby_key,
                 "ts_details": ts_details
             }
         )
