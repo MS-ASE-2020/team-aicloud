@@ -184,7 +184,16 @@ class DatasetViewSet(
             "status": status.HTTP_200_OK,
             "heads": heads
         })
+    
+    def list(self, request):
+        dataset_name = [x.name for x in self.request.user.datasets.all()]
 
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                "names": dataset_name
+            }
+        )
 
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
