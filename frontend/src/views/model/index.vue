@@ -81,6 +81,7 @@ export default {
       this.seriesSettings.push(settings)
     },
     onSubmit() {
+      console.log(this.seriesSettings)
       postSeries(this.jobId, this.seriesSettings).then( response => {
         console.log(response.status)
       }).catch( err => {

@@ -4,7 +4,7 @@
       <span>{{ id }}</span>
     </el-form-item>
     <el-form-item label="Features">
-      <el-select v-model="post.feature_indexs" placeholder="Select features">
+      <el-select v-model="post.feature_indexs" multiple collapse-tags placeholder="Select features">
         <el-option
           v-for="(item, index) in features"
           :key="index"
@@ -70,7 +70,7 @@ export default {
       parameters: [],
       post: {
         model_name: '',
-        hyper_params: {},
+        hyper_params: [],
         ts_id: '',
         feature_indexs: []
       }
@@ -78,7 +78,6 @@ export default {
   },
   created() {
     this.fetchModels()
-    this.fetchFeatures()
   },
   methods: {
     fetchModels() {
@@ -89,9 +88,10 @@ export default {
       })
     },
     onSubmit() {
-      this.ts_id = id
+      this.$set(this.post, 'ts_id', this.id)
       for(var i=0; i<this.parameters.length; i++) {
-        this.post.hyper_params[this.parameters[i].label] = this.parameters[i].value
+        this.$set(this.post, 'hyper_params', this.parameters)
+        //this.post.hyper_params[this.parameters[i].label] = this.parameters[i].value
       }
       this.$emit('setDone', this.post)
       this.$message('Success!')
