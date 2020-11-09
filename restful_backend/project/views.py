@@ -149,12 +149,15 @@ class DatasetViewSet(
         with open(dataset.upload.path, 'r') as f:
             header = next(csv.reader(StringIO(next(f)), delimiter=','))
         header = [{"index": idx, "label": label if label != '' else f'Unknown-{idx}'} for idx, label in enumerate(header)]
+        heads = dataset_utils.preview(dataset.upload)
         return Response({
             "data": serializer.data,
             "header": header,
             "status": status.HTTP_200_OK,
+            "heads": heads
         })
-    
+
+
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
 @decorators.permission_classes([])
