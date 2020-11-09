@@ -92,6 +92,7 @@ class JobViewSet(
             ts_serializer = serializers.SeriesSerializer(
                 ts_obj,
                 data={
+                    'feature_indexs': ts["feature_indexs"],
                     'status': models.CmdStatus.COMITTED,
                     'related_data': self.get_object().related_data.pk,
                     'related_job': self.get_object().pk
