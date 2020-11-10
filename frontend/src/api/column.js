@@ -21,3 +21,11 @@ export function getDataSets() {
     method: 'get'
   })
 }
+
+export function postDataSet(data) {
+  return request({
+    url: '/job/',
+    method: 'post',
+    data: data
+  })
+}

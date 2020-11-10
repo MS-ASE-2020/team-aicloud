@@ -15,7 +15,7 @@
       >
       </el-table-column>
       <el-table-column
-        label=groupby_key_name
+        :label="groupby_key_name"
         prop="groupby_val"
       >
       </el-table-column>
@@ -41,17 +41,8 @@ export default {
   },
   data() {
     return {
-      jobId: 1,
-      series: [
-     {
-         "ts_id": 1,
-         "groupby_val": "('asiasoutheast', 'FS')"
-     },
-     {
-         "ts_id": 2,
-         "groupby_val": "('ussouth', 'A')"
-     }
- ],
+      jobId: '',
+      series: [],
       groupby_key_name: '',
       features: [1,2,3],
       filters: [4,5],
@@ -59,20 +50,24 @@ export default {
     }
   },
   created() {
+    console.log(this.$route.query)
+    this.jobId = this.$route.query.job_id
     this.fetchData()
   },
   methods: {
     createName(arr) {
+      console.log(arr)
       arr.forEach(element => {
-        groupby_key_name = groupby_key_name + String(element) + ','
-      });
+        this.groupby_key_name = this.groupby_key_name + String(element) + '_'
+      })
     },
     fetchData() {
+      this.createName(this.filters)
       fetchSeries(this.jobId).then( response => {
-        // this.features = response.data.features
-        // this.series = response.data.ts_details
-        // this.filters = response.data.groupby_key
-        // this.createName(this.filters)
+        this.features = response.data.features
+        this.series = response.data.ts_details
+        this.filters = response.data.groupby_key
+        this.createName(this.filters)
       }).catch( err => {
         console.log(err)
       })

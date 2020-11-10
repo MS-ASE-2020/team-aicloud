@@ -48,7 +48,7 @@
         </el-tooltip>
       </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="onSubmit">Submit</el-button>
+      <el-button type="primary" @click="onSubmit" :disable="DisableButton">Submit</el-button>
     </el-form-item>
     </div>
   </el-form>
@@ -64,6 +64,7 @@ export default {
   },
   data() {
     return {
+      DisableButton: false,
       Selected: false,
       models: [],
       features: [],
@@ -88,13 +89,15 @@ export default {
       })
     },
     onSubmit() {
-      this.$set(this.post, 'ts_id', this.id)
-      for(var i=0; i<this.parameters.length; i++) {
-        this.$set(this.post, 'hyper_params', this.parameters)
+      if(!this.DisableButton){
+        this.$set(this.post, 'ts_id', this.id)
+        for(var i=0; i<this.parameters.length; i++) {
+          this.$set(this.post, 'hyper_params', this.parameters)
         //this.post.hyper_params[this.parameters[i].label] = this.parameters[i].value
-      }
-      this.$emit('setDone', this.post)
-      this.$message('Success!')
+        }
+        this.$emit('setDone', this.post)
+        this.DisableButton = true
+      }      
     },
     AddParam() {
       getParams(this.post.model_name).then(response => {
