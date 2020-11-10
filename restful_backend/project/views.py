@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from . import models
 from . import serializers
 from .utils import *
-from .SeriesManager import SeriesManager
 import json
+from . import trainer
 
 # Create your views here.
 class JobViewSet(
@@ -86,7 +86,7 @@ class JobViewSet(
             ts_obj = models.Series.objects.get(pk=ts['ts_id'])
             predictor = models.Predictor.objects.create(
                 name=ts['model_name'],
-                model_file=ts['hyper_params'],
+                model_file={'hyper_params': ts['hyper_params']},
                 related_series=ts_obj
             )
             ts_serializer = serializers.SeriesSerializer(
@@ -101,8 +101,30 @@ class JobViewSet(
             )
             ts_serializer.is_valid(raise_exception=True)
             ts_result = ts_serializer.save()
-            dataset = dataset_utils.get_sliced_dataset(ts_obj.related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
+            dataset = dataset_utils.get_sliced_dataset(self.get_object().related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
             # sm.commit_job(ts_serializer.data)
+            job_obj = self.get_object()
+            _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
+            feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
+            model = trainer.trainer(ts['model_name'], ts['hyper_params'])
+            metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
+            pred = model.predict(5)
+            # save into predictors
+            model_file = {
+                'predictions': pred,
+                'metrics': metrics,
+                'config': config,
+                'model': tuned_model
+            }
+            p_serializer = serializers.PredictorSerializer(
+                predictor,
+                data={
+                    'model_file': model_file
+                },
+                partial=True
+            )
+            p_serializer.is_valid(raise_exception=True)
+            p_serializer.save()
 
         job_obj = get_object_or_404(queryset, pk=pk)
         job_serialzier = self.get_serializer(
@@ -125,16 +147,13 @@ class JobViewSet(
     def get_ts_details(self, request, pk=None):
         import pandas as pd
         job_obj = self.get_object()
-        groupby_key = job_obj.groupby_indexs
         # FIXME: csv reading may be redundant
         data_path = job_obj.related_data.upload.path
         df = pd.read_csv(data_path)
         headers = df.columns
-        groupby_key = groupby_key.strip('][').split(',')
-        target_idx = job_obj.target_indexs.strip('][').split(',')[0]
-        ts_idx = job_obj.timestamp_indexs.strip('][').split(',')[0]
+        groupby_key, target_idx, ts_idx = dataset_utils.str2list(job_obj)
         groupby_key = list(map(lambda x: headers[int(x)], groupby_key))
-        features = list(set(headers) - set(groupby_key) - set([headers[int(target_idx)]]) - set([headers[int(ts_idx)]]))
+        features = list(set(headers) - set(groupby_key) - set([headers[target_idx]]) - set([headers[ts_idx]]))
         ts_details = [{"ts_id": x.pk, "groupby_val": x.cluster_key} for x in job_obj.series.all()]
         return Response(
             status=status.HTTP_200_OK,
