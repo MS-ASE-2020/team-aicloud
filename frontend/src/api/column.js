@@ -1,18 +1,23 @@
 import request from '@/utils/request'
 
-export function getColumn(params) {
+export function getColumn(id) {
   return request({
-      url:'/column/',
-      method: 'get',
-      params
+      url:'/data/' + String(id) + '/',
+      method: 'get'
   })
 }
 
-export function postColumn(params) {
+export function postColumn(jobId, data) {
   return request({
-    url:'/column/',
-    method: 'post',
-    data:params
-  }
-  )
+    url:'/job/' + String(jobId) + '/',
+    method: 'put',
+    data: data
+  })
+}
+
+export function getDataSets() {
+  return request({
+    url: '/data/',
+    method: 'get'
+  })
 }

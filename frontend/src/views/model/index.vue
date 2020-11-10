@@ -1,82 +1,92 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" label-width="150px">
-      <el-form-item label="Model">
-        <el-select v-model="selected_model" placeholder="Select your model" @change="AddParam()">
-          <el-option
-            v-for="item in models"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-            <span style="float: left">{{ item }}</span>
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <div v-if="Selected">
-      <el-form-item label="Parameter Set">
-      </el-form-item>
-      <el-form-item
-        v-for="param in parameters"
-        :label="param.label"
-        :key="param.label"
-        >
-        <el-input v-model="param.val" type="textarea" placeholder=param.val maxlength="150px"></el-input>
-        <el-tooltip class="item" effect="dark" placement="right-start">
-          <i class="el-icon-info"></i>
-            <div slot="content">{{param.intro}}</div>          
-          </el-tooltip>
-      </el-form-item>
-      </div>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">Train</el-button>
-        <el-button @click="onCancel">Cancel</el-button>
-      </el-form-item>
-    </el-form>
+    <el-table
+      :data="series"
+      style="width: 100%"
+    >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <series-set :id="props.row.ts_id" :features="features" v-on:setDone="setDone"></series-set>
+        </template>
+      </el-table-column>
+      <el-table-column
+        lable="Series ID"
+        prop="ts_id"
+      >
+      </el-table-column>
+      <el-table-column
+        label=groupby_key_name
+        prop="groupby_val"
+      >
+      </el-table-column>
+      <el-table-column
+        label="Apply All"
+      >
+        <template slot-scope="props">
+          <el-button size="mini" @click="ApplyAll(props.rows.id)">Apply</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-button type="primary" @click="onSubmit">Submit</el-button>
   </div>
 </template>
 
 <script>
-import { getModels, postModel, getParams, postParams } from '@/api/model'
+import { postSeries, fetchSeries } from '@/api/model'
+import SeriesSet from './components/SeriesSet'
 
 export default {
+  components: {
+    SeriesSet
+  },
   data() {
     return {
-      Selected: false,
-      models: [],
-      parameters: [],
-      selected_model: ''
+      jobId: 1,
+      series: [
+     {
+         "ts_id": 1,
+         "groupby_val": "('asiasoutheast', 'FS')"
+     },
+     {
+         "ts_id": 2,
+         "groupby_val": "('ussouth', 'A')"
+     }
+ ],
+      groupby_key_name: '',
+      features: [1,2,3],
+      filters: [4,5],
+      seriesSettings: []
     }
   },
   created() {
-    this.fetchModels()
+    this.fetchData()
   },
   methods: {
-    fetchModels() {
-      getModels().then(response => {
-        this.models = response.data.data
-      }).catch(err => {
+    createName(arr) {
+      arr.forEach(element => {
+        groupby_key_name = groupby_key_name + String(element) + ','
+      });
+    },
+    fetchData() {
+      fetchSeries(this.jobId).then( response => {
+        // this.features = response.data.features
+        // this.series = response.data.ts_details
+        // this.filters = response.data.groupby_key
+        // this.createName(this.filters)
+      }).catch( err => {
         console.log(err)
       })
+    },
+    setDone(settings) {
+      this.seriesSettings.push(settings)
     },
     onSubmit() {
-      postParams(this.parameters)
-      this.$message('Start!')
-    },
-    onCancel() {
-      this.$message({
-        message: 'cancel!',
-        type: 'warning'
-      })
-    },
-    AddParam() {
-      getParams(this.selected_model).then(response => {
-        this.parameters = response.data.data
-      }).catch(err => {
+      console.log(this.seriesSettings)
+      postSeries(this.jobId, this.seriesSettings).then( response => {
+        console.log(response.status)
+      }).catch( err => {
         console.log(err)
       })
-
-      this.Selected = true
     }
   }
 }
