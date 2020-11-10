@@ -187,13 +187,11 @@ class DatasetViewSet(
         })
     
     def list(self, request):
-        dataset_name = [x.name for x in self.request.user.datasets.all()]
+        dataset = [{"name": x.name, "id": x.pk} for x in self.request.user.datasets.all()]
 
         return Response(
             status=status.HTTP_200_OK,
-            data={
-                "names": dataset_name
-            }
+            data=dataset
         )
 
 @decorators.api_view(http_method_names=['GET'])
