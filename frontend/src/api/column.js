@@ -11,7 +11,9 @@ export function postColumn(jobId, data) {
   return request({
     url:'/job/' + String(jobId) + '/',
     method: 'put',
-    data: data
+    data: data,
+    // TODO: set asynchronous request later
+    timeout: 10000
   })
 }
 

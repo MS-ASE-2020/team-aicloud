@@ -130,7 +130,7 @@ class JobViewSet(
         data_path = job_obj.related_data.upload.path
         df = pd.read_csv(data_path)
         headers = df.columns
-        groupby_key = groupby_key.strip('][').split(', ')
+        groupby_key = groupby_key.strip('][').split(',')
         target_idx = job_obj.target_indexs.strip('][').split(',')[0]
         ts_idx = job_obj.timestamp_indexs.strip('][').split(',')[0]
         groupby_key = list(map(lambda x: headers[int(x)], groupby_key))
