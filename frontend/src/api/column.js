@@ -13,7 +13,7 @@ export function postColumn(jobId, data) {
     method: 'put',
     data: data,
     // TODO: set asynchronous request later
-    timeout: 10000
+    timeout: 100000
   })
 }
 

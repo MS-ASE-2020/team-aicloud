@@ -2,7 +2,7 @@
   <div>
     <el-form ref="form" :model="form" label-width="150px">
       <el-form-item label="Timestamp">
-        <el-select v-model="form.timestamp_indexs" multiple placeholder="Select Column">
+        <el-select v-model="form.timestamp_indexs" placeholder="Select Column">
           <el-option
             v-for="item in columns"
             :key="item.index"
@@ -14,7 +14,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Values">
-        <el-select v-model="form.target_indexs" multiple placeholder="Selct Column">
+        <el-select v-model="form.target_indexs" placeholder="Selct Column">
           <el-option
             v-for="item in columns"
             :key="item.index"
@@ -26,7 +26,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="GroupBy">
-        <el-select v-model="form.groupby_indexs" multiple collapse-tags placeholder="Select Columns">
+        <el-select v-model="form.groupby_indexs" multiple placeholder="Select Columns">
           <el-option
             v-for="item in columns"
             :key="item.index"
@@ -55,8 +55,8 @@ export default {
       //Column
       columns: [],
       form: {
-        timestamp_indexs: [],
-        target_indexs: [],
+        timestamp_indexs: '',
+        target_indexs: '',
         groupby_indexs: []
       }
     }
@@ -74,10 +74,6 @@ export default {
       })
     },
     onSubmit() {
-      // var form = {}
-      // form['TimeStamp'] = String(this.form.TimeStamp)
-      // form['Values'] = String(this.form.Values)
-      // form['groupby_indexs'] = String(this.form.groupby_indexs)
       let form_data = {}
       form_data['timestamp_indexs'] = '[' + this.form.timestamp_indexs.toString() + ']'
       form_data['target_indexs'] = '[' + this.form.target_indexs.toString() + ']'

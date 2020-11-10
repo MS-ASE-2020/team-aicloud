@@ -3,8 +3,8 @@
     <el-form-item label="ID">
       <span>{{ id }}</span>
     </el-form-item>
-    <el-form-item label="Features">
-      <el-select v-model="post.feature_indexs" multiple collapse-tags placeholder="Select features">
+    <el-form-item label="Features" v-if="HasFeature">
+      <el-select v-model="post.feature_indexs" multiple placeholder="Select features" >
         <el-option
           v-for="(item, index) in features"
           :key="index"
@@ -59,11 +59,12 @@ import { getModels, getParams } from '@/api/model'
 
 export default {
   props: {
-    id: String,
+    id: Number,
     features: Array
   },
   data() {
     return {
+      HasFeature: false,
       DisableButton: false,
       Selected: false,
       models: [],
@@ -71,13 +72,12 @@ export default {
       parameters: [],
       post: {
         model_name: '',
-        hyper_params: [],
-        ts_id: '',
         feature_indexs: []
       }
     }
   },
   created() {
+    this.HasFeature = (this.features.length != 0) ? true : false 
     this.fetchModels()
   },
   methods: {
@@ -90,12 +90,16 @@ export default {
     },
     onSubmit() {
       if(!this.DisableButton){
-        this.$set(this.post, 'ts_id', this.id)
+        let post = {}
+        post['model_name'] = this.post.model_name
+        post['feature_indexs'] = '[' + String(this.post.feature_indexs) + ']'
+        post['ts_id'] = this.id
+        let hyper_params = {}
         for(var i=0; i<this.parameters.length; i++) {
-          this.$set(this.post, 'hyper_params', this.parameters)
-        //this.post.hyper_params[this.parameters[i].label] = this.parameters[i].value
+          hyper_params[this.parameters[i].label] = this.parameters[i].val
         }
-        this.$emit('setDone', this.post)
+        post['hyper_params'] = hyper_params
+        this.$emit('setDone', post)
         this.DisableButton = true
       }      
     },

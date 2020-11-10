@@ -10,7 +10,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        lable="Series ID"
+        label="Ts_Id"
         prop="ts_id"
       >
       </el-table-column>
@@ -44,13 +44,12 @@ export default {
       jobId: '',
       series: [],
       groupby_key_name: '',
-      features: [1,2,3],
-      filters: [4,5],
+      features: [],
+      filters: [],
       seriesSettings: []
     }
   },
   created() {
-    console.log(this.$route.query)
     this.jobId = this.$route.query.job_id
     this.fetchData()
   },
@@ -76,9 +75,9 @@ export default {
       this.seriesSettings.push(settings)
     },
     onSubmit() {
-      console.log(this.seriesSettings)
       postSeries(this.jobId, this.seriesSettings).then( response => {
-        console.log(response.status)
+        this.$message('Submit!')
+        this.$router.push({path: '/output', query: {job_id: this.jobId}})
       }).catch( err => {
         console.log(err)
       })
