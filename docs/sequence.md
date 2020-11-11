@@ -233,7 +233,8 @@ METRICS = {
                     "val": 0.5
                 }
             ],
-            "ts_id": 63
+            "ts_id": 63,
+            "model_name": "LinearFit",
         },
         {
             "predictions": [
@@ -266,7 +267,8 @@ METRICS = {
                     "val": 0.5
                 }
             ],
-            "ts_id": 64
+            "ts_id": 64,
+            "model_name": "LinearFit",
         },
         {
             "predictions": [
@@ -299,7 +301,8 @@ METRICS = {
                     "val": 0.5
                 }
             ],
-            "ts_id": 65
+            "ts_id": 65,
+            "model_name": "LinearFit",
         }
     ]
 }

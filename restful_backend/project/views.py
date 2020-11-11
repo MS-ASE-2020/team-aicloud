@@ -130,6 +130,7 @@ class JobViewSet(
             p_serializer.is_valid(raise_exception=True)
             p_serializer.save()
             model_file["ts_id"] = ts["ts_id"]
+            model_file["model_name"] = ts['model_name']
             results.append(model_file)        
 
         job_obj = get_object_or_404(queryset, pk=pk)
