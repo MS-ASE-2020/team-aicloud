@@ -35,17 +35,80 @@ class SchedulerService(rpyc.Service):
 
 
 ## Trainer
-input:
-dataset_path: string
-groupby_indexs: list of int
-groupby_val: string
-target_idx: int
-ts_idx: int
-feature_indexs: int
-model_name: string
-hyper_param: dict
-nextKprediction: int
+- How to do with RPyC?
+- Asynchrounous Operation and Events (https://rpyc.readthedocs.io/en/latest/tutorial/tut5.html)
 
+### Commit Job Interface
+```text
+commit_job_func(
+    data_config: dict,
+    job_config: dict,
+    series_config: dict,
+    model_config: dict,
+)
+
+Parameters:
+- data_config keys:
+    path: string; path to this dataset
+- job_config keys:
+    job_id: int; job indentifier for get results/database
+    groupby_indexs: list(int); col indexs for split time series
+    target_index: int; col index we need to predict
+    ts_index: int; col index for time
+- series_config keys:
+    feature_indexs: dict{string: list[int]};
+        example:
+            {
+                "series_cluster_value_1", [1, 2],
+                "series_cluster_value_2", [1],
+            }
+        the cluster value needs job_scheduler split time series first
+- model_config:
+    example:
+        {
+            "series_cluster_value_1": {
+                "model_name": "MaxNModel",
+                "model_params": {
+                    "name": "lastest_n",
+                    "description": "the lastest n values for prediction",
+                    "value": None,
+                    "searcher": {
+                        "package": "hyperopt",
+                        "search_times": 100,
+                        "criterion": {
+                            "name": "mse",
+                            "description": "mean square error",
+                        }
+                    }
+                    "searcher_config": {
+                        "range": [1, 10],
+                        "distribution": "uniform",
+                    }
+                },
+                "model_performance": [],
+            },
+            "series_cluster_value_2": {...},
+            ...
+        }
+
+Return Value:
+- <AsyncResult object>
+```
+### Get Job Results Interface
+```text
+get_result_func(
+    job_id: int
+)
+
+Parameters:
+- job_id: int; job indentifier provided in `commit_job_func`
+
+Return Value (list):
+- model_config: dict; same structure to commit_job_func.Parameters.model_config
+- predictions: dict;
+```
+
+### Current Train Example
 ```python
 dataset = dataset_utils.get_sliced_dataset(dataset_path, groupby_indexs, groupby_val)
 model = trainer.trainer(model_name, hyper_param)
