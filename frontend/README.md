@@ -55,10 +55,8 @@ npm run lint -- --fix
 - [awesome-project](https://github.com/PanJiaChen/vue-element-admin/issues/2312)
 
 ## TODO
-- Show table on the input page
-- Select volumn API and post to backend
-- Select Cycle API and post to backend
-- Model API and post to backend & given range to select for user
-- Change Output page to show mertix result and more expert graph
-- Change function of column and feature select and Add API
-- Add more information about model and become user friendly
+- Apply All button
+- Output
+- Select parameter when it is an enum
+- Show model and State of Series in Table
+- Modify Submit of Series setting

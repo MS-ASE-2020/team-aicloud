@@ -51,34 +51,34 @@ export const constantRoutes = [
       path: 'upload',
       name: 'upload',
       component: () => import('@/views/upload/index'),
-      meta: { title: 'Upload', icon: 'dashboard' }
+      meta: { title: 'Upload', icon: 'el-icon-upload' }
     }]
-  },
+  },  
 
   {
     path: '/job',
     component: Layout,
     redirect: '/job/dataset',
     name: 'NewJob',
-    meta: { title: 'New Job', icon: 'el-icon-s-help' },
+    meta: { title: 'New Job', icon: 'shuttle' },
     children: [
       {
         path: 'dataset',
         name: 'Dataset',
         component: () => import('@/views/dataset/index'),
-        meta: { title: 'Dataset', icon: 'table'}
+        meta: { title: 'Dataset', icon: 'database'}
       },
       {
         path: 'columns',
         name: 'Columns',
         component: () => import('@/views/column/index'),
-        meta: { title: 'Columns', icon: 'tree' }
+        meta: { title: 'Columns', icon: 'data-random-squares' }
       },
       {
         path: 'models',
         name: 'Models',
         component: () => import('@/views/model/index'),
-        meta: { title: 'Models', icon: 'table'}
+        meta: { title: 'Models', icon: 'settings'}
       }
     ]
   },
@@ -91,7 +91,7 @@ export const constantRoutes = [
         path: '',
         name: 'Output',
         component: () => import('@/views/output/index'),
-        meta: { title: 'Output', icon: 'form' }
+        meta: { title: 'Output', icon: 'el-icon-s-data' }
       }
     ]
   },
