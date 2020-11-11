@@ -103,8 +103,9 @@ get_result_func(
 Parameters:
 - job_id: int; job indentifier provided in `commit_job_func`
 
-Return Value:
-- dict; same structure to commit_job_func.Parameters.model_config
+Return Value (list):
+- model_config: dict; same structure to commit_job_func.Parameters.model_config
+- predictions: dict;
 ```
 
 ### Current Train Example
