@@ -11,7 +11,7 @@ import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 class trainer():
-    def __init__(self, model_name, config, auto_tune=False, metrics=("mse", "rmse"), max_eval=100):
+    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name
@@ -53,11 +53,11 @@ class trainer():
             self.X_valid = X + [0] * (self.recent_n_validation - len(X))
             self.y_valid = y + [0] * (self.recent_n_validation - len(y))
 
+        space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
-            self.model = self._train(self.config)["trained_Model"]
+            self.model = self._train(space)["trained_Model"]
             best = self.config
         else:
-            space = hyper_space(self.model_name)
             trials = Trials()
             best = fmin(fn=self._train,
                         space=space,
@@ -65,7 +65,7 @@ class trainer():
                         max_evals=self.max_eval, 
                         trials=trials)
             print(best)
-            self.model, min_loss = getBestModelfromTrials(trials)
+            self.model, min_loss = model_hyper.getBestModelfromTrials(trials)
         
         pred = self._predict(self.recent_n_validation)
         metrics = self._eval(pred, self.y_valid)
@@ -75,13 +75,15 @@ class trainer():
     def predict(self, nextKPrediction):
         pred = self._predict(nextKPrediction) 
         
-        predictions = dict()
+        timestamps = list()
+        predictions = list()
         for i in range(nextKPrediction):
             ts = self.end_ts + (i + 1) * self.interval
             ts = datetime.datetime.strftime(ts, "%Y-%m-%d %X")
-            predictions[ts] = pred[i]
+            timestamps.append(ts)
+            predictions.append(pred[i])
 
-        return predictions
+        return predictions, timestamps
 
     # save model 
     def save(self, path):

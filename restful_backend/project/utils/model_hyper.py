@@ -108,6 +108,7 @@ def get_model_hyper(model_name):
             model_hyper["label"] = key
             # TODO: add model hyper intro
             model_hyper["intro"] = "hyper-parameters description"
+            model_hyper["type"] = type(val).__name__
             model_hyper["val"] = val
             model_hypers.append(model_hyper)
         return model_hypers
@@ -121,27 +122,52 @@ def set_model_hyper(model_name, **kwargs):
         return MODELS[model_name]()
     else:
         raise Exception("unexpected model name %s" %model_name)
-    
-def hyper_space(model, udf_parameter=None, path='utils/model_hypers.json'):
+
+"""
+"hyper_params":[
+    {
+        "name": "latest_n", 
+        "type": "int",
+        "low": 1,
+        "high": 5
+    },
+    {
+        "name": "add_std_factor",
+        "type": "float",
+        "low": 0,
+        "high": 0.5
+    }
+],
+"""
+def hyper_space(model, udf_parameter=None, path='model_hypers.json', auto_tune=False):
     # use default configuration
     space = {}
-    if udf_parameter is None:
-        if not os.path.exists(path):
-            generate_hyper(path)
-            print('generate hyperparameters json')
-        with open(path) as f:
-            parameters = json.load(f)[model]
-        # parameters = {name: [type, default_name if int or double else enum_list]}
-        hp_type = {"int": "uniformint", "float": "uniform", "list": "choice"}
-        for name, val in parameters.items():
-            if isinstance(val, int) or isinstance(val, float):
-                space[name] = getattr(hp, hp_type[type(val).__name__])(name, 0, 10*val)
-            elif isinstance(val, list):
-                space[name] = getattr(hp, hp_type[type(val).__name__])(name, val)
-            else:
-                raise Exception("Unexpected type: %s parameter %s in Model %s is not supported" % (val, type(val), name, model))
+    hp_type = {"int": "uniformint", "float": "uniform", "list": "choice"}
+    if not auto_tune:
+        for param in udf_parameter:
+            space[param["name"]] = param["val"]
     else:
-        pass
+        # auto generated space
+        # if udf_parameter is None:
+        #     if not os.path.exists(path):
+        #         generate_hyper(path)
+        #         print('generate hyperparameters json')
+        #     with open(path) as f:
+        #         parameters = json.load(f)[model]
+        #     # parameters = {name: [type, default_name if int or double else enum_list]}
+        #     for name, val in parameters.items():
+        #         if isinstance(val, int) or isinstance(val, float):
+        #             space[name] = getattr(hp, hp_type[type(val).__name__])(name, 0, 10*val)
+        #         elif isinstance(val, list):
+        #             space[name] = getattr(hp, hp_type[type(val).__name__])(name, val)
+        #         else:
+        #             raise Exception("Unexpected type: %s parameter %s in Model %s is not supported" % (val, type(val), name, model))
+        # else:
+            for param in udf_parameter:
+                if param["type"] is not "list":
+                    space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["low"], param["high"])
+                else:
+                    space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["choice"])
     return space
 
 def getBestModelfromTrials(trials):

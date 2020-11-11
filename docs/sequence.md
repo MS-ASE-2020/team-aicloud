@@ -94,3 +94,228 @@
         ]
     }   
     ```
+5. 模型初始化以及发出训练请求 /job/job_id/ PATCH
+
+不需要调参的请求格式
+```json
+[
+    {
+        "model_name": "LinearFit",
+        "max_eval": 100,            // 调参搜索的次数
+        "next_k_prediction": 5,     // 预测的ts的天数
+        "auto_tune": 0,             // 0为不调参
+        "eval_metrics":["mse", "rmse"], 
+        "hyper_params":[
+            {
+                "name": "latest_n", 
+                "type": "int",
+                "val": 5
+            },
+            {
+                "name": "add_std_factor",
+                "type": "float",
+                "val": 0.5
+            }
+        ],
+        "ts_id": 8797,
+        "feature_indexs": "[]"
+    }
+]
+```
+需要调参的请求格式
+```json
+[
+    {
+        "model_name": "LinearFit",
+        "max_eval": 100,
+        "next_k_prediction": 5,
+        "auto_tune": 1, 
+        "eval_metrics":["mse", "rmse"], 
+        "hyper_params":[
+            {
+                "name": "latest_n", 
+                "type": "int",
+                "low": 1,
+                "high": 5
+            },
+            {
+                "name": "add_std_factor",
+                "type": "float",
+                "low": 0,
+                "high": 0.5
+            }
+        ],
+        "ts_id": 8797,
+        "feature_indexs": "[]"
+    }
+]
+```
+
+对于是选项的参数
+```json
+{
+    "name": "strategy",
+    "type": "list",
+    "choice": []
+}
+```
+可选的metrics
+```
+METRICS = {
+    "mse": mse,
+    "rmse": rmse,
+    "nrmse": nrmse,
+    "me": me,
+    "mae": mae,
+    "mad": mad,
+    "gmae": gmae,
+    "mdae": mdae,
+    "mpe": mpe,
+    "mape": mape,
+    "mdape": mdape,
+    "smape": smape,
+    "smdape": smdape,
+    "maape": maape,
+    "mase": mase,
+    "std_ae": std_ae,
+    "std_ape": std_ape,
+    "rmspe": rmspe,
+    "rmdspe": rmdspe,
+    "rmsse": rmsse,
+    "inrse": inrse,
+    "rrse": rrse,
+    "mre": mre,
+    "rae": rae,
+    "mrae": mrae,
+    "mdrae": mdrae,
+    "gmrae": gmrae,
+    "mbrae": mbrae,
+    "umbrae": umbrae,
+    "mda": mda,
+    "bias": bias,
+    "r2": r2_score,
+}
+```
+6. get results: job/job_id/job_results/
+如果已经执行完毕:
+```json
+{
+    "status": 3, // DONE
+    "results": [
+        {
+            "predictions": [
+                239,
+                241,
+                243,
+                245,
+                247
+            ],
+            "timestamps": [
+                "2020-09-08 00:00:00",
+                "2020-09-09 00:00:00",
+                "2020-09-10 00:00:00",
+                "2020-09-11 00:00:00",
+                "2020-09-12 00:00:00"
+            ],
+            "metrics": {
+                "mse": 356.4,
+                "rmse": 18.878559267062727
+            },
+            "config": [
+                {
+                    "name": "latest_n",
+                    "type": "int",
+                    "val": 5
+                },
+                {
+                    "name": "add_std_factor",
+                    "type": "float",
+                    "val": 0.5
+                }
+            ],
+            "ts_id": 63
+        },
+        {
+            "predictions": [
+                1544,
+                1599,
+                1653,
+                1708,
+                1762
+            ],
+            "timestamps": [
+                "2020-09-08 00:00:00",
+                "2020-09-09 00:00:00",
+                "2020-09-10 00:00:00",
+                "2020-09-11 00:00:00",
+                "2020-09-12 00:00:00"
+            ],
+            "metrics": {
+                "mse": 115500.0,
+                "rmse": 339.8529093593286
+            },
+            "config": [
+                {
+                    "name": "latest_n",
+                    "type": "int",
+                    "val": 5
+                },
+                {
+                    "name": "add_std_factor",
+                    "type": "float",
+                    "val": 0.5
+                }
+            ],
+            "ts_id": 64
+        },
+        {
+            "predictions": [
+                126,
+                130,
+                135,
+                140,
+                145
+            ],
+            "timestamps": [
+                "2020-09-08 00:00:00",
+                "2020-09-09 00:00:00",
+                "2020-09-10 00:00:00",
+                "2020-09-11 00:00:00",
+                "2020-09-12 00:00:00"
+            ],
+            "metrics": {
+                "mse": 911.8,
+                "rmse": 30.196026228628163
+            },
+            "config": [
+                {
+                    "name": "latest_n",
+                    "type": "int",
+                    "val": 5
+                },
+                {
+                    "name": "add_std_factor",
+                    "type": "float",
+                    "val": 0.5
+                }
+            ],
+            "ts_id": 65
+        }
+    ]
+}
+```
+如果未执行完毕
+```json
+{
+    "status": 2
+}
+```
+status含义
+```py
+class CmdStatus(models.IntegerChoices):
+    CREATED = 0
+    UNCOMITTED = 1
+    COMITTED = 2
+    DONE = 3
+    EXCEPTION = 4
+```

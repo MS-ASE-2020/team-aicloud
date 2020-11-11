@@ -81,7 +81,7 @@ class JobViewSet(
     def partial_update(self, request, pk):
         series = self.request.data
         queryset = self.request.user.jobs.all()
-        # sm = SeriesManager.get_instance()
+        results = list()
         for ts in series:
             ts_obj = models.Series.objects.get(pk=ts['ts_id'])
             predictor = models.Predictor.objects.create(
@@ -94,8 +94,6 @@ class JobViewSet(
                 data={
                     'feature_indexs': ts["feature_indexs"],
                     'status': models.CmdStatus.COMITTED,
-                    'related_data': self.get_object().related_data.pk,
-                    'related_job': self.get_object().pk
                     },
                 partial=True
             )
@@ -106,15 +104,21 @@ class JobViewSet(
             job_obj = self.get_object()
             _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
             feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
-            model = trainer.trainer(ts['model_name'], ts['hyper_params'])
+            model = trainer.trainer(
+                model_name=ts['model_name'], 
+                config=ts['hyper_params'], 
+                metrics=ts["eval_metrics"], 
+                auto_tune=ts["auto_tune"],
+                max_eval=ts["max_eval"])
             metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
-            pred = model.predict(5)
+            predictions, timestamps = model.predict(ts["next_k_prediction"])
             # save into predictors
             model_file = {
-                'predictions': pred,
+                'predictions': predictions,
+                'timestamps': timestamps,
                 'metrics': metrics,
                 'config': config,
-                'model': tuned_model
+                # 'model': tuned_model
             }
             p_serializer = serializers.PredictorSerializer(
                 predictor,
@@ -125,19 +129,21 @@ class JobViewSet(
             )
             p_serializer.is_valid(raise_exception=True)
             p_serializer.save()
+            model_file["ts_id"] = ts["ts_id"]
+            results.append(model_file)        
 
         job_obj = get_object_or_404(queryset, pk=pk)
-        job_serialzier = self.get_serializer(
+        job_serializer = self.get_serializer(
             job_obj,
-            data={'status': models.CmdStatus.COMITTED},
+            data={'status': models.CmdStatus.DONE},
             partial=True
         )
-        job_serialzier.is_valid(raise_exception=True)
-        job_result = job_serialzier.save()
+        job_serializer.is_valid(raise_exception=True)
+        job_result = job_serializer.save()
         
         return Response(
             status=status.HTTP_200_OK,
-            data=job_serialzier.data
+            data=results
         )
 
     """
@@ -161,6 +167,31 @@ class JobViewSet(
                 "features": features,
                 "groupby_key": groupby_key,
                 "ts_details": ts_details
+            }
+        )
+
+    @action(methods=['get'], detail=True, url_path='job_results', url_name='job_results')
+    def get_job_results(self, request, pk=None):
+        if self.get_object().status != models.CmdStatus.DONE:
+            return Response(
+                status=status.HTTP_200_ok,
+                data={
+                    'stauts': self.get_object().status
+                }
+            )
+
+        series = self.get_object().series.all()
+        results = []
+        for ts in series:
+            model_file = list(ts.predictor.all())[-1].model_file
+            model_file['ts_id'] = ts.id
+            results.append(model_file)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                'status': self.get_object().status,
+                'results': results
             }
         )
 
