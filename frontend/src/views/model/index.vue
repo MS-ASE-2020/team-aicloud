@@ -1,82 +1,121 @@
 <template>
   <div class="app-container">
-    <el-form ref="form" label-width="150px">
-      <el-form-item label="Model">
-        <el-select v-model="selected_model" placeholder="Select your model" @change="AddParam()">
-          <el-option
-            v-for="item in models"
-            :key="item"
-            :label="item"
-            :value="item"
-          >
-            <span style="float: left">{{ item }}</span>
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <div v-if="Selected">
-      <el-form-item label="Parameter Set">
-      </el-form-item>
-      <el-form-item
-        v-for="param in parameters"
-        :label="param.label"
-        :key="param.label"
-        >
-        <el-input v-model="param.val" type="textarea" placeholder=param.val maxlength="150px"></el-input>
-        <el-tooltip class="item" effect="dark" placement="right-start">
-          <i class="el-icon-info"></i>
-            <div slot="content">{{param.intro}}</div>          
-          </el-tooltip>
-      </el-form-item>
-      </div>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">Train</el-button>
-        <el-button @click="onCancel">Cancel</el-button>
-      </el-form-item>
-    </el-form>
+    <el-table
+      :data="series"
+      style="width: 100%"
+    >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <series-set :id="props.row.ts_id" :features="features" v-on:setDone="setDone(arguments)"></series-set>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="Ts_Id"
+        prop="ts_id"
+      >
+      </el-table-column>
+      <el-table-column
+        :label="groupby_key_name"
+        prop="groupby_val"
+      >
+      </el-table-column>
+      <el-table-column
+        label="Setting Count"
+        prop="count"
+      >
+      </el-table-column>
+    </el-table>
+    <el-button type="primary" @click="onSubmit">Submit</el-button>
   </div>
 </template>
 
 <script>
-import { getModels, postModel, getParams, postParams } from '@/api/model'
+import { postSeries, fetchSeries } from '@/api/model'
+import SeriesSet from './components/SeriesSet'
 
 export default {
+  components: {
+    SeriesSet
+  },
   data() {
     return {
-      Selected: false,
-      models: [],
-      parameters: [],
-      selected_model: ''
+      min_ts_id: 0,
+      jobId: '',
+      series: [],
+      groupby_key_name: '',
+      features: [],
+      filters: [],
+      seriesSettings: []
     }
   },
   created() {
-    this.fetchModels()
+    this.jobId = this.$route.query.job_id
+    this.fetchData()
   },
   methods: {
-    fetchModels() {
-      getModels().then(response => {
-        this.models = response.data.data
-      }).catch(err => {
+    minId() {
+      let tmpmin = this.series[0]['ts_id']
+      this.series.forEach(element => {
+          tmpmin = element.ts_id < tmpmin ? element.ts_id : tmpmin
+        }        
+      )
+      this.min_ts_id = tmpmin
+    },
+    createName(arr) {
+      console.log(arr)
+      arr.forEach(element => {
+        this.groupby_key_name = this.groupby_key_name + String(element) + '_'
+      })
+    },
+    fetchData() {
+      this.createName(this.filters)
+      fetchSeries(this.jobId).then( response => {
+        this.features = response.data.features
+        this.series = response.data.ts_details
+        //Add count
+        for(let i = 0; i<this.series.length; i++){
+          this.series[i]['count'] = 0
+        }
+        console.log(this.series)
+        this.filters = response.data.groupby_key
+        this.createName(this.filters)
+        this.minId()
+      }).catch( err => {
         console.log(err)
       })
+    },
+    setDone(params) {
+      let id = params[0]
+      let applyAll = params[1]
+      let settings = params[2]
+      if(applyAll) {
+        let len = this.series.length
+        for(let i = 0; i<len; i++){
+          //strange bug ts_id are all same
+          settings['ts_id']= this.series[i].ts_id
+          let row = this.series[i]
+          row.count = row.count + 1
+          this.$set(this.series, i, row)
+          console.log(this.series[i].count)
+          this.seriesSettings.push(settings)
+        }
+      }
+      else {
+        settings['ts_id']=id
+        let idx = id - this.min_ts_id
+        let row = this.series[idx]
+        row.count = row.count + 1
+        this.$set(this.series, idx, row)
+        this.seriesSettings.push(settings)
+      }
     },
     onSubmit() {
-      postParams(this.parameters)
-      this.$message('Start!')
-    },
-    onCancel() {
-      this.$message({
-        message: 'cancel!',
-        type: 'warning'
-      })
-    },
-    AddParam() {
-      getParams(this.selected_model).then(response => {
-        this.parameters = response.data.data
-      }).catch(err => {
+      postSeries(this.jobId, this.seriesSettings).then( response => {
+        this.$message('Submit!')
+        this.$router.push({path: '/output', query: {job_id: this.jobId}})
+      }).catch( err => {
         console.log(err)
       })
-
-      this.Selected = true
     }
   }
 }

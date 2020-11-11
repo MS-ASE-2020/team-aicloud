@@ -14,7 +14,11 @@ class Series(models.Model):
     )
     status = models.IntegerField(
         choices=CmdStatus.choices,
+<<<<<<< HEAD
         default=CmdStatus.UNCOMITTED,
+=======
+        default=CmdStatus.CREATED,
+>>>>>>> a3fdca86b02bec6864f5feaa4beb84716b088eb9
     )
     feature_indexs = models.CharField(
         max_length=256,

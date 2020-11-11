@@ -1,10 +1,12 @@
 import json
 import os
-from metrics import *
-import ts_models
+from .metrics import *
+import project.ts_models as ts_models
+from .ts_models import *
 import datetime
 import pandas as pd
-import utils
+# import utils
+from .utils import *
 import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
@@ -18,42 +20,44 @@ class trainer():
         self.features = False
         self.max_eval = max_eval
 
-    def preprocess(self, ts_data, ts, features):
-        self.start_ts = datetime.datetime.strptime(min(ts), "%Y-%m-%d")
-        self.end_ts = datetime.datetime.strptime(max(ts), "%Y-%m-%d")
+    def preprocess(self, ts_data, target_idx, ts_idx, feature_idx):
+        # FIXME: data type is object currently
+        ts = ts_data[:, ts_idx]
+        self.start_ts = datetime.datetime.strptime(min(ts), "%m/%d/%Y")
+        self.end_ts = datetime.datetime.strptime(max(ts), "%m/%d/%Y")
         self.interval = (self.end_ts - self.start_ts) / (len(ts) - 1)
-        if features is None:
-            features = ts_data
-        return features, ts_data
-
-    def train(self, data_df):
-        ts_data_array = data_df["TimeSeriesValues"].to_numpy()
-        ts = data_df["TimeSeries"].to_numpy()
-        if "Features" in data_df.columns:
-            features = data_df["Features"].to_numpy()
-            self.features = True
+        # directly taking related idx would result in empty dataframe
+        if len(feature_idx) == 0:
+            features = range(ts_data.shape[0])
         else:
-            features = None
-        X, y = self.preprocess(ts_data_array, ts, features)
+            self.features = True
+            features = ts_data[:, feature_idx].astype('float64')
+        y = ts_data[:, target_idx].astype('float64')
+        return features, y
+
+    def train(self, data_df, target_idx, ts_idx, feature_idx):
+        # TODO: test features dataset
+        data = data_df.to_numpy()
+        X, y = self.preprocess(data, target_idx, ts_idx, feature_idx)
         # train test split
         # TODO: split into train val test 
-        self.recent_n_validation = utils.get_validation_period(X)
+        self.recent_n_validation = eval_func.get_validation_period(X)
         if len(X) > self.recent_n_validation:
             self.X_train = X[0:-self.recent_n_validation]
             self.y_train = y[0:-self.recent_n_validation]
-            self.X_valid = X[-self.recent_n_validation]
-            self.y_valid = y[-self.recent_n_validation]
+            self.X_valid = X[-self.recent_n_validation:]
+            self.y_valid = y[-self.recent_n_validation:]
         else:
             self.X_train = X
             self.y_train = y
             self.X_valid = X + [0] * (self.recent_n_validation - len(X))
             self.y_valid = y + [0] * (self.recent_n_validation - len(y))
 
+        space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
-            self.model = self._train(config)["trained_Model"]
+            self.model = self._train(space)["trained_Model"]
             best = self.config
         else:
-            space = utils.hyper_space(self.model_name.lower())
             trials = Trials()
             best = fmin(fn=self._train,
                         space=space,
@@ -61,33 +65,33 @@ class trainer():
                         max_evals=self.max_eval, 
                         trials=trials)
             print(best)
-            tuned_model, min_loss = utils.getBestModelfromTrials(trials)
-            self.model = tuned_model
+            self.model, min_loss = model_hyper.getBestModelfromTrials(trials)
         
         pred = self._predict(self.recent_n_validation)
-        results = self._eval(pred, self.y_valid)
-        results["config"] = best 
+        metrics = self._eval(pred, self.y_valid)
 
-        return results
+        return metrics, best, self.model
 
     def predict(self, nextKPrediction):
         pred = self._predict(nextKPrediction) 
         
-        predictions = dict()
+        timestamps = list()
+        predictions = list()
         for i in range(nextKPrediction):
             ts = self.end_ts + (i + 1) * self.interval
             ts = datetime.datetime.strftime(ts, "%Y-%m-%d %X")
-            predictions[ts] = pred[i]
+            timestamps.append(ts)
+            predictions.append(pred[i])
 
-        return predictions
+        return predictions, timestamps
 
     # save model 
     def save(self, path):
         pass
 
     def _train(self, space):
-        model = getattr(ts_models, self.model_name)(
-            round_non_negative_int_func=utils.round_non_negative_int,
+        model = getattr(ts_models, self.model_name + 'Model')(
+            round_non_negative_int_func=eval_func.round_non_negative_int,
             **space)
 
         if self.features:
@@ -121,10 +125,10 @@ if __name__ == '__main__':
         "add_std_factor": 0.5
     }
     model_name = "LinearFitModel"
-    path = '/home/yaq/team-aicloud/restful_backend/uploads/foo.csv'
+    path = '../uploads/Book1.csv'
     df = pd.read_csv(path)
     trainer = trainer(model_name, config)
-    results = trainer.train(df)
+    results = trainer.train(df, 1, 0, [])
     pred = trainer.predict(5)
     print(results)
     # {'mse': 1826699.0, 'rmse': 1351.5542904374947}

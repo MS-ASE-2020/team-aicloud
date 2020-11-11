@@ -91,8 +91,8 @@ def generate_hyper(path='model_hypers.json'):
     return hypers
 
 def get_model_hyper(model_name):
-    if model_name.lower() in MODELS.keys():
-        hypers = MODELS[model_name.lower()]()
+    if model_name in MODELS.keys():
+        hypers = MODELS[model_name]()
         return hypers
     else:
         raise Exception("unexpected model name %s" %model_name)

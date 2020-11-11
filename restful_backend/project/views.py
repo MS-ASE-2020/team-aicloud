@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, authentication, permissions, decorators, viewsets, mixins, status
-from rest_framework.decorators import APIView
+from rest_framework.decorators import APIView, action
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from . import models
 from . import serializers
 from .utils import *
-
+import json
+from . import trainer
 
 # Create your views here.
 class JobViewSet(
@@ -52,6 +53,150 @@ class JobViewSet(
             "status": status.HTTP_200_OK,
         })
 
+    """
+    add indices configuration: traget, time_stamp, group_by
+    and create series
+    """
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        group_by_indices = self.request.data["groupby_indexs"]
+        dataset_path = self.get_object().related_data.upload
+        group_by_vals = dataset_utils.slice_dataset(dataset_path, group_by_indices)
+        # create series 
+        for val in group_by_vals:
+            ts = models.Series.objects.create(
+                cluster_key=val,
+                status=models.CmdStatus.CREATED,
+                related_job=self.get_object(),
+                related_data=self.get_object().related_data
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    """
+    add configuration for related_ts: features, models, model_hyper-paramter
+    change series status to uncomitted
+    start model_training
+    """
+    def partial_update(self, request, pk):
+        series = self.request.data
+        queryset = self.request.user.jobs.all()
+        results = list()
+        for ts in series:
+            ts_obj = models.Series.objects.get(pk=ts['ts_id'])
+            predictor = models.Predictor.objects.create(
+                name=ts['model_name'],
+                model_file={'hyper_params': ts['hyper_params']},
+                related_series=ts_obj
+            )
+            ts_serializer = serializers.SeriesSerializer(
+                ts_obj,
+                data={
+                    'feature_indexs': ts["feature_indexs"],
+                    'status': models.CmdStatus.COMITTED,
+                    },
+                partial=True
+            )
+            ts_serializer.is_valid(raise_exception=True)
+            ts_result = ts_serializer.save()
+            dataset = dataset_utils.get_sliced_dataset(self.get_object().related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
+            # sm.commit_job(ts_serializer.data)
+            job_obj = self.get_object()
+            _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
+            feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
+            model = trainer.trainer(
+                model_name=ts['model_name'], 
+                config=ts['hyper_params'], 
+                metrics=ts["eval_metrics"], 
+                auto_tune=ts["auto_tune"],
+                max_eval=ts["max_eval"])
+            metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
+            predictions, timestamps = model.predict(ts["next_k_prediction"])
+            # save into predictors
+            model_file = {
+                'predictions': predictions,
+                'timestamps': timestamps,
+                'metrics': metrics,
+                'config': config,
+                # 'model': tuned_model
+            }
+            p_serializer = serializers.PredictorSerializer(
+                predictor,
+                data={
+                    'model_file': model_file
+                },
+                partial=True
+            )
+            p_serializer.is_valid(raise_exception=True)
+            p_serializer.save()
+            model_file["ts_id"] = ts["ts_id"]
+            model_file["model_name"] = ts['model_name']
+            results.append(model_file)        
+
+        job_obj = get_object_or_404(queryset, pk=pk)
+        job_serializer = self.get_serializer(
+            job_obj,
+            data={'status': models.CmdStatus.DONE},
+            partial=True
+        )
+        job_serializer.is_valid(raise_exception=True)
+        job_result = job_serializer.save()
+        
+        return Response(
+            status=status.HTTP_200_OK,
+            data=results
+        )
+
+    """
+    return series' available features, groupby_key, groupby_val
+    """
+    @action(methods=['get'], detail=True, url_path='ts_details', url_name='ts_details')
+    def get_ts_details(self, request, pk=None):
+        import pandas as pd
+        job_obj = self.get_object()
+        # FIXME: csv reading may be redundant
+        data_path = job_obj.related_data.upload.path
+        df = pd.read_csv(data_path)
+        headers = df.columns
+        groupby_key, target_idx, ts_idx = dataset_utils.str2list(job_obj)
+        groupby_key = list(map(lambda x: headers[int(x)], groupby_key))
+        features = list(set(headers) - set(groupby_key) - set([headers[target_idx]]) - set([headers[ts_idx]]))
+        ts_details = [{"ts_id": x.pk, "groupby_val": x.cluster_key} for x in job_obj.series.all()]
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                "features": features,
+                "groupby_key": groupby_key,
+                "ts_details": ts_details
+            }
+        )
+
+    @action(methods=['get'], detail=True, url_path='job_results', url_name='job_results')
+    def get_job_results(self, request, pk=None):
+        if self.get_object().status != models.CmdStatus.DONE:
+            return Response(
+                status=status.HTTP_200_ok,
+                data={
+                    'stauts': self.get_object().status
+                }
+            )
+
+        series = self.get_object().series.all()
+        results = []
+        for ts in series:
+            model_file = list(ts.predictor.all())[-1].model_file
+            model_file['ts_id'] = ts.id
+            results.append(model_file)
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data={
+                'status': self.get_object().status,
+                'results': results
+            }
+        )
+
+
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user
@@ -84,12 +229,22 @@ class DatasetViewSet(
         with open(dataset.upload.path, 'r') as f:
             header = next(csv.reader(StringIO(next(f)), delimiter=','))
         header = [{"index": idx, "label": label if label != '' else f'Unknown-{idx}'} for idx, label in enumerate(header)]
+        heads = dataset_utils.preview(dataset.upload)
         return Response({
             "data": serializer.data,
             "header": header,
             "status": status.HTTP_200_OK,
+            "heads": heads
         })
     
+    def list(self, request):
+        dataset = [{"name": x.name, "id": x.pk} for x in self.request.user.datasets.all()]
+
+        return Response(
+            status=status.HTTP_200_OK,
+            data=dataset
+        )
+
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
 @decorators.permission_classes([])

@@ -10,7 +10,9 @@ class Predictor(models.Model):
         max_length=32,
         default=crypto.get_random_string,
     )
-    model_file = PickledObjectField()
+    model_file = PickledObjectField(
+        editable=True
+    )
     time_created = models.DateTimeField(
         verbose_name="the create time of model",
         help_text="the time when model created; auto-generated",
@@ -22,5 +24,11 @@ class Predictor(models.Model):
         Series,
         related_name="predictor",
         null=False,
+<<<<<<< HEAD
         blank=False
+=======
+        blank=False,
+        default=0,
+        on_delete=models.CASCADE
+>>>>>>> a3fdca86b02bec6864f5feaa4beb84716b088eb9
     )
