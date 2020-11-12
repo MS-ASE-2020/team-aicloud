@@ -1,8 +1,8 @@
 import numpy as np
 
 class MaxNModel:
-    def __init__(self, round_non_negative_int_func, n):
-        self.n = int(n)
+    def __init__(self, round_non_negative_int_func, latest_n):
+        self.n = int(latest_n)
         self.model_name = "Max_{}_Model".format(self.n)
         self.round_non_negative_int_func = round_non_negative_int_func
         self.max = 0

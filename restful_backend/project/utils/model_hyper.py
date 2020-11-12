@@ -13,34 +13,42 @@ def _adaptive_maxn_hyper(latest_n=5):
     hyper['latest_n'] = latest_n
     return hyper
 
-def _arima_hyper(latest_n=5):
+def _arima_hyper(add_std_factor=0.1):
     hyper = dict()
-    hyper['latest_n'] = latest_n
+    hyper['add_std_factor'] = add_std_factor    
     return hyper
 
-def _prophet_hyper(changepoint_prior_scale=0.1, add_std_factor=0.1):
+def _prophet_hyper(changepoint_prior_scale=0.3, add_std_factor=0.25):
     hyper = dict()
     hyper['changepoint_prior_scale'] = changepoint_prior_scale
     hyper['add_std_factor'] = add_std_factor    
     return hyper
 
-def _linear_fit_hyper(add_std_factor=0.1, sample_fold_used=2, latest_n=5):
+def _linear_fit_hyper(add_std_factor=0.1, latest_n=5):
     hyper = dict()
     hyper['latest_n'] = latest_n
     hyper['add_std_factor'] = add_std_factor
-    hyper['sample_fold_used'] = sample_fold_used
     return hyper
 
-def _lstm_hyper(lstm_cells_per_layer_used=100, sample_num=5):
+def _lstm_hyper(lstm_cells_per_layer_used=100, sample_num=5,
+ epochs_used=100, batch_size_used=5, optimizer_used=['adam'], ):
     hyper = dict()
     hyper['lstm_cells_per_layer_used'] = lstm_cells_per_layer_used
     hyper['sample_num'] = sample_num
+    hyper['loss_used'] = loss_used
+    hyper['sample_fold_used'] = sample_fold_used
+    hyper['epochs_used'] = epochs_used
+    hyper['batch_size_used'] = batch_size_used
     return hyper
 
-def _lstm_long_hyper(lstm_cells_per_layer_used=100, loss_used=['mean_squared_error']):
+def _lstm_long_hyper(lstm_cells_per_layer_used=100, loss_used=['mean_squared_error'], epochs_used=100, batch_size_used=5,
+optimizer_used=['adam'], sample_fold_used=2):
     hyper = dict()
     hyper['lstm_cells_per_layer_used'] = lstm_cells_per_layer_used
     hyper['loss_used'] = loss_used
+    hyper['sample_fold_used'] = sample_fold_used
+    hyper['epochs_used'] = epochs_used
+    hyper['batch_size_used'] = batch_size_used
     return hyper
 
 def _new_random_arrival_hyper(

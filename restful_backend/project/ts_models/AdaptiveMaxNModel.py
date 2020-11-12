@@ -2,9 +2,9 @@ import numpy as np
 
 
 class AdaptiveMaxNModel:
-    def __init__(self, round_non_negative_int_func, evaluation_function, eval_len=24):
+    def __init__(self, round_non_negative_int_func, evaluation_function, latest_n=24):
         self.round_non_negative_int_func = round_non_negative_int_func
-        self.eval_len = eval_len
+        self.eval_len = latest_n
         self.evaluation_function = evaluation_function
         self.model_name = "Adaptive_Max_N_Model"
 
