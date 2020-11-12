@@ -187,7 +187,10 @@ class JobViewSet(
             ts_results = []
             for predictor in ts.predictor.all():
                 if predictor.status == models.CmdStatus.DONE:
-                    ts_results.append(predictor.model_file)
+                    model_file = predictor.model_file
+                    model_file["ts_id"] = ts["ts_id"]
+                    model_file["model_name"] = ts['model_name']
+                    ts_results.append(model_file)
             
             results.append({
                 'ts_id': ts.id,

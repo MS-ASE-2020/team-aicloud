@@ -4,14 +4,14 @@ import math
 
 
 class NewRandomArrivalModel:
-    def __init__(self, round_non_negative_int_func, spike_detect_lag=12, spike_detect_std_threshold=2, spike_detect_influence=0.5, ts_len=360,
+    def __init__(self, round_non_negative_int_func, spike_detect_lag=12, spike_detect_std_threshold=2, spike_detect_influence=0.5, latest_n=360,
                  rise_strategy="auto", decline_strategy="exponential", add_std_factor=0, confidence_threshold=0.75, height_limit="average"):
         self.has_spike = False
         self.round_non_negative_int_func = round_non_negative_int_func
         self.spike_detect_lag = spike_detect_lag
         self.spike_detect_std_threshold = spike_detect_std_threshold
         self.spike_detect_influence = spike_detect_influence
-        self.ts_len = ts_len
+        self.ts_len = latest_n
         self.rise_strategy = rise_strategy
         self.decline_strategy = decline_strategy
         self.add_std_factor = add_std_factor

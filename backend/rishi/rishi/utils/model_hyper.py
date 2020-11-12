@@ -68,7 +68,7 @@ def _random_arrival_hyper(fit_model=[ "Expon", "Weibull", "Sampling"]):
 
 # generate mdoel hyper-parameaters
 MODELS = {
-    'adaptiveaverage': _adaptive_average_hyper,
+    'adaptiveaveragen': _adaptive_average_hyper,
     'adaptivemaxn': _adaptive_maxn_hyper,
     'adrima': _adrima_hyper,
     'prophet': _prophet_hyper,
