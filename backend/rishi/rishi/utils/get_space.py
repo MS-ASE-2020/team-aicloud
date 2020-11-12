@@ -27,7 +27,7 @@ def hyper_space(model, udf_parameter=None, path='model_hypers.json'):
 
 if __name__ == '__main__':
     MODELS = [
-        'adaptiveaverage',
+        'adaptiveaveragen',
         'adaptivemaxn',
         'adrima',
         'prophet',
