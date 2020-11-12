@@ -66,7 +66,6 @@ class JobViewSet(
         for val in group_by_vals:
             ts = models.Series.objects.create(
                 cluster_key=val,
-                status=models.CmdStatus.CREATED,
                 related_job=self.get_object(),
                 related_data=self.get_object().related_data
             )
@@ -86,15 +85,15 @@ class JobViewSet(
             ts_obj = models.Series.objects.get(pk=ts['ts_id'])
             predictor = models.Predictor.objects.create(
                 name=ts['model_name'],
+                status=models.CmdStatus.COMITTED,
                 model_file={'hyper_params': ts['hyper_params']},
                 related_series=ts_obj
             )
             ts_serializer = serializers.SeriesSerializer(
                 ts_obj,
                 data={
-                    'feature_indexs': ts["feature_indexs"],
-                    'status': models.CmdStatus.COMITTED,
-                    },
+                    'feature_indexs': ts["feature_indexs"]
+                },
                 partial=True
             )
             ts_serializer.is_valid(raise_exception=True)
@@ -123,7 +122,8 @@ class JobViewSet(
             p_serializer = serializers.PredictorSerializer(
                 predictor,
                 data={
-                    'model_file': model_file
+                    'model_file': model_file,
+                    'status': models.CmdStatus.DONE,
                 },
                 partial=True
             )
@@ -184,9 +184,15 @@ class JobViewSet(
         series = self.get_object().series.all()
         results = []
         for ts in series:
-            model_file = list(ts.predictor.all())[-1].model_file
-            model_file['ts_id'] = ts.id
-            results.append(model_file)
+            ts_results = []
+            for predictor in ts.predictor.all():
+                if predictor.status == models.CmdStatus.DONE:
+                    ts_results.append(predictor.model_file)
+            
+            results.append({
+                'ts_id': ts.id,
+                'results': ts_results
+            })
 
         return Response(
             status=status.HTTP_200_OK,

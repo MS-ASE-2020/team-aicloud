@@ -2,8 +2,6 @@ from django.core.validators import int_list_validator
 from django.db import models
 from .job import Job
 from .dataset import Dataset
-from .status import CmdStatus
-
 
 class Series(models.Model):
     cluster_key = models.CharField(
@@ -11,10 +9,6 @@ class Series(models.Model):
         null=True,
         blank=False,
         default=None,
-    )
-    status = models.IntegerField(
-        choices=CmdStatus.choices,
-        default=CmdStatus.CREATED,
     )
     feature_indexs = models.CharField(
         max_length=256,
