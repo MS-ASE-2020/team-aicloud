@@ -6,7 +6,7 @@
     >
       <el-table-column type="expand">
         <template slot-scope="props">
-          <series-set :id="props.row.ts_id" :features="features" v-on:setDone="setDone"></series-set>
+          <series-set :id="props.row.ts_id" :features="features" v-on:setDone="setDone(arguments)"></series-set>
         </template>
       </el-table-column>
       <el-table-column
@@ -20,11 +20,9 @@
       >
       </el-table-column>
       <el-table-column
-        label="Apply All"
+        label="Setting Count"
+        prop="count"
       >
-        <template slot-scope="props">
-          <el-button size="mini" @click="ApplyAll(props.rows.id)">Apply</el-button>
-        </template>
       </el-table-column>
     </el-table>
     <el-button type="primary" @click="onSubmit">Submit</el-button>
@@ -41,6 +39,7 @@ export default {
   },
   data() {
     return {
+      min_ts_id: 0,
       jobId: '',
       series: [],
       groupby_key_name: '',
@@ -54,6 +53,14 @@ export default {
     this.fetchData()
   },
   methods: {
+    minId() {
+      let tmpmin = this.series[0]['ts_id']
+      this.series.forEach(element => {
+          tmpmin = element.ts_id < tmpmin ? element.ts_id : tmpmin
+        }        
+      )
+      this.min_ts_id = tmpmin
+    },
     createName(arr) {
       console.log(arr)
       arr.forEach(element => {
@@ -65,14 +72,42 @@ export default {
       fetchSeries(this.jobId).then( response => {
         this.features = response.data.features
         this.series = response.data.ts_details
+        //Add count
+        for(let i = 0; i<this.series.length; i++){
+          this.series[i]['count'] = 0
+        }
+        console.log(this.series)
         this.filters = response.data.groupby_key
         this.createName(this.filters)
+        this.minId()
       }).catch( err => {
         console.log(err)
       })
     },
-    setDone(settings) {
-      this.seriesSettings.push(settings)
+    setDone(params) {
+      let id = params[0]
+      let applyAll = params[1]
+      let settings = params[2]
+      if(applyAll) {
+        let len = this.series.length
+        for(let i = 0; i<len; i++){
+          //strange bug ts_id are all same
+          settings['ts_id']= this.series[i].ts_id
+          let row = this.series[i]
+          row.count = row.count + 1
+          this.$set(this.series, i, row)
+          console.log(this.series[i].count)
+          this.seriesSettings.push(settings)
+        }
+      }
+      else {
+        settings['ts_id']=id
+        let idx = id - this.min_ts_id
+        let row = this.series[idx]
+        row.count = row.count + 1
+        this.$set(this.series, idx, row)
+        this.seriesSettings.push(settings)
+      }
     },
     onSubmit() {
       postSeries(this.jobId, this.seriesSettings).then( response => {

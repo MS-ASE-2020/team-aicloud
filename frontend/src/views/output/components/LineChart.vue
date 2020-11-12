@@ -61,10 +61,25 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ expectedData, actualData } = {}) {
+    generateSeries() {
+      let series = []
+      let lists = this.chartData.datalists
+      for(var i = 0; i<lists.length; i++) {
+        let setting = {
+          type: 'line',
+          smooth: true
+        }
+        setting['data'] = lists[i]
+        series.push(setting)
+      }
+      return series
+    },
+    setOptions({ timestamps, datalists, legend } = {}) {
       this.chart.setOption({
+        //option中的每个属性是一类组件
+        //如果有多个同类组件 就是一个数组
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: timestamps,
           boundaryGap: false,
           axisTick: {
             show: false
@@ -87,47 +102,51 @@ export default {
         yAxis: {
           axisTick: {
             show: false
+          },
+          min: function(value){
+            return value.min;
           }
         },
         legend: {
-          data: ['expected', 'actual']
+          data: legend
         },
-        series: [{
-          name: 'expected', itemStyle: {
-            normal: {
-              color: '#FF005A',
-              lineStyle: {
-                color: '#FF005A',
-                width: 2
-              }
-            }
-          },
-          smooth: true,
-          type: 'line',
-          data: expectedData,
-          animationDuration: 2800,
-          animationEasing: 'cubicInOut'
-        },
-        {
-          name: 'actual',
-          smooth: true,
-          type: 'line',
-          itemStyle: {
-            normal: {
-              color: '#3888fa',
-              lineStyle: {
-                color: '#3888fa',
-                width: 2
-              },
-              areaStyle: {
-                color: '#f3f8ff'
-              }
-            }
-          },
-          data: actualData,
-          animationDuration: 2800,
-          animationEasing: 'quadraticOut'
-        }]
+        series: this.generateSeries()
+        // [{
+        //   name: 'expected', itemStyle: {
+        //     normal: {
+        //       color: '#FF005A',
+        //       lineStyle: {
+        //         color: '#FF005A',
+        //         width: 2
+        //       }
+        //     }
+        //   },
+        //   smooth: true,
+        //   type: 'line',
+        //   data: expectedData,
+        //   animationDuration: 2800,
+        //   animationEasing: 'cubicInOut'
+        // },
+        // {
+        //   name: 'actual',
+        //   smooth: true,
+        //   type: 'line',
+        //   itemStyle: {
+        //     normal: {
+        //       color: '#3888fa',
+        //       lineStyle: {
+        //         color: '#3888fa',
+        //         width: 2
+        //       },
+        //       areaStyle: {
+        //         color: '#f3f8ff'
+        //       }
+        //     }
+        //   },
+        //   data: actualData,
+        //   animationDuration: 2800,
+        //   animationEasing: 'quadraticOut'
+        // }]
       })
     }
   }
