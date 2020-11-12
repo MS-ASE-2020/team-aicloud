@@ -15,13 +15,13 @@ def _adaptive_maxn_hyper(latest_n=5):
 
 def _arima_hyper(add_std_factor=0.1):
     hyper = dict()
-    hyper['add_std_factor'] = add_std_factor    
+    hyper['add_std_factor'] = add_std_factor
     return hyper
 
 def _prophet_hyper(changepoint_prior_scale=0.3, add_std_factor=0.25):
     hyper = dict()
     hyper['changepoint_prior_scale'] = changepoint_prior_scale
-    hyper['add_std_factor'] = add_std_factor    
+    hyper['add_std_factor'] = add_std_factor
     return hyper
 
 def _linear_fit_hyper(add_std_factor=0.1, latest_n=5):
@@ -104,7 +104,7 @@ def get_models():
     models = []
     for name in MODELS.keys():
         models.append(name)
-    
+
     return models
 
 def get_model_hyper(model_name):
@@ -134,7 +134,7 @@ def set_model_hyper(model_name, **kwargs):
 """
 "hyper_params":[
     {
-        "name": "latest_n", 
+        "name": "latest_n",
         "type": "int",
         "low": 1,
         "high": 5
@@ -188,7 +188,6 @@ def getBestModelfromTrials(trials):
 
 if __name__ == '__main__':
     hypers = generate_hyper()
-    print(get_model())
+    print(get_models())
     print(get_model_hyper('AdaptiveMaxN'))
 
-    
