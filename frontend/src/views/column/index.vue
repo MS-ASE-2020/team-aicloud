@@ -1,5 +1,6 @@
 <template>
   <div>
+    <h1 style="margin: 20px">Divide Dataset</h1>
     <el-form ref="form" :model="form" label-width="150px">
       <el-form-item label="Timestamp">
         <el-select v-model="form.timestamp_indexs" placeholder="Select Column">
@@ -45,14 +46,14 @@
 </template>
 
 <script>
-import { getColumn, postColumn, getDataSets, postDataSet } from '@/api/column'
+import { getColumn, postColumn } from '@/api/column'
 
 export default {
   data() {
     return {
-      //Job
+      // Job
       jodId: '',
-      //Column
+      // Column
       columns: [],
       form: {
         timestamp_indexs: '',
@@ -74,18 +75,17 @@ export default {
       })
     },
     onSubmit() {
-      let form_data = {}
+      const form_data = {}
       form_data['timestamp_indexs'] = '[' + this.form.timestamp_indexs.toString() + ']'
       form_data['target_indexs'] = '[' + this.form.target_indexs.toString() + ']'
       form_data['groupby_indexs'] = '[' + this.form.groupby_indexs.toString() + ']'
       postColumn(this.jodId, form_data).then(response => {
         console.log(response)
         this.$message('Success!')
-        this.$router.push({path: '/job/models', query: { job_id:this.jodId }})
+        this.$router.push({ path: '/job/models', query: { job_id: this.jodId }})
       }).catch(error => {
         console.log(error)
       })
-      
     }
   }
 }
