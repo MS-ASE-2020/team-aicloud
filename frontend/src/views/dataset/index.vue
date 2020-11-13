@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h3>Select Dataset</h3>
-    <el-select v-model="data" placeholder="Select DataSet" @change="previewDataset()">
+    <h1 style="margin: 20px">Select Dataset</h1>
+    <el-select v-model="data" placeholder="Select DataSet" style="display:block;margin:20px" @change="previewDataset()">
       <el-option
         v-for="item in datasets"
         :key="item.id"
@@ -23,7 +23,7 @@
       >
       </el-table-column>
     </el-table> 
-    <el-button type="primary" @click="onSubmit">Submit</el-button>
+    <el-button type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
   </div>
 </template>
 

@@ -19,7 +19,9 @@ export function postSeries(job_id,data) {
     return request({
         url: '/job/' + String(job_id) + '/',
         method: 'patch',
-        data: data
+        data: data,
+        // TODO: set asynchronous request later
+        timeout: 50000
     })
 }
 

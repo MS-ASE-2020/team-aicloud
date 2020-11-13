@@ -1,0 +1,36 @@
+{
+    "data": {
+        "path": ""
+    },
+    "job": {
+        "id": 0,
+        "groupby": "",
+        "target": "",
+        "ts": ""
+    },
+    "series": {
+        "feature_index": [1, 2, 3]
+    },
+    "models": {
+        "feature_index": {
+            "model_name": "MaxNModel",
+            "model_params": {
+                "name": "lastest_n",
+                "description": "the lastest n values for prediction",
+                "value": null,
+                "searcher": {
+                    "package": "hyperopt",
+                    "search_times": 100,
+                    "criterion": {
+                        "name": "mse",
+                        "description": "mean square error",
+                    }
+                },
+                "searcher_config": {
+                    "range": [1, 10],
+                    "distribution": "uniform",
+                }
+            }
+        }
+    }
+}
