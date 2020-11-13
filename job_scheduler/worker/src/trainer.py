@@ -1,14 +1,11 @@
-import json
-import os
-from .metrics import *
-import project.ts_models as ts_models
-from .ts_models import *
+import ts_models
 import datetime
 import pandas as pd
 # import utils
-from .utils import *
-import hyperopt
+from utils import model_hyper, eval_func
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+from utils.metrics import METRICS
+
 
 class trainer():
     def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
@@ -40,7 +37,7 @@ class trainer():
         data = data_df.to_numpy()
         X, y = self.preprocess(data, target_idx, ts_idx, feature_idx)
         # train test split
-        # TODO: split into train val test 
+        # TODO: split into train val test
         self.recent_n_validation = eval_func.get_validation_period(X)
         if len(X) > self.recent_n_validation:
             self.X_train = X[0:-self.recent_n_validation]
@@ -56,25 +53,25 @@ class trainer():
         space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
             self.model = self._train(space)["trained_Model"]
-            best = {x["name"]: x["val"] for x in self.config}
+            best = self.config
         else:
             trials = Trials()
             best = fmin(fn=self._train,
                         space=space,
                         algo=tpe.suggest,
-                        max_evals=self.max_eval, 
+                        max_evals=self.max_eval,
                         trials=trials)
             print(best)
             self.model, min_loss = model_hyper.getBestModelfromTrials(trials)
-        
+
         pred = self._predict(self.recent_n_validation)
         metrics = self._eval(pred, self.y_valid)
 
         return metrics, best, self.model
 
     def predict(self, nextKPrediction):
-        pred = self._predict(nextKPrediction) 
-        
+        pred = self._predict(nextKPrediction)
+
         timestamps = list()
         predictions = list()
         for i in range(nextKPrediction):
@@ -85,7 +82,7 @@ class trainer():
 
         return predictions, timestamps
 
-    # save model 
+    # save model
     def save(self, path):
         pass
 
@@ -106,15 +103,15 @@ class trainer():
             loss = METRICS["mse"](self.y_valid, pred)
             return {'loss': loss, 'status': STATUS_OK, 'trained_Model': model}
         else:
-            return {'trained_Model': model}  
-    
+            return {'trained_Model': model}
+
     def _eval(self, pred, truth):
         results = dict()
         for name in self.metrics:
             results[name] = METRICS[name](self.y_valid, pred)
 
         return results
-    
+
     def _predict(self, nextKPrediction):
         pred = self.model.predict(nextKPrediction) if not self.features else self.model.predict(self.X_valid, nextKPrediction)
         return pred

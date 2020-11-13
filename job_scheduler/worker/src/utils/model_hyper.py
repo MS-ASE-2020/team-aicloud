@@ -15,13 +15,13 @@ def _adaptive_maxn_hyper(latest_n=5):
 
 def _arima_hyper(add_std_factor=0.1):
     hyper = dict()
-    hyper['add_std_factor'] = add_std_factor    
+    hyper['add_std_factor'] = add_std_factor
     return hyper
 
 def _prophet_hyper(changepoint_prior_scale=0.3, add_std_factor=0.25):
     hyper = dict()
     hyper['changepoint_prior_scale'] = changepoint_prior_scale
-    hyper['add_std_factor'] = add_std_factor    
+    hyper['add_std_factor'] = add_std_factor
     return hyper
 
 def _linear_fit_hyper(add_std_factor=0.1, latest_n=5):
@@ -31,11 +31,12 @@ def _linear_fit_hyper(add_std_factor=0.1, latest_n=5):
     return hyper
 
 def _lstm_hyper(lstm_cells_per_layer_used=100, sample_num=5,
- epochs_used=100, batch_size_used=5, loss_used=['mean_squared_error'], optimizer_used=['adam'], ):
+ epochs_used=100, batch_size_used=5, optimizer_used=['adam'], ):
     hyper = dict()
     hyper['lstm_cells_per_layer_used'] = lstm_cells_per_layer_used
     hyper['sample_num'] = sample_num
     hyper['loss_used'] = loss_used
+    hyper['sample_fold_used'] = sample_fold_used
     hyper['epochs_used'] = epochs_used
     hyper['batch_size_used'] = batch_size_used
     return hyper
@@ -103,7 +104,7 @@ def get_models():
     models = []
     for name in MODELS.keys():
         models.append(name)
-    
+
     return models
 
 def get_model_hyper(model_name):
@@ -133,7 +134,7 @@ def set_model_hyper(model_name, **kwargs):
 """
 "hyper_params":[
     {
-        "name": "latest_n", 
+        "name": "latest_n",
         "type": "int",
         "low": 1,
         "high": 5
@@ -171,7 +172,7 @@ def hyper_space(model, udf_parameter=None, path='model_hypers.json', auto_tune=F
         #             raise Exception("Unexpected type: %s parameter %s in Model %s is not supported" % (val, type(val), name, model))
         # else:
             for param in udf_parameter:
-                if param["type"] != "list":
+                if param["type"] is not "list":
                     space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["low"], param["high"])
                 else:
                     space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["choice"])
@@ -187,7 +188,6 @@ def getBestModelfromTrials(trials):
 
 if __name__ == '__main__':
     hypers = generate_hyper()
-    print(get_model())
+    print(get_models())
     print(get_model_hyper('AdaptiveMaxN'))
 
-    

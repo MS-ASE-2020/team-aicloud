@@ -72,13 +72,13 @@ export const constantRoutes = [
         path: 'columns',
         name: 'Columns',
         component: () => import('@/views/column/index'),
-        meta: { title: 'Columns', icon: 'data-random-squares' }
+        meta: { title: 'Divide', icon: 'data-random-squares' }
       },
       {
         path: 'models',
         name: 'Models',
         component: () => import('@/views/model/index'),
-        meta: { title: 'Models', icon: 'settings'}
+        meta: { title: 'Setting', icon: 'settings'}
       }
     ]
   },

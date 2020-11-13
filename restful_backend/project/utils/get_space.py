@@ -6,7 +6,7 @@ from .model_hyper import generate_hyper
 
 if __name__ == '__main__':
     MODELS = [
-        'adaptiveaverage',
+        'adaptiveaveragen',
         'adaptivemaxn',
         'adrima',
         'prophet',

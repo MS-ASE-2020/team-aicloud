@@ -1,5 +1,6 @@
 <template>
-  <div class="app-container">
+  <div>
+    <h1 style="margin: 20px">Set Each Series</h1>
     <el-table
       :data="series"
       style="width: 100%"
@@ -25,7 +26,7 @@
       >
       </el-table-column>
     </el-table>
-    <el-button type="primary" @click="onSubmit">Submit</el-button>
+    <el-button type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
   </div>
 </template>
 
@@ -64,7 +65,7 @@ export default {
     createName(arr) {
       console.log(arr)
       arr.forEach(element => {
-        this.groupby_key_name = this.groupby_key_name + String(element) + '_'
+        this.groupby_key_name = this.groupby_key_name + String(element) + ' '
       })
     },
     fetchData() {
@@ -91,13 +92,12 @@ export default {
       if(applyAll) {
         let len = this.series.length
         for(let i = 0; i<len; i++){
-          //strange bug ts_id are all same
-          settings['ts_id']= this.series[i].ts_id
+          const tmp = {...settings}
+          tmp['ts_id'] = this.series[i].ts_id
           let row = this.series[i]
           row.count = row.count + 1
           this.$set(this.series, i, row)
-          console.log(this.series[i].count)
-          this.seriesSettings.push(settings)
+          this.seriesSettings.push(tmp)
         }
       }
       else {

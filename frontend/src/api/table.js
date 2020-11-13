@@ -1,9 +1,8 @@
 import request from '@/utils/request'
 
-export function getList(params) {
+export function getList(id) {
   return request({
-    url: '/result/1',
-    method: 'get',
-    params
+    url: '/job/'+ String(id) + '/job_results/',
+    method: 'get'
   })
 }

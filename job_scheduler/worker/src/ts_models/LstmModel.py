@@ -35,7 +35,7 @@ class LstmModel:
         backend.clear_session()
         np.random.seed(self.random_seed_used)
         random.seed(self.random_seed_used)
-        tf.random.set_seed(self.random_seed_used)
+        tf.set_random_seed(self.random_seed_used)
 
         self.data_ori = data
         if len(self.data_ori) <= 1:
