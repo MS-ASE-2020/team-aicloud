@@ -5,7 +5,7 @@
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div slot="tip" class="el-upload__tip">只能上传csv文件，且不超过500kb</div>
     </el-upload>
-    <el-link type="success" @click="newJob()">Create New Job</el-link>
+    <el-link type="primary" @click="newJob()">Create New Job</el-link>
   </div>
 </template>
 

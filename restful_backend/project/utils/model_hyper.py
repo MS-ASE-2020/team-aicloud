@@ -31,12 +31,11 @@ def _linear_fit_hyper(add_std_factor=0.1, latest_n=5):
     return hyper
 
 def _lstm_hyper(lstm_cells_per_layer_used=100, sample_num=5,
- epochs_used=100, batch_size_used=5, optimizer_used=['adam'], ):
+ epochs_used=100, batch_size_used=5, loss_used=['mean_squared_error'], optimizer_used=['adam'], ):
     hyper = dict()
     hyper['lstm_cells_per_layer_used'] = lstm_cells_per_layer_used
     hyper['sample_num'] = sample_num
     hyper['loss_used'] = loss_used
-    hyper['sample_fold_used'] = sample_fold_used
     hyper['epochs_used'] = epochs_used
     hyper['batch_size_used'] = batch_size_used
     return hyper
@@ -172,7 +171,7 @@ def hyper_space(model, udf_parameter=None, path='model_hypers.json', auto_tune=F
         #             raise Exception("Unexpected type: %s parameter %s in Model %s is not supported" % (val, type(val), name, model))
         # else:
             for param in udf_parameter:
-                if param["type"] is not "list":
+                if param["type"] != "list":
                     space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["low"], param["high"])
                 else:
                     space[param["name"]] = getattr(hp, hp_type[param["type"]])(param["name"], param["choice"])

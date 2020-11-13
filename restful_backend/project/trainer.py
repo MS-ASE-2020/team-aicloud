@@ -56,7 +56,7 @@ class trainer():
         space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
             self.model = self._train(space)["trained_Model"]
-            best = self.config
+            best = {x["name"]: x["val"] for x in self.config}
         else:
             trials = Trials()
             best = fmin(fn=self._train,
