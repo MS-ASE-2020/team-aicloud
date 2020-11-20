@@ -50,10 +50,11 @@ export const constantRoutes = [
     children: [{
       path: 'upload',
       name: 'upload',
+      disabled: false,
       component: () => import('@/views/upload/index'),
       meta: { title: 'Upload', icon: 'el-icon-upload' }
     }]
-  },  
+  },
 
   {
     path: '/job',
@@ -65,20 +66,23 @@ export const constantRoutes = [
       {
         path: 'dataset',
         name: 'Dataset',
+        disabled: false,
         component: () => import('@/views/dataset/index'),
-        meta: { title: 'Dataset', icon: 'database'}
+        meta: { title: 'Dataset', icon: 'database' }
       },
       {
         path: 'columns',
         name: 'Columns',
+        disabled: true,
         component: () => import('@/views/column/index'),
         meta: { title: 'Divide', icon: 'data-random-squares' }
       },
       {
         path: 'models',
         name: 'Models',
+        disabled: true,
         component: () => import('@/views/model/index'),
-        meta: { title: 'Setting', icon: 'settings'}
+        meta: { title: 'Setting', icon: 'settings' }
       }
     ]
   },
@@ -90,6 +94,7 @@ export const constantRoutes = [
       {
         path: '',
         name: 'Output',
+        diabled: false,
         component: () => import('@/views/output/index'),
         meta: { title: 'Output', icon: 'el-icon-s-data' }
       }
@@ -102,6 +107,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
+        disabled: false,
         meta: { title: 'External', icon: 'link' }
       }
     ]

@@ -62,10 +62,10 @@ export default {
       this.setOptions(this.chartData)
     },
     generateSeries() {
-      let series = []
-      let lists = this.chartData.predictions
-      for(var i = 0; i<lists.length; i++) {
-        let setting = {
+      const series = []
+      const lists = this.chartData.predictions
+      for (var i = 0; i < lists.length; i++) {
+        const setting = {
           type: 'line',
           smooth: true
         }
@@ -76,8 +76,8 @@ export default {
     },
     setOptions({ predictions, timestamps } = {}) {
       this.chart.setOption({
-        //option中的每个属性是一类组件
-        //如果有多个同类组件 就是一个数组
+        // option中的每个属性是一类组件
+        // 如果有多个同类组件 就是一个数组
         xAxis: {
           data: timestamps,
           boundaryGap: false,
@@ -103,8 +103,8 @@ export default {
           axisTick: {
             show: false
           },
-          min: function(value){
-            return value.min;
+          min: function(value) {
+            return value.min
           }
         },
         // legend: {
