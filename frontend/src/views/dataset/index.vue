@@ -18,11 +18,10 @@
       <el-table-column
         v-for="head in header"
         :key="head.index"
-        :prop=head.label
-        :label=head.label
-      >
-      </el-table-column>
-    </el-table> 
+        :prop="head.label"
+        :label="head.label"
+      />
+    </el-table>
     <el-button type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
   </div>
 </template>
@@ -33,7 +32,7 @@ import { getDataSets, postDataSet, getColumn } from '@/api/column'
 export default {
   data() {
     return {
-      //Dataset
+      // Dataset
       datasets: [],
       data: {},
       preview: [{}, {}, {}, {}, {}],
@@ -58,10 +57,10 @@ export default {
         var header_arr = response.data.header
         var len = header_arr.length
         var previewdata = response.data.heads
-        for(var i=0; i<5; i++) {
+        for (var i = 0; i < 5; i++) {
           var row = {}
-          for(var j=0; j<len; j++) {
-            row[header_arr[j].label] = previewdata[header_arr[j].label][i] 
+          for (var j = 0; j < len; j++) {
+            row[header_arr[j].label] = previewdata[header_arr[j].label][i]
           }
           this.$set(this.preview, i, row)
         }
@@ -71,12 +70,12 @@ export default {
       })
     },
     onSubmit() {
-      postDataSet({'data_id': this.data.id, 'name': this.data.name}).then(response => {
+      postDataSet({ 'data_id': this.data.id, 'name': this.data.name }).then(response => {
         this.$message('Success!')
-        this.$router.push({path: '/job/columns', query: {job_id: response.data.data.id, data_id: this.data.id}})
+        this.$router.push({ path: '/job/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
       }).catch(err => {
         console.log(err)
-      })      
+      })
     }
   }
 }
