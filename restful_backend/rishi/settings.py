@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'drf_yasg',
+    'private_storage',
     # Custom apps
     'account',
     'project',
@@ -168,3 +169,7 @@ JWT_AUTH = {
 }
 
 FILE_UPLOAD_PATH = 'D:/Uploaded'
+PRIVATE_STORAGE_SERVER = 'nginx'
+PRIVATE_STORAGE_INTERNAL_URL = '/files/'
+PRIVATE_STORAGE_ROOT = '/app/backend/static/'
+PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_authenticated'

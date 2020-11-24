@@ -2,6 +2,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from private_storage.fields import PrivateFileField
 
 
 class Dataset(models.Model):
@@ -25,9 +26,8 @@ class Dataset(models.Model):
         blank=False,
         default=timezone.now,
     )
-    upload = models.FileField(
+    upload = PrivateFileField(
         verbose_name='data file',
-        upload_to='uploads',  # TODO: path <user>/<project>/
         null=False,
         blank=False
     )

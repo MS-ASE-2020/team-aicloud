@@ -28,7 +28,9 @@ COPY requirements.txt /app
 WORKDIR /app
 # RUN conda env create -f environment.yml
 # RUN pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt 
-RUN pip3 install -r requirements.txt --no-cache-dir
+RUN python -m pip install -i https://pypi.tuna.tsinghua.edu.cn/simple pip -U && \
+    python -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple && \
+    python -m pip install -r requirements.txt --no-cache-dir
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -36,3 +38,4 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 COPY . .
 RUN chmod +x ./entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
+

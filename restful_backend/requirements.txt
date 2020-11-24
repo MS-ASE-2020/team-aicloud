@@ -18,13 +18,13 @@ Django==3.1.2
 django-cors-headers==3.5.0
 django-filter==2.4.0
 django-picklefield==3.0.1
+django-private-storage==2.2.2
 django-rest-framework==0.1.0
 django-rest-framework-nested==0.0.1
 djangorestframework==3.12.1
 djangorestframework-jwt==1.11.0
 drf-yasg==1.20.0
 ephem==3.7.7.1
-fbprophet==0.7.1
 future==0.18.2
 gast==0.3.3
 google-auth==1.23.0
