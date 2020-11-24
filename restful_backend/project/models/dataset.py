@@ -26,8 +26,9 @@ class Dataset(models.Model):
         blank=False,
         default=timezone.now,
     )
-    upload = PrivateFileField(
+    upload = models.FileField(
         verbose_name='data file',
+        upload_to='',
         null=False,
         blank=False
     )
