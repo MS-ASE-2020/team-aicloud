@@ -3,7 +3,7 @@
     <h1 style="margin: 20px">Divide Dataset</h1>
     <el-form ref="form" :model="form" label-width="150px">
       <el-form-item label="Timestamp">
-        <el-select v-model="form.timestamp_indexs" placeholder="Select Column">
+        <el-select v-model="form.timestamp_indexs" placeholder="Select Column" @change="removeTs()">
           <el-option
             v-for="item in columns"
             :key="item.index"
@@ -15,9 +15,9 @@
         </el-select>
       </el-form-item>
       <el-form-item label="Values">
-        <el-select v-model="form.target_indexs" placeholder="Selct Column">
+        <el-select v-model="form.target_indexs" placeholder="Selct Column" @change="removeVal()">
           <el-option
-            v-for="item in columns"
+            v-for="item in valcolumns"
             :key="item.index"
             :label="item.label"
             :value="item.index"
@@ -29,7 +29,7 @@
       <el-form-item label="GroupBy">
         <el-select v-model="form.groupby_indexs" multiple placeholder="Select Columns">
           <el-option
-            v-for="item in columns"
+            v-for="item in filtercolumns"
             :key="item.index"
             :label="item.label"
             :value="item.index"
@@ -55,6 +55,8 @@ export default {
       jodId: '',
       // Column
       columns: [],
+      valcolumns: [],
+      filtercolumns: [],
       form: {
         timestamp_indexs: '',
         target_indexs: '',
@@ -67,9 +69,28 @@ export default {
     this.fetchColumns()
   },
   methods: {
+    removeTs() {
+      this.valcolumns = [...this.columns]
+      for (var i = 0; i < this.valcolumns.length; i++) {
+        if (this.valcolumns[i].index === this.form.timestamp_indexs) {
+          this.valcolumns.splice(i, 1)
+        }
+      }
+      this.form.groupby_indexs = []
+      this.form.target_indexs = ''
+    },
+    removeVal() {
+      this.filtercolumns = [...this.valcolumns]
+      for (var i = 0; i < this.filtercolumns.length; i++) {
+        if (this.filtercolumns[i].index === this.form.target_indexs) {
+          this.filtercolumns.splice(i, 1)
+        }
+      }
+      this.form.groupby_indexs = []
+    },
     fetchColumns() {
       getColumn(this.$route.query.data_id).then(response => {
-        this.columns = response.data.header
+        this.columns = [...response.data.header]
       }).catch(error => {
         console.log(error)
       })
