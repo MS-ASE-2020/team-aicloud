@@ -19,10 +19,10 @@
       <el-switch v-model="auto_tune" />
     </el-form-item>
     <el-form-item label="Max Eval">
-      <el-input v-model="max_eval" type="number" placeholder="调参搜索的次数" style="width:200px" min="1" />
+      <el-input v-model="max_eval" type="number" placeholder="调参搜索的次数" style="width:200px" min="1" @change="Check('int', max_eval)" />
     </el-form-item>
     <el-form-item label="Predict Length">
-      <el-input v-model="next_k_predicition" type="number" placeholder="预测的天数" style="width:200px" min="1" />
+      <el-input v-model="next_k_prediction" type="number" placeholder="预测的天数" style="width:200px" min="1" @change="Check('int', next_k_prediction)" />
     </el-form-item>
     <el-form-item label="Metrics">
       <el-select v-model="eval_metrics" multiple placeholder="Select Metrics">
@@ -60,6 +60,7 @@
           v-model="param.val"
           type="number"
           style="width:200px"
+          @input="Check(param.type, param.val)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" style="width:200px" placeholder="Select From List">
           <el-option
@@ -93,6 +94,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
+          @input="Check(param.type, param.low)"
         />
         <b v-if="param.type==='int'||param.type==='float'" inline>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
         <el-input
@@ -101,6 +103,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
+          @input="Check(param.type, param.high)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" multiple style="width:200px" placeholder="Select From List">
           <el-option
@@ -136,10 +139,6 @@ export default {
     features: {
       type: Array,
       required: true
-    },
-    mtrSetEnable: {
-      type: Boolean,
-      required: true
     }
   },
   data() {
@@ -156,11 +155,12 @@ export default {
       models: [],
       parameters: [],
       //
-      max_eval: 0,
-      next_k_predicition: 0,
+      max_eval: 1,
+      next_k_prediction: 1,
       eval_metrics: [],
       model_name: '',
-      feature_indexs: []
+      feature_indexs: [],
+      passCheck: true
     }
   },
   created() {
@@ -168,6 +168,19 @@ export default {
     this.fetchModels()
   },
   methods: {
+    Check(type, str) {
+      if (type === 'int') {
+        var r = /^\+?[1-9][0-9]*$/
+        if (r.test(str) === false) {
+          alert('Input positive integer!')
+          this.passCheck = false
+        } else {
+          this.passCheck = true
+        }
+      } else {
+        return true
+      }
+    },
     fetchModels() {
       getModels().then(response => {
         this.models = response.data.data
@@ -189,7 +202,7 @@ export default {
       post['model_name'] = this.model_name
       post['feature_indexs'] = '[' + String(this.feature_indexs) + ']'
       post['max_eval'] = Number(this.max_eval)
-      post['next_k_prediction'] = Number(this.next_k_predicition)
+      post['next_k_prediction'] = Number(this.next_k_prediction)
       post['auto_tune'] = this.auto_tune
       post['eval_metrics'] = this.eval_metrics
       const hyper_params = []
@@ -219,22 +232,28 @@ export default {
       return post
     },
     onSubmit() {
-      this.$confirm('Apply this Settings to All Series', 'Apply All', {
-        confirmButtonText: 'YES',
-        cancelButtonText: 'NO',
-        type: 'info',
-        center: true
-      }).then(() => {
-        this.$emit('setDone', this.id, true, this.generatePost())
-      }).catch(() => {
-        this.$emit('setDone', this.id, false, this.generatePost())
-      })
+      if (this.passCheck) {
+        this.$confirm('Apply this Settings to All Series', 'Apply All', {
+          confirmButtonText: 'YES',
+          cancelButtonText: 'NO',
+          type: 'info',
+          center: true
+        }).then(() => {
+          this.$emit('setDone', this.id, true, this.generatePost())
+        }).catch(() => {
+          this.$emit('setDone', this.id, false, this.generatePost())
+        })
+      } else {
+        alert('Input Error!')
+      }
     },
     AddParam() {
       getParams(this.model_name).then(response => {
         var resdata = response.data.data
         for (var i = 0; i < resdata.length; i++) {
-          resdata[i]['low'] = 0
+          if (resdata[i]['type'] === 'int') { resdata[i]['low'] = 1 } else {
+            resdata[i]['low'] = 0
+          }
           resdata[i]['high'] = 10 * resdata[i].val
           resdata[i]['valcopy'] = resdata[i].val
           if (resdata[i]['type'] === 'list') {
