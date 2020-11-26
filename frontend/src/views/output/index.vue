@@ -4,7 +4,7 @@
       <el-collapse-item
         v-for="item in datalists"
         :key="item.ts_id"
-        :title="'TimeStamp'+String(item.ts_id)"
+        :title="'Series '+String(item.ts_id)"
         :name="item.ts_id"
         style="font-size:100%"
       >

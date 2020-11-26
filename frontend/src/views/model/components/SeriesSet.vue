@@ -60,7 +60,7 @@
           v-model="param.val"
           type="number"
           style="width:200px"
-          @input="Check(param.type, param.val)"
+          @change="Check(param.type, param.val)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" style="width:200px" placeholder="Select From List">
           <el-option
@@ -94,7 +94,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
-          @input="Check(param.type, param.low)"
+          @change="Check(param.type, param.low)"
         />
         <b v-if="param.type==='int'||param.type==='float'" inline>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
         <el-input
@@ -103,7 +103,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
-          @input="Check(param.type, param.high)"
+          @change="Check(param.type, param.high)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" multiple style="width:200px" placeholder="Select From List">
           <el-option

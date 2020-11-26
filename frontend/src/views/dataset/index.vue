@@ -22,7 +22,7 @@
         :label="head.label"
       />
     </el-table>
-    <el-button type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
+    <el-button type="primary" style="display:block;margin:20px auto" :disabled="disabled" @click="onSubmit">Submit</el-button>
   </div>
 </template>
 
@@ -37,7 +37,8 @@ export default {
       data: {},
       preview: [{}, {}, {}, {}, {}],
       header: [],
-      ShowTable: false
+      ShowTable: false,
+      disabled: true
     }
   },
   created() {
@@ -47,6 +48,7 @@ export default {
     fetchDataSet() {
       getDataSets().then(response => {
         this.datasets = response.data
+        this.data = null
       }).catch(err => {
         console.log(err)
       })
@@ -65,6 +67,7 @@ export default {
           this.$set(this.preview, i, row)
         }
         this.ShowTable = true
+        this.disabled = false
       }).catch(error => {
         console.log(error)
       })
@@ -73,6 +76,7 @@ export default {
       postDataSet({ 'data_id': this.data.id, 'name': this.data.name }).then(response => {
         this.$message('Success!')
         this.$router.push({ path: '/job/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
+        this.data = {}
       }).catch(err => {
         console.log(err)
       })

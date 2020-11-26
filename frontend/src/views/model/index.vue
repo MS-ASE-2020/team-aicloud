@@ -11,7 +11,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="Ts_Id"
+        label="Series_Id"
         prop="ts_id"
       />
       <el-table-column
@@ -51,6 +51,13 @@ export default {
     this.fetchData()
   },
   methods: {
+    DisableSub() {
+      let disable = false
+      for (var i = 0; i < this.series.length; i++) {
+        disable = (this.series[i].count === 0)
+      }
+      return disable
+    },
     minId() {
       let tmpmin = this.series[0]['ts_id']
       this.series.forEach(element => {
@@ -106,12 +113,16 @@ export default {
       }
     },
     onSubmit() {
-      postSeries(this.jobId, this.seriesSettings).then(response => {
-        this.$message('Submit!')
-        this.$router.push({ path: '/output', query: { job_id: this.jobId }})
-      }).catch(err => {
-        console.log(err)
-      })
+      if (!this.DisableSub()) {
+        postSeries(this.jobId, this.seriesSettings).then(response => {
+          this.$message('Submit!')
+          this.$router.push({ path: '/output', query: { job_id: this.jobId }})
+        }).catch(err => {
+          console.log(err)
+        })
+      } else {
+        alert('EVERY SERIES NEED SETTINGS')
+      }
     }
   }
 }
