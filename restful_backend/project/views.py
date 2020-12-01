@@ -248,7 +248,7 @@ class DatasetViewSet(
         })
     
     def list(self, request):
-        dataset = [{"name": x.name, "id": x.pk} for x in self.request.user.datasets.all()]
+        dataset = [{"name": x.name, "id": x.pk, "time_created": x.time_created} for x in self.request.user.datasets.all()]
 
         return Response(
             status=status.HTTP_200_OK,

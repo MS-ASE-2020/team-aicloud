@@ -1,5 +1,6 @@
 import pandas as pd
 
+# FIXME: fix errors when served with Nginx
 def slice_dataset(path, group_by):
     df = pd.read_csv(path)
     # map indices to headers
@@ -35,3 +36,10 @@ def str2listofint(a):
     else:
         a = a.strip('][').split(',')
     return a
+
+"""
+handle missing values
+"""
+# FIXME: fix errors when served with Nginx
+def preprocess(path):
+    df = pd.read_csv(path)
