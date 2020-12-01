@@ -73,6 +73,7 @@ export default {
       })
     },
     fetchData() {
+      // fetch all series
       this.createName(this.filters)
       fetchSeries(this.jobId).then(response => {
         this.features = response.data.features

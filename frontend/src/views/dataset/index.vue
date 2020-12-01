@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h1 style="margin: 20px">Select Dataset</h1>
-    <el-select v-model="data" placeholder="Select DataSet" style="display:block;margin:20px" @change="previewDataset()">
+    <h1>Select Dataset</h1>
+    <el-select v-model="data" placeholder="Select DataSet" style="display:block;margin:30px auto" @change="previewDataset()">
       <el-option
         v-for="item in datasets"
         :key="item.id"
@@ -13,7 +13,7 @@
     </el-select>
     <el-table
       :data="preview"
-      style="width: 100%"
+      border
     >
       <el-table-column
         v-for="head in header"
@@ -22,7 +22,7 @@
         :label="head.label"
       />
     </el-table>
-    <el-button type="primary" style="display:block;margin:20px auto" :disabled="disabled" @click="onSubmit">Submit</el-button>
+    <el-button type="primary" style="display:block;margin:20px auto" :disabled="disabled" @click="onSubmit">NEXT</el-button>
   </div>
 </template>
 
@@ -75,7 +75,7 @@ export default {
     onSubmit() {
       postDataSet({ 'data_id': this.data.id, 'name': this.data.name }).then(response => {
         this.$message('Success!')
-        this.$router.push({ path: '/job/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
+        this.$router.push({ path: '/newjob/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
         this.data = {}
       }).catch(err => {
         console.log(err)

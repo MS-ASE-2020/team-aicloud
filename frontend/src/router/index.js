@@ -46,41 +46,40 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/upload',
+    redirect: '/newjob',
     children: [{
       path: 'upload',
       name: 'upload',
-      disabled: false,
       component: () => import('@/views/upload/index'),
       meta: { title: 'Upload', icon: 'el-icon-upload' }
     }]
   },
 
   {
-    path: '/job',
+    path: '/newjob',
     component: Layout,
-    redirect: '/job/dataset',
+    redirect: '/newjob/dataset',
     name: 'NewJob',
     meta: { title: 'New Job', icon: 'shuttle' },
     children: [
       {
         path: 'dataset',
         name: 'Dataset',
-        disabled: false,
+        hidden: true,
         component: () => import('@/views/dataset/index'),
         meta: { title: 'Dataset', icon: 'database' }
       },
       {
         path: 'columns',
         name: 'Columns',
-        disabled: true,
+        hidden: true,
         component: () => import('@/views/column/index'),
         meta: { title: 'Divide', icon: 'data-random-squares' }
       },
       {
         path: 'models',
         name: 'Models',
-        disabled: true,
+        hidden: true,
         component: () => import('@/views/model/index'),
         meta: { title: 'Setting', icon: 'settings' }
       }
@@ -94,7 +93,6 @@ export const constantRoutes = [
       {
         path: '',
         name: 'Output',
-        diabled: false,
         component: () => import('@/views/output/index'),
         meta: { title: 'Output', icon: 'el-icon-s-data' }
       }
@@ -102,15 +100,24 @@ export const constantRoutes = [
   },
 
   {
-    path: 'external',
+    path: 'externl',
     component: Layout,
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        disabled: false,
         meta: { title: 'External', icon: 'link' }
       }
     ]
+  },
+
+  {
+    path: '/output/job',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: '',
+      component: () => import('@/views/output/JobResult')
+    }]
   },
 
   // 404 page must be placed at the end !!!

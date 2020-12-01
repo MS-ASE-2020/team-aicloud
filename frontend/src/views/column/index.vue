@@ -39,7 +39,7 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" :disabled="disabled" @click="onSubmit">Submit</el-button>
+        <el-button type="primary" :disabled="disabled" @click="onSubmit">NEXT</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -90,7 +90,7 @@ export default {
         postColumn(this.jodId, form_data).then(response => {
           console.log(response)
           this.$message('Success!')
-          this.$router.push({ path: '/job/models', query: { job_id: this.jodId }})
+          this.$router.push({ path: '/newjob/models', query: { job_id: this.jodId }})
         }).catch(error => {
           console.log(error)
         })

@@ -6,3 +6,10 @@ export function getList(id) {
     method: 'get'
   })
 }
+
+export function getJobs() {
+  return request({
+    url: '/job/',
+    method: 'get'
+  })
+}

@@ -1,50 +1,57 @@
 <template>
   <div>
-    <el-collapse v-model="activeRow">
-      <el-collapse-item
-        v-for="item in datalists"
-        :key="item.ts_id"
-        :title="'Series '+String(item.ts_id)"
-        :name="item.ts_id"
-        style="font-size:100%"
-      >
-        <series-table :results="item.results" />
-      </el-collapse-item>
-    </el-collapse>
-  </div>
+    <el-row v-for="item in jobList" :key="item.id" :gutter="20">
+      <el-col :span="2">
+        <p>{{ 'JOB ' + String(item.id) }}</p>
+      </el-col>
+      <el-col :span="16">
+        <el-progress
+          :text-inside="true"
+          :stroke-width="40"
+          :percentage="Percent(item.status)"
+        />
+      </el-col>
+      <el-col :span="4">
+        <el-button
+          icon="el-icon-view"
+          type="primary"
+          :disabled="item.status === 2 || item.status == 3 ? false: true"
+          circle
+          @click="viewResult(item.id)"
+        />
+      </el-col>
+    </el-row></div>
 </template>
 
 <script>
-import SeriesTable from './components/SeriesTable'
-import { getList } from '@/api/table'
+import { getJobs } from '@/api/table'
 export default {
-  components: {
-    SeriesTable
-  },
   data() {
     return {
-      activeRow: [],
-      job_id: '',
-      datalists: [],
-      listLoading: true,
-      retval: null
+      jobList: []
     }
   },
   created() {
-    this.listLoading = true
-    this.job_id = this.$route.query.job_id
     this.fetchdata()
   },
   methods: {
+    Percent(status) {
+      if (status === 0 || status === 4) {
+        return 0
+      } else if (status === 1) {
+        return 50
+      } else {
+        return 100
+      }
+    },
+    viewResult(jobId) {
+      this.$router.push({ path: '/output/job', query: { job_id: jobId }})
+    },
     fetchdata() {
-      var resdata
-      getList(this.job_id).then(response => {
-        resdata = { ...response.data }
-        console.log(resdata.status)
-        if (resdata.status === 3) {
-          this.datalists = resdata.results
-          this.listLoading = false
-        }
+      getJobs().then(response => {
+        this.jobList = { ...response.data.data }
+      }).catch(err => {
+        console.log(err)
       })
     }
   }
