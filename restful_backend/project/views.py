@@ -86,7 +86,13 @@ class JobViewSet(
             predictor = models.Predictor.objects.create(
                 name=ts['model_name'],
                 status=models.CmdStatus.COMITTED,
-                model_file={'hyper_params': ts['hyper_params']},
+                model_file={
+                    'hyper_params': ts['hyper_params'],
+                    'eval_metrics': ts['eval_metrics'],
+                    'auto_tune_metric': ts['auto_tune_metric'],
+                    'auto_tune': ts['auto_tune'],
+                    'max_eval': ts['max_eval']
+                },
                 related_series=ts_obj
             )
             ts_serializer = serializers.SeriesSerializer(
@@ -106,7 +112,8 @@ class JobViewSet(
             model = trainer.trainer(
                 model_name=ts['model_name'], 
                 config=ts['hyper_params'], 
-                metrics=ts["eval_metrics"], 
+                metrics=ts["eval_metrics"],
+                auto_tune_metric=ts['auto_tune_metric'],
                 auto_tune=ts["auto_tune"],
                 max_eval=ts["max_eval"])
             metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)

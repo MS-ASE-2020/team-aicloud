@@ -43,3 +43,5 @@ handle missing values
 # FIXME: fix errors when served with Nginx
 def preprocess(path):
     df = pd.read_csv(path)
+    df.fillna(method='pad')
+    df.to_csv(path)
