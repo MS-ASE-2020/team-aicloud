@@ -4,6 +4,8 @@ def slice_dataset(path, group_by):
     df = pd.read_csv(path)
     # map indices to headers
     col = df.columns
+    if (group_by == '[]'):
+        return ['[]']
     group_by_indices = list(map(lambda x: col[int(x)], group_by.strip('][').split(',')))
     return df.groupby(group_by_indices).groups.keys()
 
