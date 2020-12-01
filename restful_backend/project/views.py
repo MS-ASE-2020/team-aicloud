@@ -244,7 +244,8 @@ class DatasetViewSet(
             "data": serializer.data,
             "header": header,
             "status": status.HTTP_200_OK,
-            "heads": heads
+            "heads": heads,
+            "time_created": dataset.time_created
         })
     
     def list(self, request):
