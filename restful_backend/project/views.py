@@ -209,7 +209,8 @@ class JobViewSet(
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user
-    mixins.RetrieveModelMixin, # .retrieve(request) for returning a specify dataset
+    mixins.RetrieveModelMixin,  # .retrieve(request) for returning a specify dataset
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = serializers.DatasetSerializer
@@ -253,6 +254,14 @@ class DatasetViewSet(
             status=status.HTTP_200_OK,
             data=dataset
         )
+
+    def destory(self, request, pk=None):
+        dataset = self.get_object(pk)
+        dataset.delete()
+        return Response({
+            "status": status.HTTP_200_OK
+        })
+
 
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
