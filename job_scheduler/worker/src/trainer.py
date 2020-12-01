@@ -8,7 +8,7 @@ from utils.metrics import METRICS
 
 
 class trainer():
-    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
+    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name
@@ -16,6 +16,7 @@ class trainer():
         self.auto_tune = auto_tune
         self.features = False
         self.max_eval = max_eval
+        self.auto_tune_metric = auto_tune_metric
 
     def preprocess(self, ts_data, target_idx, ts_idx, feature_idx):
         # FIXME: data type is object currently
@@ -100,7 +101,7 @@ class trainer():
 
         # if auto-tune, only use mse as metrics
         if self.auto_tune:
-            loss = METRICS["mse"](self.y_valid, pred)
+            loss = METRICS[self.auto_tune_metric](self.y_valid, pred)
             return {'loss': loss, 'status': STATUS_OK, 'trained_Model': model}
         else:
             return {'trained_Model': model}
