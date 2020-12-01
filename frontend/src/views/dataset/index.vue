@@ -1,12 +1,12 @@
 <template>
   <div>
     <h1>Select Dataset</h1>
-    <el-select v-model="data" placeholder="Select DataSet" style="display:block;margin:30px auto" @change="previewDataset()">
+    <el-select v-model="dataId" placeholder="Select DataSet" style="display:block;margin:30px auto" @change="previewDataset()">
       <el-option
         v-for="item in datasets"
         :key="item.id"
         :label="item.name"
-        :value="item"
+        :value="item.id"
       >
         <span style="float: left">{{ item.name }}</span>
       </el-option>
@@ -34,7 +34,7 @@ export default {
     return {
       // Dataset
       datasets: [],
-      data: {},
+      dataId: '',
       preview: [{}, {}, {}, {}, {}],
       header: [],
       ShowTable: false,
@@ -48,13 +48,12 @@ export default {
     fetchDataSet() {
       getDataSets().then(response => {
         this.datasets = response.data
-        this.data = null
       }).catch(err => {
         console.log(err)
       })
     },
     previewDataset() {
-      getColumn(this.data.id).then(response => {
+      getColumn(this.dataId).then(response => {
         this.header = response.data.header
         var header_arr = response.data.header
         var len = header_arr.length
@@ -72,11 +71,16 @@ export default {
         console.log(error)
       })
     },
+    getName(id) {
+      for (var i = 0; i < this.datasets.length; i++) {
+        if (this.datasets[i].id === id) { return this.datasets[i].name }
+      }
+    },
     onSubmit() {
-      postDataSet({ 'data_id': this.data.id, 'name': this.data.name }).then(response => {
+      postDataSet({ 'data_id': this.dataId, 'name': this.getName(this.dataId) }).then(response => {
         this.$message('Success!')
-        this.$router.push({ path: '/newjob/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
-        this.data = {}
+        this.$router.push({ path: '/newjob/columns', query: { job_id: response.data.data.id, data_id: this.dataId }})
+        this.dataset = {}
       }).catch(err => {
         console.log(err)
       })

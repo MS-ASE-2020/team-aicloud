@@ -36,6 +36,18 @@
         </el-option>
       </el-select>
     </el-form-item>
+    <el-form-item v-if="auto_tune === true" label="AutoTune Metrics">
+      <el-select v-model="auto_tune_metric" placeholder="Select AutoTune Metrics">
+        <el-option
+          v-for="item in METRICS"
+          :key="item"
+          :label="item"
+          :value="item"
+        >
+          <span style="float: left">{{ item }}</span>
+        </el-option>
+      </el-select>
+    </el-form-item>
     <el-form-item label="Model">
       <el-select v-model="model_name" placeholder="Select Model" @change="AddParam()">
         <el-option
@@ -158,6 +170,7 @@ export default {
       max_eval: 1,
       next_k_prediction: 1,
       eval_metrics: [],
+      auto_tune_metric: '',
       model_name: '',
       feature_indexs: [],
       passCheck: true
@@ -207,6 +220,7 @@ export default {
       post['eval_metrics'] = this.eval_metrics
       const hyper_params = []
       if (this.auto_tune) {
+        post['auto_tune_metric'] = this.auto_tune_metric
         for (var i = 0; i < this.parameters.length; i++) {
           const param = {}
           param['name'] = this.parameters[i].label
