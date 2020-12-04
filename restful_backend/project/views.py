@@ -157,33 +157,35 @@ class JobViewSet(
     @action(methods=['patch'], detail=True, url_path='update_all', url_name='update_all')
     def partial_update_all(self, request, pk=None):
         series = self.get_object().series.all()
-        ts = request.data
-        for ts_obj in series:
-            predictor = models.Predictor.objects.create(
-                name=ts['model_name'],
-                status=models.CmdStatus.COMITTED,
-                model_file={
-                    'hyper_params': ts['hyper_params'],
-                    'eval_metrics': ts['eval_metrics'],
-                    'auto_tune_metric': ts['auto_tune_metric'],
-                    'auto_tune': ts['auto_tune'],
-                    'max_eval': ts['max_eval']
-                },
-                related_series=ts_obj
-            )
-            ts_serializer = serializers.SeriesSerializer(
-                ts_obj,
-                data={
-                    'feature_indexs': ts["feature_indexs"]
-                },
-                partial=True
-            )
-            ts_serializer.is_valid(raise_exception=True)
-            ts_result = ts_serializer.save()
-            # TODO: commit job to scheduler
-            return Response(
-                status=status.HTTP_200_OK
-            )
+        tss = request.data
+        for ts in tss:
+            for ts_obj in series:
+                predictor = models.Predictor.objects.create(
+                    name=ts['model_name'],
+                    status=models.CmdStatus.COMITTED,
+                    model_file={
+                        'hyper_params': ts['hyper_params'],
+                        'eval_metrics': ts['eval_metrics'],
+                        'auto_tune_metric': ts['auto_tune_metric'],
+                        'auto_tune': ts['auto_tune'],
+                        'max_eval': ts['max_eval']
+                    },
+                    related_series=ts_obj
+                )
+                ts_serializer = serializers.SeriesSerializer(
+                    ts_obj,
+                    data={
+                        'feature_indexs': ts["feature_indexs"]
+                    },
+                    partial=True
+                )
+                ts_serializer.is_valid(raise_exception=True)
+                ts_result = ts_serializer.save()
+                # TODO: commit job to scheduler
+        
+        return Response(
+            status=status.HTTP_200_OK
+        )
 
     """
     return series' available features, groupby_key, groupby_val
