@@ -168,3 +168,4 @@ JWT_AUTH = {
 }
 
 FILE_UPLOAD_PATH = 'D:/Uploaded'
+MEDIA_ROOT = '/app/backend/static/'

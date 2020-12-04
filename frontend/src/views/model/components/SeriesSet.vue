@@ -1,8 +1,8 @@
 <template>
-  <el-form label-position="left" label-width="150px">
-    <el-form-item label="ID">
+  <el-form label-position="right" label-width="45%">
+    <!-- <el-form-item label="ID">
       <span>{{ id }}</span>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item v-if="HasFeature" label="Features">
       <el-select v-model="feature_indexs" multiple placeholder="Select features">
         <el-option
@@ -144,10 +144,10 @@ import { getModels, getParams } from '@/api/model'
 
 export default {
   props: {
-    id: {
-      type: Number,
-      required: true
-    },
+    // id: {
+    //   type: Number,
+    //   required: true
+    // },
     features: {
       type: Array,
       required: true
@@ -218,9 +218,9 @@ export default {
       post['next_k_prediction'] = Number(this.next_k_prediction)
       post['auto_tune'] = this.auto_tune
       post['eval_metrics'] = this.eval_metrics
+      post['auto_tune_metric'] = this.auto_tune_metric
       const hyper_params = []
       if (this.auto_tune) {
-        post['auto_tune_metric'] = this.auto_tune_metric
         for (var i = 0; i < this.parameters.length; i++) {
           const param = {}
           param['name'] = this.parameters[i].label
@@ -245,18 +245,30 @@ export default {
       post['hyper_params'] = hyper_params
       return post
     },
+    Reset() {
+      this.auto_tune = false
+      this.Selected = false
+      this.max_eval = 1
+      this.next_k_prediction = 1
+      this.eval_metrics = []
+      this.auto_tune_metric = ''
+      this.model_name = ''
+      this.feature_indexs = []
+    },
     onSubmit() {
       if (this.passCheck) {
-        this.$confirm('Apply this Settings to All Series', 'Apply All', {
-          confirmButtonText: 'YES',
-          cancelButtonText: 'NO',
-          type: 'info',
-          center: true
-        }).then(() => {
-          this.$emit('setDone', this.id, true, this.generatePost())
-        }).catch(() => {
-          this.$emit('setDone', this.id, false, this.generatePost())
-        })
+        // this.$confirm('Apply this Settings to All Series', 'Apply All', {
+        //   confirmButtonText: 'YES',
+        //   cancelButtonText: 'NO',
+        //   type: 'info',
+        //   center: true
+        // }).then(() => {
+        //   this.$emit('setDone', this.id, true, this.generatePost())
+        // }).catch(() => {
+        //   this.$emit('setDone', this.id, false, this.generatePost())
+        // })
+        this.$emit('setDone', this.generatePost())
+        this.Reset()
       } else {
         alert('Input Error!')
       }
