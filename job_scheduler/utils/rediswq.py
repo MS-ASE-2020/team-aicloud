@@ -113,6 +113,9 @@ class RedisWQ(object):
         itemkey = self._itemkey(value)
         self._db.delete(self._lease_key_prefix + itemkey)
 
+    def push(self, value):
+        self._db.rpush(self._main_q_key, value)
+
 # TODO: add functions to clean up all keys associated with "name" when
 # processing is complete.
 
