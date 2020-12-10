@@ -17,6 +17,7 @@ class JobViewSet(
     mixins.RetrieveModelMixin, # .retrieve(request) for returning a specify project
     mixins.UpdateModelMixin, # .update(request) for updating
     viewsets.GenericViewSet,
+    mixins.DestroyModelMixin,
 ):
     serializer_class = serializers.JobSerializer
     authentication_classes = [JSONWebTokenAuthentication]
@@ -245,6 +246,8 @@ class JobViewSet(
             }
         )
 
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
@@ -296,13 +299,8 @@ class DatasetViewSet(
             data=dataset
         )
 
-    def destory(self, request, pk=None):
-        dataset = self.get_object(pk)
-        dataset.delete()
-        return Response({
-            "status": status.HTTP_200_OK
-        })
-
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
