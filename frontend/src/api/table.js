@@ -13,3 +13,10 @@ export function getJobs() {
     method: 'get'
   })
 }
+
+export function deleteJob(id) {
+  return request({
+    url: '/job/' + String(id) + '/',
+    method: 'delete'
+  })
+}

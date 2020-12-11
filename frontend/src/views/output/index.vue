@@ -11,7 +11,7 @@
           :percentage="Percent(item.status)"
         />
       </el-col>
-      <el-col :span="4">
+      <el-col :span="1">
         <el-button
           icon="el-icon-view"
           type="primary"
@@ -20,11 +20,19 @@
           @click="viewResult(item.id)"
         />
       </el-col>
+      <el-col :span="1">
+        <el-button
+          icon="el-icon-delete"
+          type="danger"
+          circle
+          @click="deleteJob(item.id)"
+        />
+      </el-col>
     </el-row></div>
 </template>
 
 <script>
-import { getJobs } from '@/api/table'
+import { getJobs, deleteJob } from '@/api/table'
 export default {
   data() {
     return {
@@ -43,6 +51,14 @@ export default {
       } else {
         return 100
       }
+    },
+    deleteJob(jobId) {
+      deleteJob(jobId).then(response => {
+        console.log(response)
+        this.fetchdata()
+      }).catch(err => {
+        console.log(err)
+      })
     },
     viewResult(jobId) {
       this.$router.push({ path: '/output/job', query: { job_id: jobId }})

@@ -54,9 +54,4 @@ npm run lint -- --fix
 
 - [awesome-project](https://github.com/PanJiaChen/vue-element-admin/issues/2312)
 
-## TODO
-- Apply All button
-- Output
-- Select parameter when it is an enum
-- Show model and State of Series in Table
-- Modify Submit of Series setting
+git checkout d47efe52e53d5d30f1df1e12f665e2c96086692c restful_backend/rishi/settings.py
