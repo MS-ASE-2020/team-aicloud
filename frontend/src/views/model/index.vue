@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1 style="margin: 20px">Set Series</h1>
+  <div class="model">
+    <h1>Set Series</h1>
     <el-table
       :data="settingStr"
       border
@@ -40,8 +40,8 @@
         <template slot-scope="props">
           <el-button type="text" @click="DeleteSet(props.index)">delete</el-button>
         </template></el-table-column></el-table>
-    <el-button v-if="seriesSettings.length >0" type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
-    <div style="display:block;margin:20px auto">
+    <el-button :disabled="seriesSettings.length===0" type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
+    <div style="display:block;margin:30px auto">
       <series-set :features="features" @setDone="setDone(arguments)" />
     </div>
   </div>
@@ -175,5 +175,12 @@ export default {
 <style scoped>
 .line{
   text-align: center;
+}
+.model{
+  margin: 30px
+}
+.el-table{
+  margin: auto;
+  width: 100%
 }
 </style>

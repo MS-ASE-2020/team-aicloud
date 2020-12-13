@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="output">
     <el-row v-for="item in jobList" :key="item.id" :gutter="20">
       <el-col :span="2">
         <p>{{ 'JOB ' + String(item.id) }}</p>
@@ -34,13 +34,19 @@
 <script>
 import { getJobs, deleteJob } from '@/api/table'
 export default {
+  name: 'Output',
   data() {
     return {
-      jobList: []
+      jobList: [],
+      c: null
     }
   },
   created() {
-    this.fetchdata()
+    this.fetch()
+    this.c = setInterval(this.fetch(), 5000)
+  },
+  beforeDestroy() {
+    clearInterval(this.c)
   },
   methods: {
     Percent(status) {
@@ -55,7 +61,6 @@ export default {
     deleteJob(jobId) {
       deleteJob(jobId).then(response => {
         console.log(response)
-        this.fetchdata()
       }).catch(err => {
         console.log(err)
       })
@@ -63,7 +68,8 @@ export default {
     viewResult(jobId) {
       this.$router.push({ path: '/output/job', query: { job_id: jobId }})
     },
-    fetchdata() {
+    fetch() {
+      console.log('fetch')
       getJobs().then(response => {
         this.jobList = { ...response.data.data }
       }).catch(err => {
@@ -73,3 +79,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.output {
+        margin: 30px;
+}
+</style>

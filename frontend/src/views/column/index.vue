@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1 style="margin: 20px">Divide Dataset</h1>
+  <div class="select-Column">
+    <h1>Divide Dataset</h1>
     <el-form ref="form" :model="form" label-width="150px">
       <el-form-item label="Timestamp">
         <el-select v-model="form.timestamp_indexs" placeholder="Select Column" @change="ChangeStatus()">
@@ -105,3 +105,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .select-Column{
+    margin: 30px
+  }
+</style>

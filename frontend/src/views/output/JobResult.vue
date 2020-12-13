@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="jobResult">
     <el-collapse v-model="activeRow">
       <el-collapse-item
         v-for="item in datalists"
@@ -54,3 +54,9 @@ export default {
   }
 }
 </script>
+
+<style>
+  .jobResult{
+    margin: 30px
+  }
+</style>

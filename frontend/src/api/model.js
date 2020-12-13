@@ -17,7 +17,8 @@ export function getParams(model_name) {
 
 export function postSeries(job_id, data) {
   return request({
-    url: '/job/' + String(job_id) + '/',
+    // url: '/job/' + String(job_id) + '/',
+    url: '/job/' + String(job_id) + '/update_all/',
     method: 'patch',
     data: data,
     // TODO: set asynchronous request later

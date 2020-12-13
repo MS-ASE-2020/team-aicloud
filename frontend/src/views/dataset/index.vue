@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="Select">
     <h1>Select Dataset</h1>
     <el-select v-model="dataId" placeholder="Select DataSet" style="display:block;margin:30px auto" @change="previewDataset()">
       <el-option
@@ -88,3 +88,13 @@ export default {
   }
 }
 </script>
+
+<style>
+ .Select{
+   margin: 30px
+ }
+ .el-table{
+   margin:auto;
+   width:75%
+ }
+</style>

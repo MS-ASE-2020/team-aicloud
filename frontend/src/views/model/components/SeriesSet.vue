@@ -89,9 +89,9 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <el-form-item>
+      <!-- <el-form-item>
         <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item>
+      </el-form-item> -->
     </div>
     <div v-if="Selected && auto_tune">
       <el-form-item label="Parameter Set" />
@@ -132,10 +132,13 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <el-form-item>
+      <!-- <el-form-item>
         <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item>
+      </el-form-item> -->
     </div>
+    <el-form-item>
+      <el-button :disabled="!Selected" round @click="onSubmit">SET</el-button>
+    </el-form-item>
   </el-form>
 </template>
 
@@ -287,10 +290,10 @@ export default {
           }
         }
         this.parameters = resdata
+        this.Selected = true
       }).catch(err => {
         console.log(err)
       })
-      this.Selected = true
     }
   }
 }
