@@ -1,177 +1,87 @@
 <template>
-  <div>
-    <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
-      <line-chart :chart-data="lineChartData" />
-    </el-row>
-    <el-table
-      v-loading="listLoading"
-      :data="list"
-      element-loading-text="Loading Metrics"
-      border
-      fit
-      highlight-current-row
-    >
-      <el-table-column label="ID" sortable prop="ts_id">
-      </el-table-column>
-      <el-table-column label="MSE" width="110" align="center" prop="mse">
-      </el-table-column>
-      <el-table-column label="RMSE" width="110" prop="rmse">
-      </el-table-column>
-    </el-table>
-  </div>
+  <div class="output">
+    <el-row v-for="item in jobList" :key="item.id" :gutter="20">
+      <el-col :span="2">
+        <p>{{ 'JOB ' + String(item.id) }}</p>
+      </el-col>
+      <el-col :span="16">
+        <el-progress
+          :text-inside="true"
+          :stroke-width="40"
+          :percentage="Percent(item.status)"
+        />
+      </el-col>
+      <el-col :span="1">
+        <el-button
+          icon="el-icon-view"
+          type="primary"
+          :disabled="item.status === 2 || item.status == 3 ? false: true"
+          circle
+          @click="viewResult(item.id)"
+        />
+      </el-col>
+      <el-col :span="1">
+        <el-button
+          icon="el-icon-delete"
+          type="danger"
+          circle
+          @click="deleteJob(item.id)"
+        />
+      </el-col>
+    </el-row></div>
 </template>
 
 <script>
-import LineChart from './components/LineChart'
-import { getList } from '@/api/table'
+import { getJobs, deleteJob } from '@/api/table'
 export default {
-  components: {
-    LineChart
-  },
+  name: 'Output',
   data() {
     return {
-      job_id: '',
-      list: [],
-      listLoading: true,
-      lineChartData: {
-        timestamps: [],
-        datalists: [],
-        legend: []
-      }
+      jobList: [],
+      c: null
     }
   },
   created() {
-    this.fetchdata()
+    this.fetch()
+    this.c = setInterval(this.fetch(), 5000)
+  },
+  beforeDestroy() {
+    clearInterval(this.c)
   },
   methods: {
-    fetchdata() {
-      this.listLoading = true
-      this.job_id = this.$route.query.job_id
-      var resdata = [
-          {
-        "predictions": [
-            236,
-            238,
-            240,
-            242,
-            244
-        ],
-        "timestamps": [
-            "2020-09-08 00:00:00",
-            "2020-09-09 00:00:00",
-            "2020-09-10 00:00:00",
-            "2020-09-11 00:00:00",
-            "2020-09-12 00:00:00"
-        ],
-        "metrics": {
-            "mse": 255.0,
-            "rmse": 15.968719422671311
-        },
-        "config": {
-            "latest_n": 5,
-            "add_std_factor": 0
-        },
-        "ts_id": 8797
+    Percent(status) {
+      if (status === 0 || status === 4) {
+        return 0
+      } else if (status === 1) {
+        return 50
+      } else {
+        return 100
+      }
     },
-    {
-        "predictions": [
-            237,
-            238,
-            240,
-            242,
-            244
-        ],
-        "timestamps": [
-            "2020-09-08 00:00:00",
-            "2020-09-09 00:00:00",
-            "2020-09-10 00:00:00",
-            "2020-09-11 00:00:00",
-            "2020-09-12 00:00:00"
-        ],
-        "metrics": {
-            "mse": 255.0,
-            "rmse": 15.968719422671311
-        },
-        "config": {
-            "latest_n": 5,
-            "add_std_factor": 0
-        },
-        "ts_id": 8797
-    }
-        ]
-        this.lineChartData.timestamps = resdata[0].timestamps
-        for(var i = 0; i< resdata.length; i++) {
-          this.lineChartData.legend.push('')
-          this.lineChartData.datalists.push([])
-          this.list.push({})
-          //
-          let row = {}
-          row['ts_id'] = resdata[i].ts_id
-          row['mse'] = resdata[i].metrics.mse
-          row['rmse'] = resdata[i].metrics.rmse
-          this.$set(this.list, i, row)
-          //
-          let predlist = []
-          predlist = resdata[i].predictions
-          this.$set(this.lineChartData.datalists, i, predlist)
-          //
-          let str = 'ts' + String(row['ts_id'])
-          this.$set(this.lineChartData.legend, i, str)
-        }
-        this.listLoading = false
-    //   getList(this.job_id).then(response => {
-    //     //var resdata = response.data
-    //     var resdata = [
-    //       {
-    //     "predictions": [
-    //         236,
-    //         238,
-    //         240,
-    //         242,
-    //         244
-    //     ],
-    //     "timestamps": [
-    //         "2020-09-08 00:00:00",
-    //         "2020-09-09 00:00:00",
-    //         "2020-09-10 00:00:00",
-    //         "2020-09-11 00:00:00",
-    //         "2020-09-12 00:00:00"
-    //     ],
-    //     "metrics": {
-    //         "mse": 255.0,
-    //         "rmse": 15.968719422671311
-    //     },
-    //     "config": {
-    //         "latest_n": 5,
-    //         "add_std_factor": 0
-    //     },
-    //     "ts_id": 8797
-    // }
-    //     ]
-    //     this.lineChartData.timestamps = resdata[0].timestamps
-    //     for(var i = 0; i< resdata.length; i++) {
-    //       this.lineChartData.length.push('')
-    //       this.lineChartData.datalists.push([])
-    //       this.list.push({})
-    //       //
-    //       let row = {}
-    //       row['ts_id'] = resdata[i].ts_id
-    //       row['mse'] = resdata[i].metrics.mse
-    //       row['rmse'] = resdata[i].metrics.rmse
-    //       this.$set(this.list, i, row)
-    //       //
-    //       let predlist = []
-    //       predlist = resdata[i].preditions
-    //       this.$set(this.lineChartData.datalists, i, predlist)
-    //       //
-    //       let str = 'ts' + String(row['ts_id'])
-    //       this.$set(this.lineChartData.legend, i, str)
-    //     }
-    //     console.log(this.list)
-    //     console.log(this.lineChartData)
-    //     this.listLoading = false
-    //   })
+    deleteJob(jobId) {
+      deleteJob(jobId).then(response => {
+        console.log(response)
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    viewResult(jobId) {
+      this.$router.push({ path: '/output/job', query: { job_id: jobId }})
+    },
+    fetch() {
+      console.log('fetch')
+      getJobs().then(response => {
+        this.jobList = { ...response.data.data }
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.output {
+        margin: 30px;
+}
+</style>

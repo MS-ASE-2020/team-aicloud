@@ -11,7 +11,7 @@ import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 class trainer():
-    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
+    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name
@@ -56,7 +56,7 @@ class trainer():
         space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
             self.model = self._train(space)["trained_Model"]
-            best = self.config
+            best = {x["name"]: x["val"] for x in self.config}
         else:
             trials = Trials()
             best = fmin(fn=self._train,

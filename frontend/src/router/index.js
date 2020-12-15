@@ -46,39 +46,42 @@ export const constantRoutes = [
   {
     path: '/',
     component: Layout,
-    redirect: '/upload',
+    redirect: '/newjob',
     children: [{
       path: 'upload',
       name: 'upload',
       component: () => import('@/views/upload/index'),
       meta: { title: 'Upload', icon: 'el-icon-upload' }
     }]
-  },  
+  },
 
   {
-    path: '/job',
+    path: '/newjob',
     component: Layout,
-    redirect: '/job/dataset',
+    redirect: '/newjob/dataset',
     name: 'NewJob',
     meta: { title: 'New Job', icon: 'shuttle' },
     children: [
       {
         path: 'dataset',
         name: 'Dataset',
+        hidden: true,
         component: () => import('@/views/dataset/index'),
-        meta: { title: 'Dataset', icon: 'database'}
+        meta: { title: 'Dataset', icon: 'database' }
       },
       {
         path: 'columns',
         name: 'Columns',
+        hidden: true,
         component: () => import('@/views/column/index'),
-        meta: { title: 'Columns', icon: 'data-random-squares' }
+        meta: { title: 'Divide', icon: 'data-random-squares' }
       },
       {
         path: 'models',
         name: 'Models',
+        hidden: true,
         component: () => import('@/views/model/index'),
-        meta: { title: 'Models', icon: 'settings'}
+        meta: { title: 'Setting', icon: 'settings' }
       }
     ]
   },
@@ -97,7 +100,7 @@ export const constantRoutes = [
   },
 
   {
-    path: 'external',
+    path: 'externl',
     component: Layout,
     children: [
       {
@@ -105,6 +108,16 @@ export const constantRoutes = [
         meta: { title: 'External', icon: 'link' }
       }
     ]
+  },
+
+  {
+    path: '/output/job',
+    component: Layout,
+    hidden: true,
+    children: [{
+      path: '',
+      component: () => import('@/views/output/JobResult')
+    }]
   },
 
   // 404 page must be placed at the end !!!

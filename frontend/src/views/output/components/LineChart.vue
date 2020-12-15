@@ -62,10 +62,10 @@ export default {
       this.setOptions(this.chartData)
     },
     generateSeries() {
-      let series = []
-      let lists = this.chartData.datalists
-      for(var i = 0; i<lists.length; i++) {
-        let setting = {
+      const series = []
+      const lists = this.chartData.predictions
+      for (var i = 0; i < lists.length; i++) {
+        const setting = {
           type: 'line',
           smooth: true
         }
@@ -74,10 +74,10 @@ export default {
       }
       return series
     },
-    setOptions({ timestamps, datalists, legend } = {}) {
+    setOptions({ predictions, timestamps } = {}) {
       this.chart.setOption({
-        //option中的每个属性是一类组件
-        //如果有多个同类组件 就是一个数组
+        // option中的每个属性是一类组件
+        // 如果有多个同类组件 就是一个数组
         xAxis: {
           data: timestamps,
           boundaryGap: false,
@@ -103,50 +103,18 @@ export default {
           axisTick: {
             show: false
           },
-          min: function(value){
-            return value.min;
+          min: function(value) {
+            return value.min
           }
         },
-        legend: {
-          data: legend
-        },
-        series: this.generateSeries()
-        // [{
-        //   name: 'expected', itemStyle: {
-        //     normal: {
-        //       color: '#FF005A',
-        //       lineStyle: {
-        //         color: '#FF005A',
-        //         width: 2
-        //       }
-        //     }
-        //   },
-        //   smooth: true,
-        //   type: 'line',
-        //   data: expectedData,
-        //   animationDuration: 2800,
-        //   animationEasing: 'cubicInOut'
+        // legend: {
+        //   data: legend
         // },
-        // {
-        //   name: 'actual',
-        //   smooth: true,
-        //   type: 'line',
-        //   itemStyle: {
-        //     normal: {
-        //       color: '#3888fa',
-        //       lineStyle: {
-        //         color: '#3888fa',
-        //         width: 2
-        //       },
-        //       areaStyle: {
-        //         color: '#f3f8ff'
-        //       }
-        //     }
-        //   },
-        //   data: actualData,
-        //   animationDuration: 2800,
-        //   animationEasing: 'quadraticOut'
-        // }]
+        series: [{
+          name: 'Predicitons',
+          type: 'line',
+          data: predictions
+        }]
       })
     }
   }

@@ -1,9 +1,12 @@
 import pandas as pd
 
+# FIXME: fix errors when served with Nginx
 def slice_dataset(path, group_by):
     df = pd.read_csv(path)
     # map indices to headers
     col = df.columns
+    if (group_by == '[]'):
+        return ['[]']
     group_by_indices = list(map(lambda x: col[int(x)], group_by.strip('][').split(',')))
     return df.groupby(group_by_indices).groups.keys()
 
@@ -11,7 +14,7 @@ def get_sliced_dataset(path, group_by_key, group_by_val):
     df = pd.read_csv(path)
     # map indices to headers
     col = df.columns
-    if group_by_key is None:
+    if group_by_key is '[]':
         return df
     group_by_indices = list(map(lambda x: col[int(x)], group_by_key.strip('][').split(',')))
     return df.take(df.groupby(group_by_indices).groups[eval(group_by_val)])
@@ -33,3 +36,12 @@ def str2listofint(a):
     else:
         a = a.strip('][').split(',')
     return a
+
+"""
+handle missing values
+"""
+# FIXME: fix errors when served with Nginx
+def preprocess(path):
+    df = pd.read_csv(path)
+    df.fillna(method='pad')
+    df.to_csv(path)

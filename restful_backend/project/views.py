@@ -17,6 +17,7 @@ class JobViewSet(
     mixins.RetrieveModelMixin, # .retrieve(request) for returning a specify project
     mixins.UpdateModelMixin, # .update(request) for updating
     viewsets.GenericViewSet,
+    mixins.DestroyModelMixin,
 ):
     serializer_class = serializers.JobSerializer
     authentication_classes = [JSONWebTokenAuthentication]
@@ -86,7 +87,13 @@ class JobViewSet(
             predictor = models.Predictor.objects.create(
                 name=ts['model_name'],
                 status=models.CmdStatus.COMITTED,
-                model_file={'hyper_params': ts['hyper_params']},
+                model_file={
+                    'hyper_params': ts['hyper_params'],
+                    'eval_metrics': ts['eval_metrics'],
+                    'auto_tune_metric': ts['auto_tune_metric'],
+                    'auto_tune': ts['auto_tune'],
+                    'max_eval': ts['max_eval']
+                },
                 related_series=ts_obj
             )
             ts_serializer = serializers.SeriesSerializer(
@@ -106,7 +113,8 @@ class JobViewSet(
             model = trainer.trainer(
                 model_name=ts['model_name'], 
                 config=ts['hyper_params'], 
-                metrics=ts["eval_metrics"], 
+                metrics=ts["eval_metrics"],
+                auto_tune_metric=ts['auto_tune_metric'],
                 auto_tune=ts["auto_tune"],
                 max_eval=ts["max_eval"])
             metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
@@ -145,6 +153,39 @@ class JobViewSet(
         return Response(
             status=status.HTTP_200_OK,
             data=results
+        )
+
+    @action(methods=['patch'], detail=True, url_path='update_all', url_name='update_all')
+    def partial_update_all(self, request, pk=None):
+        series = self.get_object().series.all()
+        tss = request.data
+        for ts in tss:
+            for ts_obj in series:
+                predictor = models.Predictor.objects.create(
+                    name=ts['model_name'],
+                    status=models.CmdStatus.COMITTED,
+                    model_file={
+                        'hyper_params': ts['hyper_params'],
+                        'eval_metrics': ts['eval_metrics'],
+                        'auto_tune_metric': ts['auto_tune_metric'],
+                        'auto_tune': ts['auto_tune'],
+                        'max_eval': ts['max_eval']
+                    },
+                    related_series=ts_obj
+                )
+                ts_serializer = serializers.SeriesSerializer(
+                    ts_obj,
+                    data={
+                        'feature_indexs': ts["feature_indexs"]
+                    },
+                    partial=True
+                )
+                ts_serializer.is_valid(raise_exception=True)
+                ts_result = ts_serializer.save()
+                # TODO: commit job to scheduler
+        
+        return Response(
+            status=status.HTTP_200_OK
         )
 
     """
@@ -205,11 +246,14 @@ class JobViewSet(
             }
         )
 
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user
-    mixins.RetrieveModelMixin, # .retrieve(request) for returning a specify dataset
+    mixins.RetrieveModelMixin,  # .retrieve(request) for returning a specify dataset
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = serializers.DatasetSerializer
@@ -243,16 +287,20 @@ class DatasetViewSet(
             "data": serializer.data,
             "header": header,
             "status": status.HTTP_200_OK,
-            "heads": heads
+            "heads": heads,
+            "time_created": dataset.time_created
         })
     
     def list(self, request):
-        dataset = [{"name": x.name, "id": x.pk} for x in self.request.user.datasets.all()]
+        dataset = [{"name": x.name, "id": x.pk, "time_created": x.time_created} for x in self.request.user.datasets.all()]
 
         return Response(
             status=status.HTTP_200_OK,
             data=dataset
         )
+
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 @decorators.api_view(http_method_names=['GET'])
 @decorators.authentication_classes([])
