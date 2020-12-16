@@ -40,7 +40,8 @@ export default {
       if (meta.activeMenu) {
         return meta.activeMenu
       }
-      return path
+      // Bad Way to highlight
+      return path.lastIndexOf('/') === 0 ? path : path.substring(0, path.lastIndexOf('/'))
     },
     showLogo() {
       return this.$store.state.settings.sidebarLogo

@@ -1,19 +1,19 @@
 <template>
-  <div>
-    <h1 style="margin: 20px">Select Dataset</h1>
-    <el-select v-model="data" placeholder="Select DataSet" style="display:block;margin:20px" @change="previewDataset()">
+  <div class="Select">
+    <h1>Select Dataset</h1>
+    <el-select v-model="dataId" placeholder="Select DataSet" style="display:block;margin:30px auto" @change="previewDataset()">
       <el-option
         v-for="item in datasets"
         :key="item.id"
         :label="item.name"
-        :value="item"
+        :value="item.id"
       >
         <span style="float: left">{{ item.name }}</span>
       </el-option>
     </el-select>
     <el-table
       :data="preview"
-      style="width: 100%"
+      border
     >
       <el-table-column
         v-for="head in header"
@@ -22,7 +22,7 @@
         :label="head.label"
       />
     </el-table>
-    <el-button type="primary" style="display:block;margin:20px auto" @click="onSubmit">Submit</el-button>
+    <el-button type="primary" style="display:block;margin:20px auto" :disabled="disabled" @click="onSubmit">NEXT</el-button>
   </div>
 </template>
 
@@ -34,10 +34,11 @@ export default {
     return {
       // Dataset
       datasets: [],
-      data: {},
+      dataId: '',
       preview: [{}, {}, {}, {}, {}],
       header: [],
-      ShowTable: false
+      ShowTable: false,
+      disabled: true
     }
   },
   created() {
@@ -52,7 +53,7 @@ export default {
       })
     },
     previewDataset() {
-      getColumn(this.data.id).then(response => {
+      getColumn(this.dataId).then(response => {
         this.header = response.data.header
         var header_arr = response.data.header
         var len = header_arr.length
@@ -65,14 +66,21 @@ export default {
           this.$set(this.preview, i, row)
         }
         this.ShowTable = true
+        this.disabled = false
       }).catch(error => {
         console.log(error)
       })
     },
+    getName(id) {
+      for (var i = 0; i < this.datasets.length; i++) {
+        if (this.datasets[i].id === id) { return this.datasets[i].name }
+      }
+    },
     onSubmit() {
-      postDataSet({ 'data_id': this.data.id, 'name': this.data.name }).then(response => {
+      postDataSet({ 'data_id': this.dataId, 'name': this.getName(this.dataId) }).then(response => {
         this.$message('Success!')
-        this.$router.push({ path: '/job/columns', query: { job_id: response.data.data.id, data_id: this.data.id }})
+        this.$router.push({ path: '/newjob/columns', query: { job_id: response.data.data.id, data_id: this.dataId }})
+        this.dataset = {}
       }).catch(err => {
         console.log(err)
       })
@@ -80,3 +88,13 @@ export default {
   }
 }
 </script>
+
+<style>
+ .Select{
+   margin: 30px
+ }
+ .el-table{
+   margin:auto;
+   width:75%
+ }
+</style>

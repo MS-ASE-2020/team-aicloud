@@ -11,7 +11,7 @@ import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 
 class trainer():
-    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100):
+    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name

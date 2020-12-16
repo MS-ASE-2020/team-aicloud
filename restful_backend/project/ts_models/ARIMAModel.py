@@ -1,7 +1,8 @@
 from statsmodels.tsa.arima_model import ARIMA
+from .BaseModel import BaseModel
 
 # FIXME: how to pass arima_order
-class ARIMAModel:
+class ARIMAModel(BaseModel):
     def __init__(self, round_non_negative_int_func, arima_order = (6, 0, 2), add_std_factor = 0):
         self.arima_order = arima_order
         self.add_std_factor = add_std_factor

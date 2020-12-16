@@ -70,6 +70,7 @@ dependencies:
     - markdown==3.3.3
     - markupsafe==1.1.1
     - matplotlib==3.3.2
+    - mysqlclient==2.0.1
     - networkx==2.5
     - numpy==1.18.5
     - oauthlib==3.1.0
@@ -83,6 +84,7 @@ dependencies:
     - pyasn1-modules==0.2.8
     - pyjwt==1.7.1
     - pymeeus==0.3.7
+    - pymysql==0.10.1
     - pyparsing==2.4.7
     - pystan==2.19.1.1
     - python-dateutil==2.8.1
@@ -112,5 +114,4 @@ dependencies:
     - werkzeug==1.0.1
     - wrapt==1.12.1
     - zipp==3.4.0
-prefix: /home/jasmine/anaconda3/envs/ase
 

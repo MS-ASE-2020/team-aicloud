@@ -6,3 +6,17 @@ export function getList(id) {
     method: 'get'
   })
 }
+
+export function getJobs() {
+  return request({
+    url: '/job/',
+    method: 'get'
+  })
+}
+
+export function deleteJob(id) {
+  return request({
+    url: '/job/' + String(id) + '/',
+    method: 'delete'
+  })
+}

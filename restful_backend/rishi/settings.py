@@ -83,8 +83,12 @@ WSGI_APPLICATION = 'rishi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'rishi',
+        'USER': 'root',
+        'PASSWORD': '66666666',
+        'HOST': 'mysql',
+        'PORT': '3306'
     }
 }
 
@@ -164,3 +168,4 @@ JWT_AUTH = {
 }
 
 FILE_UPLOAD_PATH = 'D:/Uploaded'
+MEDIA_ROOT = '/app/backend/static/'

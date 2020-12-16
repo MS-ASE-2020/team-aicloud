@@ -1,8 +1,8 @@
 <template>
-  <el-form label-position="left" label-width="150px">
-    <el-form-item label="ID">
+  <el-form label-position="right" label-width="45%">
+    <!-- <el-form-item label="ID">
       <span>{{ id }}</span>
-    </el-form-item>
+    </el-form-item> -->
     <el-form-item v-if="HasFeature" label="Features">
       <el-select v-model="feature_indexs" multiple placeholder="Select features">
         <el-option
@@ -19,13 +19,25 @@
       <el-switch v-model="auto_tune" />
     </el-form-item>
     <el-form-item label="Max Eval">
-      <el-input v-model="max_eval" type="number" placeholder="调参搜索的次数" style="width:200px" min="1" />
+      <el-input v-model="max_eval" type="number" placeholder="调参搜索的次数" style="width:200px" min="1" @change="Check('int', max_eval)" />
     </el-form-item>
     <el-form-item label="Predict Length">
-      <el-input v-model="next_k_predicition" type="number" placeholder="预测的天数" style="width:200px" min="1" />
+      <el-input v-model="next_k_prediction" type="number" placeholder="预测的天数" style="width:200px" min="1" @change="Check('int', next_k_prediction)" />
     </el-form-item>
     <el-form-item label="Metrics">
       <el-select v-model="eval_metrics" multiple placeholder="Select Metrics">
+        <el-option
+          v-for="item in METRICS"
+          :key="item"
+          :label="item"
+          :value="item"
+        >
+          <span style="float: left">{{ item }}</span>
+        </el-option>
+      </el-select>
+    </el-form-item>
+    <el-form-item v-if="auto_tune === true" label="AutoTune Metrics">
+      <el-select v-model="auto_tune_metric" placeholder="Select AutoTune Metrics">
         <el-option
           v-for="item in METRICS"
           :key="item"
@@ -60,6 +72,7 @@
           v-model="param.val"
           type="number"
           style="width:200px"
+          @change="Check(param.type, param.val)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" style="width:200px" placeholder="Select From List">
           <el-option
@@ -76,9 +89,9 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <el-form-item>
+      <!-- <el-form-item>
         <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item>
+      </el-form-item> -->
     </div>
     <div v-if="Selected && auto_tune">
       <el-form-item label="Parameter Set" />
@@ -93,6 +106,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
+          @change="Check(param.type, param.low)"
         />
         <b v-if="param.type==='int'||param.type==='float'" inline>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TO&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
         <el-input
@@ -101,6 +115,7 @@
           type="number"
           :placeholder="param.type"
           style="width:200px"
+          @change="Check(param.type, param.high)"
         />
         <el-select v-if="param.type==='list'" v-model="param.val" multiple style="width:200px" placeholder="Select From List">
           <el-option
@@ -117,10 +132,13 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <el-form-item>
+      <!-- <el-form-item>
         <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item>
+      </el-form-item> -->
     </div>
+    <el-form-item>
+      <el-button :disabled="!Selected" round @click="onSubmit">SET</el-button>
+    </el-form-item>
   </el-form>
 </template>
 
@@ -129,16 +147,12 @@ import { getModels, getParams } from '@/api/model'
 
 export default {
   props: {
-    id: {
-      type: Number,
-      required: true
-    },
+    // id: {
+    //   type: Number,
+    //   required: true
+    // },
     features: {
       type: Array,
-      required: true
-    },
-    mtrSetEnable: {
-      type: Boolean,
       required: true
     }
   },
@@ -156,11 +170,13 @@ export default {
       models: [],
       parameters: [],
       //
-      max_eval: 0,
-      next_k_predicition: 0,
+      max_eval: 1,
+      next_k_prediction: 1,
       eval_metrics: [],
+      auto_tune_metric: '',
       model_name: '',
-      feature_indexs: []
+      feature_indexs: [],
+      passCheck: true
     }
   },
   created() {
@@ -168,6 +184,19 @@ export default {
     this.fetchModels()
   },
   methods: {
+    Check(type, str) {
+      if (type === 'int') {
+        var r = /^\+?[1-9][0-9]*$/
+        if (r.test(str) === false) {
+          alert('Input positive integer!')
+          this.passCheck = false
+        } else {
+          this.passCheck = true
+        }
+      } else {
+        return true
+      }
+    },
     fetchModels() {
       getModels().then(response => {
         this.models = response.data.data
@@ -189,9 +218,10 @@ export default {
       post['model_name'] = this.model_name
       post['feature_indexs'] = '[' + String(this.feature_indexs) + ']'
       post['max_eval'] = Number(this.max_eval)
-      post['next_k_prediction'] = Number(this.next_k_predicition)
+      post['next_k_prediction'] = Number(this.next_k_prediction)
       post['auto_tune'] = this.auto_tune
       post['eval_metrics'] = this.eval_metrics
+      post['auto_tune_metric'] = this.auto_tune_metric
       const hyper_params = []
       if (this.auto_tune) {
         for (var i = 0; i < this.parameters.length; i++) {
@@ -218,23 +248,41 @@ export default {
       post['hyper_params'] = hyper_params
       return post
     },
+    Reset() {
+      this.auto_tune = false
+      this.Selected = false
+      this.max_eval = 1
+      this.next_k_prediction = 1
+      this.eval_metrics = []
+      this.auto_tune_metric = ''
+      this.model_name = ''
+      this.feature_indexs = []
+    },
     onSubmit() {
-      this.$confirm('Apply this Settings to All Series', 'Apply All', {
-        confirmButtonText: 'YES',
-        cancelButtonText: 'NO',
-        type: 'info',
-        center: true
-      }).then(() => {
-        this.$emit('setDone', this.id, true, this.generatePost())
-      }).catch(() => {
-        this.$emit('setDone', this.id, false, this.generatePost())
-      })
+      if (this.passCheck) {
+        // this.$confirm('Apply this Settings to All Series', 'Apply All', {
+        //   confirmButtonText: 'YES',
+        //   cancelButtonText: 'NO',
+        //   type: 'info',
+        //   center: true
+        // }).then(() => {
+        //   this.$emit('setDone', this.id, true, this.generatePost())
+        // }).catch(() => {
+        //   this.$emit('setDone', this.id, false, this.generatePost())
+        // })
+        this.$emit('setDone', this.generatePost())
+        this.Reset()
+      } else {
+        alert('Input Error!')
+      }
     },
     AddParam() {
       getParams(this.model_name).then(response => {
         var resdata = response.data.data
         for (var i = 0; i < resdata.length; i++) {
-          resdata[i]['low'] = 0
+          if (resdata[i]['type'] === 'int') { resdata[i]['low'] = 1 } else {
+            resdata[i]['low'] = 0
+          }
           resdata[i]['high'] = 10 * resdata[i].val
           resdata[i]['valcopy'] = resdata[i].val
           if (resdata[i]['type'] === 'list') {
@@ -242,10 +290,10 @@ export default {
           }
         }
         this.parameters = resdata
+        this.Selected = true
       }).catch(err => {
         console.log(err)
       })
-      this.Selected = true
     }
   }
 }

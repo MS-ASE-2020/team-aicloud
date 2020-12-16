@@ -84,6 +84,9 @@ export default {
 </script>
 
 <style>
+.el-table{
+  margin: 30px;
+}
   .el-table .cell {
     white-space: pre-line;
   }
