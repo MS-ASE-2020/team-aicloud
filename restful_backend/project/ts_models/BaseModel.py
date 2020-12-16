@@ -12,9 +12,11 @@ class BaseModel:
 
     def save(self, path):
         with open(path, 'wb') as fd:
-            pickle.dump(self.model, path)
+            pickle.dump(self.model, fd)
+
+        return path
 
     def __repr__(self):
-        if not hasattr(self, description):
+        if not hasattr(self, 'description'):
             self.description = 'A time series prediction model'
         return 'Class: %s \n Description: %s'.format(self.__class__.__str__, self.description)

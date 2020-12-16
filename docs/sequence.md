@@ -665,3 +665,6 @@ class CmdStatus(models.IntegerChoices):
     DONE = 3
     EXCEPTION = 4
 ```
+model save的时候会返回保存的路径
+1. LstmLong: keras model to pickle object 的时候报错了...用了自带的save_model方法，保存h5py文件
+2. Lstm: keras model to pickle object 的时候报错了...用了自带的save_model方法，保存h5py文件

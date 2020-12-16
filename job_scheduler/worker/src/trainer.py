@@ -85,7 +85,7 @@ class trainer():
 
     # save model
     def save(self, path):
-        pass
+        self.model.save(path)
 
     def _train(self, space):
         model = getattr(ts_models, self.model_name + 'Model')(
