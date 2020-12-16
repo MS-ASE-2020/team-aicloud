@@ -1,7 +1,7 @@
 import numpy as np
+from .BaseModel import BaseModel
 
-
-class AdaptiveMaxNModel:
+class AdaptiveMaxNModel(BaseModel):
     def __init__(self, round_non_negative_int_func, latest_n=24):
         self.round_non_negative_int_func = round_non_negative_int_func
         self.eval_len = latest_n

@@ -1,7 +1,8 @@
 import numpy as np
 from scipy import stats
+from .BaseModel import BaseModel
 
-class LinearFitModel:
+class LinearFitModel(BaseModel):
     def __init__(self, round_non_negative_int_func, latest_n, add_std_factor = 0):
         self.model_name = "LinearFit_{}_{}_Model".format(latest_n, add_std_factor)
         self.round_non_negative_int_func = round_non_negative_int_func

@@ -1,8 +1,8 @@
 import pandas as pd
 from fbprophet import Prophet
+from .BaseModel import BaseModel
 
-
-class FbProphetModel:
+class FbProphetModel(BaseModel):
 
     def __init__(self, round_non_negative_int_func, add_std_factor = 0.25, changepoint_prior_scale=0.3):
         self.model_name = "FbProphetModel"
@@ -11,7 +11,8 @@ class FbProphetModel:
         self.add_std_factor = add_std_factor
         self.model = None
         return
-
+    
+    # FIXME: ts + data?
     def fit(self, ts, data):
         _dic = {'ds': ts, 'y': data}
         _df = pd.DataFrame(data=_dic)

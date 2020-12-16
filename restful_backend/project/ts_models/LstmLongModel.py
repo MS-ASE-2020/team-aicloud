@@ -1,9 +1,9 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+from .BaseModel import BaseModel
 
-
-class LstmLongModel:
+class LstmLongModel(BaseModel):
     def __init__(self, round_non_negative_int_func, lstm_cells_per_layer_used=100, loss_used='mean_squared_error', optimizer_used='adam', epochs_used=100, batch_size_used=5, random_seed_used=1, sample_fold_used=2):
         self.model_name = 'LSTM_Long_{}_Model'.format(sample_fold_used)
         self.round_non_negative_int_func = round_non_negative_int_func

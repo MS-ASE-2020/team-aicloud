@@ -3,8 +3,9 @@ import pandas as pd
 from scipy.stats import expon
 from scipy.stats import exponweib
 import numpy as np
+from .BaseModel import BaseModel
 
-class RandomArrivalModel:
+class RandomArrivalModel(BaseModel):
     def __init__(self, round_non_negative_int_func, fit_model="Expon"):
         '''
 
