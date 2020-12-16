@@ -232,9 +232,11 @@ class JobViewSet(
         results = []
         for ts in series:
             ts_results = []
-            ts_history = dataset_utils.get_sliced_dataset(
+            ts_history_all = dataset_utils.get_sliced_dataset(
                 job_obj.related_data.upload.path, job_obj.groupby_indexs, ts.cluster_key)
-            ts_history = ts_history.iloc[:, [target_idx, ts_idx]]
+            ts_history = {}
+            ts_history["history"] = ts_history_all.iloc[:, target_idx]
+            ts_history["timestamp"] = ts_history_all.iloc[:, ts_idx]
             for predictor in ts.predictor.all():
                 if predictor.status == models.CmdStatus.DONE:
                     model_file = predictor.model_file
