@@ -214,15 +214,16 @@ class JobViewSet(
 
     @action(methods=['get'], detail=True, url_path='job_results', url_name='job_results')
     def get_job_results(self, request, pk=None):
-        if self.get_object().status != models.CmdStatus.DONE:
+        job_obj = self.get_object()
+        if job_obj.status != models.CmdStatus.DONE:
             return Response(
                 status=status.HTTP_200_ok,
                 data={
-                    'stauts': self.get_object().status
+                    'stauts': job_obj.status
                 }
             )
 
-        series = self.get_object().series.all()
+        series = job_obj.series.all()
         results = []
         for ts in series:
             ts_results = []
@@ -231,6 +232,8 @@ class JobViewSet(
                     model_file = predictor.model_file
                     model_file["ts_id"] = ts.id
                     model_file["model_name"] = predictor.name
+                    model_file["ts_data"] = get_sliced_dataset(
+                        job_obj.related_data.path, job_obj.groupby_indexs, ts.cluster_key)
                     ts_results.append(model_file)
             
             results.append({

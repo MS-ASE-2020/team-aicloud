@@ -1,6 +1,7 @@
 import numpy as np
+from .BaseModel import BaseModel
 
-class MaxNModel:
+class MaxNModel(BaseModel):
     def __init__(self, round_non_negative_int_func, latest_n):
         self.n = int(latest_n)
         self.model_name = "Max_{}_Model".format(self.n)
