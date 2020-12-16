@@ -34,6 +34,7 @@ class RedisWQ(object):
        # Work is initially in main, and moved to processing when a client picks it up.
        self._main_q_key = name
        self._processing_q_key = name + ":processing"
+       self._status_hset_key = name + ":status"
        self._lease_key_prefix = name + ":leased_by_session:"
 
     def sessionID(self):
@@ -91,7 +92,9 @@ class RedisWQ(object):
             item = self._db.brpoplpush(self._main_q_key, self._processing_q_key, timeout=timeout)
         else:
             item = self._db.rpoplpush(self._main_q_key, self._processing_q_key)
+
         if item:
+            self._db.hset(self._status_hset_key, item, 'running')
             # Record that we (this session id) are working on a key.  Expire that
             # note after the lease timeout.
             # Note: if we crash at this line of the program, then GC will see no lease
@@ -108,13 +111,22 @@ class RedisWQ(object):
         of what happened.
         """
         self._db.lrem(self._processing_q_key, 0, value)
+        self._db.hdel(self._status_hset_key, value)
         # If we crash here, then the GC code will try to move the value, but it will
         # not be here, which is fine.  So this does not need to be a transaction.
         itemkey = self._itemkey(value)
         self._db.delete(self._lease_key_prefix + itemkey)
 
     def push(self, value):
-        self._db.rpush(self._main_q_key, value)
+        self._db.lpush(self._main_q_key, value)
+        self._db.hset(self._status_hset_key, value, 'pending')
+
+    def delete(self, value):
+        self._db.lrem(self._main_q_key, 0, value)
+        self._db.hdel(self._status_hset_key, value)
+
+    def status(self, value):
+        return self._db.hget(self._status_hset_key, value)
 
 # TODO: add functions to clean up all keys associated with "name" when
 # processing is complete.
