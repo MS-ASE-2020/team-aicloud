@@ -7,4 +7,6 @@ except ImportError:
 
 CONNECTION_STR = 'mysql+pymysql://root:66666666@mysql/rishi'
 
-REIDS_HOST = 'cloudai-rishi:6379'
+REDIS_HOST = '10.150.145.214'
+
+REDIS_PORT = '7000'

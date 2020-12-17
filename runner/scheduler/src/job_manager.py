@@ -4,7 +4,7 @@ from common.rediswq import RedisWQ
 
 class JobManager:
     def __init__(self):
-        self._q = RedisWQ(name=settings.QUEUE, host=settings.REDIS_HOST)
+        self._q = RedisWQ(name=settings.QUEUE, host=settings.REDIS_HOST, port=settings.REDIS_PORT)
 
     def push(self, job_id):
         self._q.push(job_id)
