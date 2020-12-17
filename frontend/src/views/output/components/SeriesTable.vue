@@ -29,7 +29,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-button icon="el-icon-download" type="primary" style="display: block; margin: 10px auto" circle />
+    <el-button icon="el-icon-download" type="primary" style="display: block; margin: 10px auto" circle @click="download()" />
   </div>
 </template>
 
@@ -56,6 +56,16 @@ export default {
     this.createTable()
   },
   methods: {
+    download() {
+      download().then(res => {
+        var blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"})
+        var Temp = document.createElement("a")
+        Temp.href = window.URL.createObjectURL(blob)
+        Temp.download =new Date().getTime()+'excel'
+        document.body.append(Temp)
+        Temp.click()
+      })
+    },
     createTable() {
       // Union metric name
       this.results.forEach(element => {
