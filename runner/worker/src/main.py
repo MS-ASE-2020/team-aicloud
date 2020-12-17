@@ -9,6 +9,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.automap import automap_base
 import pickle
+from base64 import b64decode, b64encode
+import json
+
+
+def picklefield_loads(data):
+    return pickle.loads(b64decode(data))
+
+
+def picklefield_dumps(data):
+    return b64encode(pickle.dumps(data))
 
 
 def main():
@@ -36,11 +46,11 @@ def main():
                     if predictor.status != CmdStatus.COMITTED:
                         continue
                     print(f'Working on predictor {predictor.id}')
-                    model_file = pickle.loads(predictor.model_file)
+                    model_file = picklefield_loads(predictor.model_file)
                     try:
-                        df = pickle.loads(dataset)
+                        df = picklefield_loads(dataset)
                         model = trainer.trainer(
-                            model_name=model_file['model_name'],
+                            model_name=predictor.name,
                             config=model_file['hyper_params'],
                             metrics=model_file['eval_metrics'],
                             auto_tune_metric=model_file['auto_tune_metric'],
@@ -53,6 +63,7 @@ def main():
                             data_df=df,
                             target_idx=target_idx,
                             ts_idx=ts_idx,
+                            feature_idx=json.loads(series.feature_indexs),
                         )
                         predictions, timestamps = model.predict(model_file['next_k_prediction'])
                         model_file.update({
@@ -63,11 +74,13 @@ def main():
                         })
                     except:
                         status = CmdStatus.EXCEPTION
+                        raise
                     else:
                         status = CmdStatus.DONE
                     finally:
-                        predictor.model_file = pickle.dumps(model_file)
+                        predictor.model_file = picklefield_dumps(model_file)
                         predictor.status = status
+                        session.add(predictor)
                         session.commit()
 
                     q.complete(item)

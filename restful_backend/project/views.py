@@ -102,7 +102,8 @@ class JobViewSet(
                         'eval_metrics': ts['eval_metrics'],
                         'auto_tune_metric': ts['auto_tune_metric'],
                         'auto_tune': ts['auto_tune'],
-                        'max_eval': ts['max_eval']
+                        'max_eval': ts['max_eval'],
+                        'next_k_prediction': ts['next_k_prediction'],
                     },
                     related_series=ts_obj
                 )
