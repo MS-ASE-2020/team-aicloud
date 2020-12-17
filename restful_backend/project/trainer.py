@@ -1,17 +1,16 @@
-import json
-import os
-from .metrics import *
-import project.ts_models as ts_models
-from .ts_models import *
+from . import ts_models
+# import ts_models
 import datetime
 import pandas as pd
 # import utils
-from .utils import *
-import hyperopt
+# from .utils import *
+from .utils import model_hyper, eval_func
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+from .utils.metrics import METRICS
 
-class trainer():
-    def __init__(self, model_name, config, auto_tune=True, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
+
+class trainer:
+    def __init__(self, model_name, config, auto_tune=False, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
         self.config = config
         self.metrics = metrics
         self.model_name = model_name
@@ -19,6 +18,7 @@ class trainer():
         self.auto_tune = auto_tune
         self.features = False
         self.max_eval = max_eval
+        self.auto_tune_metric = auto_tune_metric
 
     def preprocess(self, ts_data, target_idx, ts_idx, feature_idx):
         # FIXME: data type is object currently
@@ -40,8 +40,8 @@ class trainer():
         data = data_df.to_numpy()
         X, y = self.preprocess(data, target_idx, ts_idx, feature_idx)
         # train test split
-        # TODO: split into train val test 
-        self.recent_n_validation = eval_func.get_validation_period(X)
+        # TODO: split into train val test
+        self.recent_n_validation = eval_func.get_validation_period(y)
         if len(X) > self.recent_n_validation:
             self.X_train = X[0:-self.recent_n_validation]
             self.y_train = y[0:-self.recent_n_validation]
@@ -53,28 +53,30 @@ class trainer():
             self.X_valid = X + [0] * (self.recent_n_validation - len(X))
             self.y_valid = y + [0] * (self.recent_n_validation - len(y))
 
-        space = model_hyper.hyper_space(self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
+        space = model_hyper.hyper_space(
+            self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
             self.model = self._train(space)["trained_Model"]
-            best = {x["name"]: x["val"] for x in self.config}
+            best = self.config
         else:
+            print(space)
             trials = Trials()
             best = fmin(fn=self._train,
                         space=space,
                         algo=tpe.suggest,
-                        max_evals=self.max_eval, 
+                        max_evals=self.max_eval,
                         trials=trials)
             print(best)
             self.model, min_loss = model_hyper.getBestModelfromTrials(trials)
-        
+
         pred = self._predict(self.recent_n_validation)
         metrics = self._eval(pred, self.y_valid)
 
         return metrics, best, self.model
 
     def predict(self, nextKPrediction):
-        pred = self._predict(nextKPrediction) 
-        
+        pred = self._predict(nextKPrediction)
+
         timestamps = list()
         predictions = list()
         for i in range(nextKPrediction):
@@ -85,9 +87,9 @@ class trainer():
 
         return predictions, timestamps
 
-    # save model 
+    # save model
     def save(self, path):
-        pass
+        self.model.save(path)
 
     def _train(self, space):
         model = getattr(ts_models, self.model_name + 'Model')(
@@ -96,40 +98,92 @@ class trainer():
 
         if self.features:
             model.fit(self.X_train, self.y_train)
-            pred = self.model.predict(self.X_train, self.recent_n_validation)
+            x_pred = self.X_train[-self.recent_n_validation:]
+            pred = model.predict(x_pred)
         else:
             model.fit(self.y_train)
             pred = model.predict(self.recent_n_validation)
 
         # if auto-tune, only use mse as metrics
         if self.auto_tune:
-            loss = METRICS["mse"](self.y_valid, pred)
+            loss = METRICS[self.auto_tune_metric](self.y_valid, pred)
             return {'loss': loss, 'status': STATUS_OK, 'trained_Model': model}
         else:
-            return {'trained_Model': model}  
-    
+            return {'trained_Model': model}
+
     def _eval(self, pred, truth):
         results = dict()
         for name in self.metrics:
+            print(pred)
             results[name] = METRICS[name](self.y_valid, pred)
 
         return results
-    
+
     def _predict(self, nextKPrediction):
-        pred = self.model.predict(nextKPrediction) if not self.features else self.model.predict(self.X_valid, nextKPrediction)
+        pred = self.model.predict(nextKPrediction) if not self.features else self.model.predict(
+            self.X_valid[-nextKPrediction:])
         return pred
 
 if __name__ == '__main__':
-    config = {
-        "latest_n": 5,
-        "add_std_factor": 0.5
-    }
-    model_name = "LinearFitModel"
-    path = '../uploads/Book1.csv'
+    config = [
+        {
+            "name": "learning_rate",
+            "type": "float",
+            "low": 0.01,
+            "high": 0.5
+        }
+        # {
+        #     "name": "metric",
+        #     "val": 'reg:squarederror'
+        # }
+        # {
+        #     "name": 'num_round',
+        #     "val": 10
+        # }
+        # {"name": "add_std_factor",
+        #  "intro": "hyper-parameters description",
+        #  "type": "float",
+        #  "val": 0.1
+        #  }
+        # {
+        #     "name": "loss_used",
+        #     "intro": "hyper-parameters description",
+        #     "type": "list",
+        #     "choice": [
+        #         "mean_squared_error"
+        #     ]
+        # },
+        # # {
+        # #     "name": "sample_fold_used",
+        # #     "intro": "hyper-parameters description",
+        # #     "type": "int",
+        # #     "low": 2,
+        # #     "high": 8
+        # # },
+        # {
+        #     "name": "epochs_used",
+        #     "intro": "hyper-parameters description",
+        #     "type": "int",
+        #     "low": 100,
+        #     "high": 150
+        # },
+        # {
+        #     "name": "batch_size_used",
+        #     "intro": "hyper-parameters description",
+        #     "type": "int",
+        #     "low": 5,
+        #     "high": 10
+        # }
+    ]
+    model_name = "LightGBM"
+    path = '../uploads/features.csv'
     df = pd.read_csv(path)
-    trainer = trainer(model_name, config)
-    results = trainer.train(df, 1, 0, [])
+    trainer = trainer(model_name, config, auto_tune=True, max_eval=1)
+    # results = trainer.train(df, 1, 0, [])
+    results = trainer.train(df, 1, 0, [2,3,4,5,6,7,8])
     pred = trainer.predict(5)
+    # FIXME: path: <UserID><ModelID>
+    path = trainer.save('save_models/lstm/xgboost.pkl')
     print(results)
     # {'mse': 1826699.0, 'rmse': 1351.5542904374947}
     print(pred)

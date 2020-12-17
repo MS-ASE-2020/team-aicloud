@@ -76,17 +76,54 @@ def _random_arrival_hyper(fit_model=[ "Expon", "Weibull", "Sampling"]):
     hyper['fit_model'] = fit_model
     return hyper
 
+
+def _lightgbm_hyper(
+    n_estimators=100,
+    num_leaves=31,
+    max_depth=-1,
+    learning_rate=0.1,
+    subsample_for_bin=200000,
+    class_weight=None,
+    min_split_gain=0.0,
+    ):
+    hyper = dict()
+    hyper['n_estimators'] = n_estimators
+    hyper['num_leaves'] = num_leaves
+    hyper['max_depth'] = max_depth
+    hyper['learning_rate'] = learning_rate
+    hyper['subsample_for_bin'] = subsample_for_bin
+    hyper['class_weight'] = class_weight
+    hyper['min_split_gain'] = min_split_gain
+    return hyper
+
+def _xgboost_hyper(
+    n_estimators=100,
+    eta=0.3,
+    gamma=0,
+    max_depath=6,
+    alpha=1
+):
+    hyper = dict()
+    hyper['n_estimators'] = n_estimators
+    hyper['eta'] = eta
+    hyper['gamma'] = gamma
+    hyper['max_depath'] = max_depath
+    hyper['alpha'] = alpha
+    return hyper
+
 # generate mdoel hyper-parameaters
 MODELS = {
     'AdaptiveAverageN': _adaptive_average_hyper,
     'AdaptiveMaxN': _adaptive_maxn_hyper,
     'ARIMA': _arima_hyper,
-    # 'FbProphet': _prophet_hyper,
+    'FbProphet': _prophet_hyper,
     'LinearFit': _linear_fit_hyper,
     'Lstm': _lstm_hyper,
     'LstmLong': _lstm_long_hyper,
     # 'NewRandomArrival': _new_random_arrival_hyper,
-    'RandomArrival': _random_arrival_hyper
+    'RandomArrival': _random_arrival_hyper,
+    "LightGBM": _lightgbm_hyper,
+    "XGBoost": _xgboost_hyper
 }
 
 def generate_hyper(path='model_hypers.json'):

@@ -45,3 +45,6 @@ def preprocess(path):
     df = pd.read_csv(path)
     df.fillna(method='pad')
     df.to_csv(path)
+
+def user_file_path(userID, file_name):
+    return 'user_{0}/{1}'.format(userID, filename)

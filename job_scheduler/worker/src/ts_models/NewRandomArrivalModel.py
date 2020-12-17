@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.stats import expon
 import math
+from .BaseModel import BaseModel
 
-
-class NewRandomArrivalModel:
+class NewRandomArrivalModel(BaseModel):
     def __init__(self, round_non_negative_int_func, spike_detect_lag=12, spike_detect_std_threshold=2, spike_detect_influence=0.5, latest_n=360,
                  rise_strategy="auto", decline_strategy="exponential", add_std_factor=0, confidence_threshold=0.75, height_limit="average"):
         self.has_spike = False

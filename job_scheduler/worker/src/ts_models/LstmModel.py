@@ -1,9 +1,9 @@
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
+from .BaseModel import BaseModel
 
-
-class LstmModel:
+class LstmModel(BaseModel):
     def __init__(self, round_non_negative_int_func, lstm_cells_per_layer_used=100, loss_used='mean_squared_error', optimizer_used='adam', epochs_used=100, batch_size_used=5, random_seed_used=1, sample_num=5, feature_length_used=5):
         self.model_name = 'LSTM_{}_{}_Model'.format(sample_num, feature_length_used)
         self.round_non_negative_int_func = round_non_negative_int_func
@@ -35,7 +35,7 @@ class LstmModel:
         backend.clear_session()
         np.random.seed(self.random_seed_used)
         random.seed(self.random_seed_used)
-        tf.set_random_seed(self.random_seed_used)
+        tf.random.set_seed(self.random_seed_used)
 
         self.data_ori = data
         if len(self.data_ori) <= 1:
@@ -128,3 +128,7 @@ class LstmModel:
         pred = list(pred_pre)
         pred = self.round_non_negative_int_func(pred)
         return pred
+
+    def save(self, path):
+        self.model.save(path + 'LstmLongModel.h5')
+        return path + 'LstmLongModel.h5'

@@ -128,3 +128,7 @@ class LstmModel(BaseModel):
         pred = list(pred_pre)
         pred = self.round_non_negative_int_func(pred)
         return pred
+
+    def save(self, path):
+        self.model.save(path + 'LstmLongModel.h5')
+        return path + 'LstmLongModel.h5'
