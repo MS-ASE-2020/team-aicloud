@@ -65,13 +65,11 @@ class JobViewSet(
     def update(self, request, *args, **kwargs):
         kwargs['partial'] = True
         group_by_indices = self.request.data["groupby_indexs"]
-        dataset_path = self.get_object().related_data.upload
-        group_by_vals = dataset_utils.slice_dataset(dataset_path, group_by_indices)
+        dataset_path = self.get_object().related_data.upload.path
         # create series
-        for val in group_by_vals:
-            dataset = dataset_utils.get_sliced_dataset(dataset_path, group_by_indices, val)
+        for group_by_vals, dataset in dataset_utils.slice_dataset(dataset_path, group_by_indices):
             ts = models.Series.objects.create(
-                cluster_key=val,
+                cluster_key=group_by_vals,
                 related_job=self.get_object(),
                 related_data=self.get_object().related_data,
                 dataset=dataset,
