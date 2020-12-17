@@ -116,7 +116,7 @@ class JobViewSet(
                 ts_serializer.is_valid(raise_exception=True)
                 ts_serializer.save()
 
-        commit_job(self.object().id)
+        commit_job(self.get_object().id)
 
         return Response(
             status=status.HTTP_200_OK,
