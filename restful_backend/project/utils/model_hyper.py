@@ -83,7 +83,6 @@ def _lightgbm_hyper(
     max_depth=-1,
     learning_rate=0.1,
     subsample_for_bin=200000,
-    class_weight=None,
     min_split_gain=0.0,
     ):
     hyper = dict()
@@ -92,7 +91,6 @@ def _lightgbm_hyper(
     hyper['max_depth'] = max_depth
     hyper['learning_rate'] = learning_rate
     hyper['subsample_for_bin'] = subsample_for_bin
-    hyper['class_weight'] = class_weight
     hyper['min_split_gain'] = min_split_gain
     return hyper
 

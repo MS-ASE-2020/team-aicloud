@@ -3,6 +3,7 @@ from .BaseModel import BaseModel
 
 class AdaptiveAverageNModel(BaseModel):
     def __init__(self, round_non_negative_int_func, latest_n=24):
+        super(AdaptiveAverageNModel, self).__init__()
         self.round_non_negative_int_func = round_non_negative_int_func
         self.eval_len = latest_n
         self.model_name = "Adaptive_Average_N_Model"

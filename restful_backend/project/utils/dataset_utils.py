@@ -48,3 +48,6 @@ def preprocess(path):
 
 def user_file_path(userID, file_name):
     return 'user_{0}/{1}'.format(userID, filename)
+
+def model_file_path(user_id, model_id, model_name):
+    return 'user_{0}/{1}/{2}'.format(user_id, model_name, model_id)

@@ -5,6 +5,7 @@ from .BaseModel import BaseModel
 class ARIMAModel(BaseModel):
     def __init__(self, add_std_factor=0):
         # FIXME: fix arima_order type
+        super.__init__()
         self.arima_order = (6, 0, 2)
         self.add_std_factor = add_std_factor
         self.model_name = "ARIMA_{}_Model".format(self.arima_order)
