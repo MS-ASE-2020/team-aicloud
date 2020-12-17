@@ -1,8 +1,16 @@
-FROM python:3.8
+FROM python:3.8-buster
 
 WORKDIR /code
 
 COPY worker/requirements.txt .
+
+RUN echo \
+    deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster main contrib non-free \
+    deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-updates main contrib non-free \
+    deb https://mirrors.tuna.tsinghua.edu.cn/debian/ buster-backports main contrib non-free \
+    > /etc/apt/sources.list && \
+    apt update && \
+    apt-get install python3-dev default-libmysqlclient-dev -y
 
 RUN pip install -r requirements.txt
 

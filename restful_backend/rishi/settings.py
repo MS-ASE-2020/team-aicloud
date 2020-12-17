@@ -145,8 +145,8 @@ CORS_ALLOW_HEADERS = [
     'x-token',
 ]
 
-REST_FRAMEWORK = { 
-    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema', 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
@@ -165,3 +165,12 @@ JWT_AUTH = {
 
 FILE_UPLOAD_PATH = 'D:/Uploaded'
 # MEDIA_ROOT = '/app/backend/static/'
+
+SCHEDULER_HOST = 'scheduler'
+
+SCHEDULER_PORT = '12345'
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass

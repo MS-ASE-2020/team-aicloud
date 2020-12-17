@@ -28,49 +28,51 @@ def main():
                 series = session.query(Series).get(series_id)
                 dataset = series.dataset
                 job = series.project_job
-                predictor = series.project_predictor_collection[-1]
+                predictors = series.project_predictor_collection
 
-            print("Working on " + series_id)
-            try:
-                df = pickle.loads(dataset)
+            for predictor in predictors:
+                if predictor.status != CmdStatus.COMITTED:
+                    continue
+                print(f'Working on predictor {predictor.id}')
                 model_file = pickle.loads(predictor.model_file)
-                model = trainer.trainer(
-                    model_name=model_file['model_name'],
-                    config=model_file['hyper_params'],
-                    metrics=model_file['eval_metrics'],
-                    auto_tune_metric=model_file['auto_tune_metric'],
-                    auto_tune=model_file['auto_tune'],
-                    max_eval=model_file['max_eval'],
-                )
+                try:
+                    df = pickle.loads(dataset)
+                    model = trainer.trainer(
+                        model_name=model_file['model_name'],
+                        config=model_file['hyper_params'],
+                        metrics=model_file['eval_metrics'],
+                        auto_tune_metric=model_file['auto_tune_metric'],
+                        auto_tune=model_file['auto_tune'],
+                        max_eval=model_file['max_eval'],
+                    )
 
-                _, target_idx, ts_idx = dataset_utils.str2list(job)
-                metrics, config, tuned_model = model.train(
-                    data_df=df,
-                    target_idx=target_idx,
-                    ts_idx=ts_idx,
-                )
-                predictions, timestamps = model.predict(model_file['next_k_prediction'])
-                model_file.update({
-                    'predictions': predictions,
-                    'timestamps': timestamps,
-                    'metrics': metrics,
-                    'config': config,
-                })
-            except:
-                status = CmdStatus.EXCEPTION
-                model_file = None
+                    _, target_idx, ts_idx = dataset_utils.str2list(job)
+                    metrics, config, tuned_model = model.train(
+                        data_df=df,
+                        target_idx=target_idx,
+                        ts_idx=ts_idx,
+                    )
+                    predictions, timestamps = model.predict(model_file['next_k_prediction'])
+                    model_file.update({
+                        'predictions': predictions,
+                        'timestamps': timestamps,
+                        'metrics': metrics,
+                        'config': config,
+                    })
+                except:
+                    status = CmdStatus.EXCEPTION
+                else:
+                    status = CmdStatus.DONE
+                finally:
+                    with Session(engine) as session:
+                        session.add(predictor)
+                        predictor.model_file = pickle.dumps(model_file)
+                        predictor.status = status
+                        session.commit()
+
+                q.complete(item)
             else:
-                status = CmdStatus.DONE
-            finally:
-                with Session(engine) as session:
-                    session.add(predictor)
-                    predictor.model_file = pickle.dumps(model_file)
-                    predictor.status = status
-                    session.commit()
-
-            q.complete(item)
-        else:
-            print("Waiting for work")
+                print("Waiting for work")
 
     print("Queue empty, exiting")
 

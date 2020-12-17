@@ -32,4 +32,6 @@ class Series(models.Model):
         help_text='The data this series connect',
         null=False,
     )
-    dataset = PickledObjectField()
+    dataset = PickledObjectField(
+        null=True,
+    )

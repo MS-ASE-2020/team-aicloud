@@ -5,6 +5,6 @@ try:
 except ImportError:
     pass
 
-CONNECTION_STR = 'mysql+mysqldb://root:66666666@mysql/rishi'
+CONNECTION_STR = 'mysql+pymysql://root:66666666@mysql/rishi'
 
 REIDS_HOST = 'cloudai-rishi:6379'

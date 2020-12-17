@@ -5,6 +5,6 @@ try:
 except ImportError:
     pass
 
-CONNECTION_STR = 'mysql+mysqldb://root:66666666@cloudai-rishi:3306/rishi'
+CONNECTION_STR = 'mysql+pymysql://root:66666666@10.150.145.214:3306/rishi'
 
 REDIS_HOST = 'redis'

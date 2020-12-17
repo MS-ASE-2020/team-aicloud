@@ -10,6 +10,7 @@ from . import serializers
 from .utils import *
 import json
 from . import trainer
+from .utils.scheduler import commit_job
 
 # Create your views here.
 class JobViewSet(
@@ -93,7 +94,7 @@ class JobViewSet(
             for ts_obj in series:
                 if 'auto_tune_metric' not in ts:
                     ts['auto_tune_metric'] = ''
-                predictor = models.Predictor.objects.create(
+                models.Predictor.objects.create(
                     name=ts['model_name'],
                     status=models.CmdStatus.COMITTED,
                     model_file={
@@ -113,63 +114,12 @@ class JobViewSet(
                     partial=True
                 )
                 ts_serializer.is_valid(raise_exception=True)
-                ts_result = ts_serializer.save()
-                dataset = dataset_utils.get_sliced_dataset(self.get_object().related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
-                # sm.commit_job(ts_serializer.data)
-                job_obj = self.get_object()
-                _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
-                feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
-                model = trainer.trainer(
-                    model_name=ts['model_name'],
-                    config=ts['hyper_params'],
-                    metrics=ts["eval_metrics"],
-                    auto_tune_metric=ts['auto_tune_metric'],
-                    auto_tune=ts["auto_tune"],
-                    max_eval=ts["max_eval"])
-                metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
-                predictions, timestamps = model.predict(ts["next_k_prediction"])
-                model_path = dataset_utils.model_file_path(self.request.user.id, predictor.id, predictor.name)
-                path = model.save(model_path)
-                if path is not None:
-                    with open(model_path, "rb") as fd:
-                        with ContentFile(fd.read()) as file_content:
-                            predictor.model_save.save(model_path, file_content)
-                            predictor.save()
+                ts_serializer.save()
 
-                # save into predictors
-                model_file = {
-                    'predictions': predictions,
-                    'timestamps': timestamps,
-                    'metrics': metrics,
-                    'config': config,
-                    # 'model': tuned_model
-                }
-                p_serializer = serializers.PredictorSerializer(
-                    predictor,
-                    data={
-                        'model_file': model_file,
-                        'status': models.CmdStatus.DONE,
-                    },
-                    partial=True
-                )
-                p_serializer.is_valid(raise_exception=True)
-                p_serializer.save()
-                model_file["ts_id"] = ts_obj.id
-                model_file["model_name"] = ts['model_name']
-                results.append(model_file)
-
-        job_obj = get_object_or_404(queryset, pk=pk)
-        job_serializer = self.get_serializer(
-            job_obj,
-            data={'status': models.CmdStatus.DONE},
-            partial=True
-        )
-        job_serializer.is_valid(raise_exception=True)
-        job_result = job_serializer.save()
+        commit_job(self.object().id)
 
         return Response(
             status=status.HTTP_200_OK,
-            data=results
         )
 
     @action(methods=['patch'], detail=True, url_path='update_all', url_name='update_all')
