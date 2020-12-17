@@ -73,8 +73,11 @@ export default {
         })
         this.tableData.push(config)
         const plotdata = {}
-        plotdata['predictions'] = element.predictions
-        plotdata['timestamps'] = element.timestamps
+        plotdata['hisLength'] = element.ts_history.length()
+        plotdata['predictions'] = element.ts_history.history
+        plotdata['predictions'] = plotdata['predictions'].concat(element.predictions)
+        plotdata['timestamps'] = element.timestamps.timestamp
+        plotdata['timestamps'] = plotdata['timestamps'].concat(element.timestamps)
         this.predictList.push(plotdata)
         i++
       })

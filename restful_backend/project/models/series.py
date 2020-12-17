@@ -2,6 +2,7 @@ from django.core.validators import int_list_validator
 from django.db import models
 from .job import Job
 from .dataset import Dataset
+from picklefield.fields import PickledObjectField
 
 class Series(models.Model):
     cluster_key = models.CharField(
@@ -35,3 +36,4 @@ class Series(models.Model):
         help_text='The data this series connect',
         null=False,
     )
+    dataset = PickledObjectField()

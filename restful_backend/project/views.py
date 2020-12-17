@@ -22,7 +22,7 @@ class JobViewSet(
     serializer_class = serializers.JobSerializer
     authentication_classes = [JSONWebTokenAuthentication]
     queryset = models.Job.objects.all()
-    
+
     @decorators.parser_classes([MultiPartParser])
     def create(self, request):
         data = self.request.user.datasets.filter(id=self.request.data['data_id']).get()
@@ -45,7 +45,7 @@ class JobViewSet(
             "data": serializer.data,
             "status": status.HTTP_200_OK,
         })
-    
+
     def list(self, request):
         result_queryset = self.queryset.filter(related_user=self.request.user)
         result_serializer = serializers.JobSerializer(result_queryset, many=True)
@@ -63,12 +63,14 @@ class JobViewSet(
         group_by_indices = self.request.data["groupby_indexs"]
         dataset_path = self.get_object().related_data.upload
         group_by_vals = dataset_utils.slice_dataset(dataset_path, group_by_indices)
-        # create series 
+        # create series
         for val in group_by_vals:
+            dataset = dataset_utils.get_sliced_dataset(dataset_path, group_by_indices, val)
             ts = models.Series.objects.create(
                 cluster_key=val,
                 related_job=self.get_object(),
-                related_data=self.get_object().related_data
+                related_data=self.get_object().related_data,
+                dataset=dataset,
             )
 
         return super().update(request, *args, **kwargs)
@@ -79,69 +81,73 @@ class JobViewSet(
     start model_training
     """
     def partial_update(self, request, pk):
-        series = self.request.data
+        tss = self.request.data
         queryset = self.request.user.jobs.all()
         results = list()
-        for ts in series:
-            ts_obj = models.Series.objects.get(pk=ts['ts_id'])
+        series = self.get_object().series.all()
+        for ts in tss:
+            # ts_obj = models.Series.objects.get(pk=ts['ts_id'])
             if 'auto_tune_metric' not in ts:
                 ts['auto_tune_metric'] = ''
-            predictor = models.Predictor.objects.create(
-                name=ts['model_name'],
-                status=models.CmdStatus.COMITTED,
-                model_file={
-                    'hyper_params': ts['hyper_params'],
-                    'eval_metrics': ts['eval_metrics'],
-                    'auto_tune_metric': ts['auto_tune_metric'],
-                    'auto_tune': ts['auto_tune'],
-                    'max_eval': ts['max_eval']
-                },
-                related_series=ts_obj
-            )
-            ts_serializer = serializers.SeriesSerializer(
-                ts_obj,
-                data={
-                    'feature_indexs': ts["feature_indexs"]
-                },
-                partial=True
-            )
-            ts_serializer.is_valid(raise_exception=True)
-            ts_result = ts_serializer.save()
-            dataset = dataset_utils.get_sliced_dataset(self.get_object().related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
-            # sm.commit_job(ts_serializer.data)
-            job_obj = self.get_object()
-            _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
-            feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
-            model = trainer.trainer(
-                model_name=ts['model_name'], 
-                config=ts['hyper_params'], 
-                metrics=ts["eval_metrics"],
-                auto_tune_metric=ts['auto_tune_metric'],
-                auto_tune=ts["auto_tune"],
-                max_eval=ts["max_eval"])
-            metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
-            predictions, timestamps = model.predict(ts["next_k_prediction"])
-            # save into predictors
-            model_file = {
-                'predictions': predictions,
-                'timestamps': timestamps,
-                'metrics': metrics,
-                'config': config,
-                # 'model': tuned_model
-            }
-            p_serializer = serializers.PredictorSerializer(
-                predictor,
-                data={
-                    'model_file': model_file,
-                    'status': models.CmdStatus.DONE,
-                },
-                partial=True
-            )
-            p_serializer.is_valid(raise_exception=True)
-            p_serializer.save()
-            model_file["ts_id"] = ts["ts_id"]
-            model_file["model_name"] = ts['model_name']
-            results.append(model_file)        
+            for ts_obj in series:
+                if 'auto_tune_metric' not in ts:
+                    ts['auto_tune_metric'] = ''
+                predictor = models.Predictor.objects.create(
+                    name=ts['model_name'],
+                    status=models.CmdStatus.COMITTED,
+                    model_file={
+                        'hyper_params': ts['hyper_params'],
+                        'eval_metrics': ts['eval_metrics'],
+                        'auto_tune_metric': ts['auto_tune_metric'],
+                        'auto_tune': ts['auto_tune'],
+                        'max_eval': ts['max_eval']
+                    },
+                    related_series=ts_obj
+                )
+                ts_serializer = serializers.SeriesSerializer(
+                    ts_obj,
+                    data={
+                        'feature_indexs': ts["feature_indexs"]
+                    },
+                    partial=True
+                )
+                ts_serializer.is_valid(raise_exception=True)
+                ts_result = ts_serializer.save()
+                dataset = dataset_utils.get_sliced_dataset(self.get_object().related_data.upload, self.get_object().groupby_indexs, ts_obj.cluster_key)
+                # sm.commit_job(ts_serializer.data)
+                job_obj = self.get_object()
+                _, target_idx, ts_idx = dataset_utils.str2list(job_obj)
+                feature_idx = dataset_utils.str2listofint(ts["feature_indexs"])
+                model = trainer.trainer(
+                    model_name=ts['model_name'],
+                    config=ts['hyper_params'],
+                    metrics=ts["eval_metrics"],
+                    auto_tune_metric=ts['auto_tune_metric'],
+                    auto_tune=ts["auto_tune"],
+                    max_eval=ts["max_eval"])
+                metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
+                predictions, timestamps = model.predict(ts["next_k_prediction"])
+                # save into predictors
+                model_file = {
+                    'predictions': predictions,
+                    'timestamps': timestamps,
+                    'metrics': metrics,
+                    'config': config,
+                    # 'model': tuned_model
+                }
+                p_serializer = serializers.PredictorSerializer(
+                    predictor,
+                    data={
+                        'model_file': model_file,
+                        'status': models.CmdStatus.DONE,
+                    },
+                    partial=True
+                )
+                p_serializer.is_valid(raise_exception=True)
+                p_serializer.save()
+                model_file["ts_id"] = ts["ts_id"]
+                model_file["model_name"] = ts['model_name']
+                results.append(model_file)
 
         job_obj = get_object_or_404(queryset, pk=pk)
         job_serializer = self.get_serializer(
@@ -151,7 +157,7 @@ class JobViewSet(
         )
         job_serializer.is_valid(raise_exception=True)
         job_result = job_serializer.save()
-        
+
         return Response(
             status=status.HTTP_200_OK,
             data=results
@@ -187,7 +193,7 @@ class JobViewSet(
                 ts_serializer.is_valid(raise_exception=True)
                 ts_result = ts_serializer.save()
                 # TODO: commit job to scheduler
-        
+
         return Response(
             status=status.HTTP_200_OK
         )
@@ -232,8 +238,7 @@ class JobViewSet(
         results = []
         for ts in series:
             ts_results = []
-            ts_history_all = dataset_utils.get_sliced_dataset(
-                job_obj.related_data.upload.path, job_obj.groupby_indexs, ts.cluster_key)
+            ts_history_all = ts.dataset
             ts_history = {}
             ts_history["history"] = ts_history_all.iloc[:, target_idx]
             ts_history["timestamp"] = ts_history_all.iloc[:, ts_idx]
@@ -244,7 +249,7 @@ class JobViewSet(
                     model_file["model_name"] = predictor.name
                     model_file["ts_history"] = ts_history
                     ts_results.append(model_file)
-            
+
             results.append({
                 'ts_id': ts.id,
                 'results': ts_results
@@ -271,7 +276,7 @@ class DatasetViewSet(
     serializer_class = serializers.DatasetSerializer
     authentication_classes = [JSONWebTokenAuthentication]
     queryset = models.Dataset.objects.all()
-    
+
     @decorators.parser_classes([MultiPartParser])
     def create(self, request):
         dataset = models.Dataset.objects.create(
@@ -302,7 +307,7 @@ class DatasetViewSet(
             "heads": heads,
             "time_created": dataset.time_created
         })
-    
+
     def list(self, request):
         dataset = [{"name": x.name, "id": x.pk, "time_created": x.time_created} for x in self.request.user.datasets.all()]
 
@@ -318,7 +323,7 @@ class DatasetViewSet(
 @decorators.authentication_classes([])
 @decorators.permission_classes([])
 def get_avaliable_models(request):
-    
+
     """
     Return all avaliable model names
     """

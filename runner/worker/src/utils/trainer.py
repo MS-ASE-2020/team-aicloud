@@ -1,13 +1,13 @@
-from . import ts_models
-# import ts_models
+from ts_models import *
+from .metrics import *
+import ts_models
+from ts_models import *
 import datetime
 import pandas as pd
 # import utils
-# from .utils import *
-from .utils import model_hyper, eval_func
+from . import eval_func, model_hyper
+import hyperopt
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-from .utils.metrics import METRICS
-
 
 class trainer:
     def __init__(self, model_name, config, auto_tune=False, metrics=("mse", "rmse"), max_eval=100, auto_tune_metric="mse"):
@@ -18,7 +18,6 @@ class trainer:
         self.auto_tune = auto_tune
         self.features = False
         self.max_eval = max_eval
-        self.auto_tune_metric = auto_tune_metric
 
     def preprocess(self, ts_data, target_idx, ts_idx, feature_idx):
         # FIXME: data type is object currently
@@ -57,7 +56,7 @@ class trainer:
             self.model_name, udf_parameter=self.config, auto_tune=self.auto_tune)
         if not self.auto_tune:
             self.model = self._train(space)["trained_Model"]
-            best = self.config
+            best = {x["name"]: x["val"] for x in self.config}
         else:
             print(space)
             trials = Trials()
@@ -106,7 +105,7 @@ class trainer:
 
         # if auto-tune, only use mse as metrics
         if self.auto_tune:
-            loss = METRICS[self.auto_tune_metric](self.y_valid, pred)
+            loss = METRICS["mse"](self.y_valid, pred)
             return {'loss': loss, 'status': STATUS_OK, 'trained_Model': model}
         else:
             return {'trained_Model': model}

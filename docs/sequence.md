@@ -1,7 +1,4 @@
 # Sequence
-<<<<<<< HEAD
-![](assets/sequence.svg)
-=======
 ![](assets/sequence.svg)
 
 1. 13, 16 提交series的feature, model, hyper_param: `/job/job_id/` PATCH 
@@ -669,6 +666,12 @@ class CmdStatus(models.IntegerChoices):
     EXCEPTION = 4
 ```
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> a3fdca86b02bec6864f5feaa4beb84716b088eb9
 =======
 >>>>>>> 0cf058aa31e58ec462cb3fffdcb1a68a10d252f3
+=======
+model save的时候会返回保存的路径
+1. LstmLong: keras model to pickle object 的时候报错了...用了自带的save_model方法，保存h5py文件
+2. Lstm: keras model to pickle object 的时候报错了...用了自带的save_model方法，保存h5py文件
+>>>>>>> ffe089630942a637b8d0830b00359781f1d2c51b
