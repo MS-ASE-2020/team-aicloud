@@ -1,12 +1,12 @@
-from ts_models import *
-import ts_models
+from . import ts_models
+# import ts_models
 import datetime
 import pandas as pd
 # import utils
 # from .utils import *
-from utils import model_hyper, eval_func
+from .utils import model_hyper, eval_func
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-from utils.metrics import METRICS
+from .utils.metrics import METRICS
 
 
 class trainer:
