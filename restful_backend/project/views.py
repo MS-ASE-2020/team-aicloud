@@ -5,11 +5,13 @@ from rest_framework.decorators import APIView, action
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from django.http import FileResponse
 from . import models
 from . import serializers
 from .utils import *
 import json
 from . import trainer
+import rishi.settings as settings
 
 # Create your views here.
 class JobViewSet(
@@ -275,9 +277,28 @@ class JobViewSet(
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
-    @action(methods=['get'], detail=True, url_path='download_model', url_name='download_model')
-    def download(self, request, pk=None):
-        series = self.get_object().series.get()
+    @action(methods=['get'], detail=True, url_path='export_model', url_name='export_model')
+    def export_model(self, request, ts_id=None):
+        path = self.get_object().series.objects.filter(pk=ts_id).predictor.model_save.path
+        if path is not None:
+            with open(path, 'rb') as fd:
+                return FileResponse(fd)
+        else:
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+    @action(methods=['get'], detail=True, url_path='export_settings', url_name='export_settings')
+    def export_settings(self, request, ts_id=None):
+        model = self.get_object().series.objects.filter(
+            pk=ts_id).predictor
+        hyper_param = model.model_file
+        model_name = model.name
+        # FIXME: add media root here in production
+        with open(model_name + '-settings.json', 'wb') as f:
+            json.dump(hyper_param, f)
+            return FileResponse(f)
+        
 
 
 class DatasetViewSet(
@@ -365,5 +386,3 @@ def get_model_hp_description(request, model_name):
             "data": hp_description,
             "status": status.HTTP_204_NO_CONTENT,
         })
-
-class Pr

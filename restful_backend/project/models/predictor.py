@@ -36,15 +36,7 @@ class Predictor(models.Model):
         Series,
         related_name="predictor",
         null=False,
-<<<<<<< HEAD
-        blank=False
-=======
         blank=False,
         default=0,
         on_delete=models.CASCADE
-<<<<<<< HEAD
->>>>>>> a3fdca86b02bec6864f5feaa4beb84716b088eb9
     )
-=======
-    )
->>>>>>> a96d6e8cac36b1d254cbb6067add46de97d05a04

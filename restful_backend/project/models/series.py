@@ -3,6 +3,7 @@ from django.db import models
 from .job import Job
 from .dataset import Dataset
 from picklefield.fields import PickledObjectField
+from .status import CmdStatus
 
 class Series(models.Model):
     cluster_key = models.CharField(
