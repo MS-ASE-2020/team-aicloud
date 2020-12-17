@@ -6,6 +6,10 @@ K8S_NAMESPACE = 'default'
 
 IMAGE_NAME = ''
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+QUEUE = 'jobs'
 
-DATA_DIR = os.path.join(BASE_DIR, 'worker/data')
+REDIS_HOST = 'redis'
+
+CONNECTION_STR = 'mysql+mysqldb://root:66666666@0.0.0.0:3000/rishi'
+
+STATIC_PREFIX = 'http://localhost:2000/files'
