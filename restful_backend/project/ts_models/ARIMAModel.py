@@ -8,6 +8,7 @@ class ARIMAModel(BaseModel):
         self.arima_order = (6, 0, 2)
         self.add_std_factor = add_std_factor
         self.model_name = "ARIMA_{}_Model".format(self.arima_order)
+        self.model_save = True
 
     def fit(self, data):
         model = ARIMA(data, order=self.arima_order)

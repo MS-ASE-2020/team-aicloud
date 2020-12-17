@@ -14,4 +14,5 @@ class XGBoostModel(BaseModel):
 
     def save(self, path):
         self.model.save_model(path)
+        return path
 

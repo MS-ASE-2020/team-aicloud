@@ -3,6 +3,7 @@ import pickle
 class BaseModel:
     def __init__(self, features=False):
         self.features = features
+        self.model_save = False
 
     def fit(self):
         raise NotImplementedError
@@ -11,10 +12,14 @@ class BaseModel:
         raise NotImplementedError
 
     def save(self, path):
-        with open(path, 'wb') as fd:
-            pickle.dump(self.model, fd)
+        if self.model_save:
+            print('Saving model...')
+            with open(path, 'wb') as fd:
+                pickle.dump(self.model, fd)
+            return path
 
-        return path
+        # Models without parameters
+        return None
 
     def __repr__(self):
         if not hasattr(self, 'description'):
