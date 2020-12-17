@@ -27,7 +27,7 @@ class Dataset(models.Model):
     )
     upload = models.FileField(
         verbose_name='data file',
-        upload_to='/app/backend/static',  # TODO: path <user>/<project>/
+        upload_to='uploads',  # TODO: path <user>/<project>/
         null=False,
         blank=False
     )
