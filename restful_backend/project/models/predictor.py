@@ -3,6 +3,7 @@ from django.utils import timezone, crypto
 from picklefield.fields import PickledObjectField
 from .series import Series
 from .status import CmdStatus
+from ..utils.dataset_utils import model_file_path
 
 class Predictor(models.Model):
     name = models.CharField(
@@ -17,6 +18,12 @@ class Predictor(models.Model):
     status = models.IntegerField(
         choices=CmdStatus.choices,
         default=CmdStatus.CREATED,
+    )
+    model_save = models.FileField(
+        verbose_name='data file',
+        upload_to=model_file_path,  # TODO: path <user>/<project>/
+        null=True,
+        blank=True
     )
     time_created = models.DateTimeField(
         verbose_name="the create time of model",
@@ -35,5 +42,9 @@ class Predictor(models.Model):
         blank=False,
         default=0,
         on_delete=models.CASCADE
+<<<<<<< HEAD
 >>>>>>> a3fdca86b02bec6864f5feaa4beb84716b088eb9
     )
+=======
+    )
+>>>>>>> a96d6e8cac36b1d254cbb6067add46de97d05a04

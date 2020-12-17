@@ -3,6 +3,7 @@ import xgboost as xgb
 
 class XGBoostModel(BaseModel):
     def __init__(self, metric, **kwargs):
+        super.__init__(features=True)
         self.model = xgb.XGBRegressor(objective=metric, **kwargs)
         self.features = True
 

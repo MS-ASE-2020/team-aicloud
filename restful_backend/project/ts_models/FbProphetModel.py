@@ -4,8 +4,8 @@ from .BaseModel import BaseModel
 import datetime
 
 class FbProphetModel(BaseModel):
-
-    def __init__(self, round_non_negative_int_func, add_std_factor = 0.25, changepoint_prior_scale=0.3):
+    def __init__(self, round_non_negative_int_func, add_std_factor=0.25, changepoint_prior_scale=0.3):
+        super(FbProphetModel, self).__init__()
         self.model_name = "FbProphetModel"
         self.round_non_negative_int_func = round_non_negative_int_func
         self.changepoint_prior_scale = changepoint_prior_scale

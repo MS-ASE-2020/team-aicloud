@@ -3,6 +3,7 @@ from .BaseModel import BaseModel
 
 class MaxNModel(BaseModel):
     def __init__(self, round_non_negative_int_func, latest_n):
+        super.__init__()
         self.n = int(latest_n)
         self.model_name = "Max_{}_Model".format(self.n)
         self.round_non_negative_int_func = round_non_negative_int_func

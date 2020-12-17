@@ -12,6 +12,7 @@ class RandomArrivalModel(BaseModel):
         :param round_non_negative_int_func:
         :param fit_model: "Expon" or "Weibull" or "Sampling"
         '''
+        super.__init__()
         self.model_name = "RandomArrival_{}_Model".format(fit_model)
         self.round_non_negative_int_func = round_non_negative_int_func
         self.spike_std_factor = 2

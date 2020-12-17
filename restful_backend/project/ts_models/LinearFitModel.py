@@ -3,7 +3,8 @@ from scipy import stats
 from .BaseModel import BaseModel
 
 class LinearFitModel(BaseModel):
-    def __init__(self, round_non_negative_int_func, latest_n, add_std_factor = 0):
+    def __init__(self, round_non_negative_int_func, latest_n, add_std_factor=0):
+        super.__init__()
         self.model_name = "LinearFit_{}_{}_Model".format(latest_n, add_std_factor)
         self.round_non_negative_int_func = round_non_negative_int_func
         self.latest_n = latest_n

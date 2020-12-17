@@ -5,6 +5,7 @@ from .BaseModel import BaseModel
 
 class LstmModel(BaseModel):
     def __init__(self, round_non_negative_int_func, lstm_cells_per_layer_used=100, loss_used='mean_squared_error', optimizer_used='adam', epochs_used=100, batch_size_used=5, random_seed_used=1, sample_num=5, feature_length_used=5):
+        super.__init__()
         self.model_name = 'LSTM_{}_{}_Model'.format(sample_num, feature_length_used)
         self.round_non_negative_int_func = round_non_negative_int_func
         self.lstm_cells_per_layer_used = lstm_cells_per_layer_used

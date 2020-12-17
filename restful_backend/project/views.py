@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
 from rest_framework import generics, authentication, permissions, decorators, viewsets, mixins, status
 from rest_framework.decorators import APIView, action
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
@@ -127,6 +128,14 @@ class JobViewSet(
                     max_eval=ts["max_eval"])
                 metrics, config, tuned_model = model.train(dataset, target_idx, ts_idx, feature_idx)
                 predictions, timestamps = model.predict(ts["next_k_prediction"])
+                model_path = dataset_utils.model_file_path(self.request.user.id, predictor.id, predictor.name)
+                path = model.save(model_path)
+                if path is not None:
+                    with open(model_path, "rb") as fd:
+                        with ContentFile(fd.read()) as file_content:
+                            predictor.model_save.save(model_path, file_content)
+                            predictor.save()
+
                 # save into predictors
                 model_file = {
                     'predictions': predictions,
@@ -145,7 +154,7 @@ class JobViewSet(
                 )
                 p_serializer.is_valid(raise_exception=True)
                 p_serializer.save()
-                model_file["ts_id"] = ts["ts_id"]
+                model_file["ts_id"] = ts_obj.id
                 model_file["model_name"] = ts['model_name']
                 results.append(model_file)
 
@@ -266,6 +275,11 @@ class JobViewSet(
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
+    @action(methods=['get'], detail=True, url_path='download_model', url_name='download_model')
+    def download(self, request, pk=None):
+        series = self.get_object().series.get()
+
+
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user
@@ -352,3 +366,4 @@ def get_model_hp_description(request, model_name):
             "status": status.HTTP_204_NO_CONTENT,
         })
 
+class Pr

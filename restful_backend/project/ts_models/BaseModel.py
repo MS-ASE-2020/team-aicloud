@@ -1,4 +1,5 @@
 import pickle
+import os
 
 class BaseModel:
     def __init__(self, features=False):
@@ -14,7 +15,9 @@ class BaseModel:
     def save(self, path):
         if self.model_save:
             print('Saving model...')
-            with open(path, 'wb') as fd:
+            if not os.path.exists(path):
+                os.makedirs(path)
+            with open(path + '/model.pkl', 'wb') as fd:
                 pickle.dump(self.model, fd)
             return path
 

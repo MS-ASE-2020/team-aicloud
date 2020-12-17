@@ -3,6 +3,7 @@ from .BaseModel import BaseModel
 
 class LightGBMModel(BaseModel):
     def __init__(self, num_round=100, **kwargs):
+        super.__init__(features=True)
         if ('round_non_negative_int_func' in kwargs):
             kwargs.pop('round_non_negative_int_func')
         self.parmas = kwargs
