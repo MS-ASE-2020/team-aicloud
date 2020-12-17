@@ -1,26 +1,24 @@
 <template>
   <div class="output">
-    <el-row v-for="item in jobList" :key="item.id" :gutter="20">
+    <el-row v-for="item in jobList" :key="item.id" :gutter="20" justify="center">
       <el-col :span="2">
         <p>{{ 'JOB ' + String(item.id) }}</p>
       </el-col>
-      <el-col :span="16">
+      <el-col :span="18">
         <el-progress
           :text-inside="true"
           :stroke-width="40"
           :percentage="Percent(item.status)"
         />
       </el-col>
-      <el-col :span="1">
+      <el-col :span="4">
         <el-button
           icon="el-icon-view"
           type="primary"
-          :disabled="item.status === 2 || item.status == 3 ? false: true"
+          :disabled="item.status === 3 ? false: true"
           circle
           @click="viewResult(item.id)"
         />
-      </el-col>
-      <el-col :span="1">
         <el-button
           icon="el-icon-delete"
           type="danger"
@@ -38,21 +36,23 @@ export default {
   data() {
     return {
       jobList: [],
-      c: null
+      number: null
     }
   },
   created() {
     this.fetch()
-    this.c = setInterval(this.fetch(), 5000)
   },
   beforeDestroy() {
-    clearInterval(this.c)
+    clearInterval(this.number)
   },
   methods: {
+    stopPolling() {
+      clearInterval(this.number)
+    },
     Percent(status) {
       if (status === 0 || status === 4) {
         return 0
-      } else if (status === 1) {
+      } else if (status === 1 || status === 2) {
         return 50
       } else {
         return 100
@@ -60,7 +60,7 @@ export default {
     },
     deleteJob(jobId) {
       deleteJob(jobId).then(response => {
-        console.log(response)
+        this.fetch()
       }).catch(err => {
         console.log(err)
       })
@@ -69,9 +69,28 @@ export default {
       this.$router.push({ path: '/output/job', query: { job_id: jobId }})
     },
     fetch() {
-      console.log('fetch')
       getJobs().then(response => {
         this.jobList = { ...response.data.data }
+        var vm = this
+        vm.number = setInterval(function() {
+          getJobs().then(res => {
+            const newdata = res.data.data
+            for (var i = 0; i < vm.jobList.length; i++) {
+              if (vm.jobList[i].status !== newdata[i].status) {
+                vm.$set(vm.jobList, i, newdata[i])
+              }
+            }
+            if (newdata.length > vm.jobList.length) {
+              for (i = vm.jobList.length; i < newdata.length; i++) {
+                vm.$set(vm.jobList, i, newdata[i])
+              }
+            } else {
+              vm.stopPolling()
+            }
+          }).catch(err => {
+            console.log(err)
+          })
+        }, 1000 * 5)
       }).catch(err => {
         console.log(err)
       })
