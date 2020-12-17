@@ -1,8 +1,5 @@
 <template>
   <el-form label-position="right" label-width="45%">
-    <!-- <el-form-item label="ID">
-      <span>{{ id }}</span>
-    </el-form-item> -->
     <el-form-item v-if="HasFeature" label="Features">
       <el-select v-model="feature_indexs" multiple placeholder="Select features">
         <el-option
@@ -89,9 +86,6 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <!-- <el-form-item>
-        <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item> -->
     </div>
     <div v-if="Selected && auto_tune">
       <el-form-item label="Parameter Set" />
@@ -132,9 +126,6 @@
           <div slot="content">{{ param.intro }}</div>
         </el-tooltip>
       </el-form-item>
-      <!-- <el-form-item>
-        <el-button size="mini" round @click="onSubmit">SET</el-button>
-      </el-form-item> -->
     </div>
     <el-form-item>
       <el-button :disabled="!Selected" round @click="onSubmit">SET</el-button>
@@ -147,10 +138,6 @@ import { getModels, getParams } from '@/api/model'
 
 export default {
   props: {
-    // id: {
-    //   type: Number,
-    //   required: true
-    // },
     features: {
       type: Array,
       required: true
@@ -199,7 +186,15 @@ export default {
     },
     fetchModels() {
       getModels().then(response => {
-        this.models = response.data.data
+        // xgb and lgbm can't be used without feature
+        const models = response.data.data
+        for (var i = 0; i < models.length; i++) {
+          if (models[i] === 'LightGBM' || models[i] === 'XGBoost') {
+            continue
+          } else {
+            this.models.push(models[i])
+          }
+        }
       }).catch(err => {
         console.log(err)
       })
@@ -260,16 +255,6 @@ export default {
     },
     onSubmit() {
       if (this.passCheck) {
-        // this.$confirm('Apply this Settings to All Series', 'Apply All', {
-        //   confirmButtonText: 'YES',
-        //   cancelButtonText: 'NO',
-        //   type: 'info',
-        //   center: true
-        // }).then(() => {
-        //   this.$emit('setDone', this.id, true, this.generatePost())
-        // }).catch(() => {
-        //   this.$emit('setDone', this.id, false, this.generatePost())
-        // })
         this.$emit('setDone', this.generatePost())
         this.Reset()
       } else {
@@ -304,3 +289,4 @@ export default {
   text-align: center;
 }
 </style>
+
