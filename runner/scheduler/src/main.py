@@ -1,4 +1,4 @@
-from service import SchedulerService
+from service.service import SchedulerService
 import settings
 from rpyc.utils.server import ThreadedServer
 

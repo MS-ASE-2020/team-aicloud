@@ -8,8 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY worker/src/ .
 
-COPY utils/. ./utils/
-
-COPY settings.py .
+COPY common/ common/
 
 CMD python main.py

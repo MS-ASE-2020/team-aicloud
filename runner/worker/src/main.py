@@ -1,8 +1,8 @@
 from utils import dataset_utils
 from utils import trainer
-from utils.urlconstructor import URLConstructor
-from utils.rediswq import RedisWQ
-from utils.status import CmdStatus
+from common.urlconstructor import URLConstructor
+from common.rediswq import RedisWQ
+from common.status import CmdStatus
 import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
