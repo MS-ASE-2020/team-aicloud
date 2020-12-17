@@ -32,6 +32,7 @@ class trainer:
         else:
             self.features = True
             features = ts_data[:, feature_idx].astype('float64')
+        features = pd.DataFrame(features).fillna(method='pad').to_numpy()
         y = ts_data[:, target_idx].astype('float64')
         return features, y
 

@@ -47,6 +47,7 @@ export default {
   },
   methods: {
     stopPolling() {
+      console.log(this.number)
       clearInterval(this.number)
     },
     Percent(status) {
@@ -60,7 +61,11 @@ export default {
     },
     deleteJob(jobId) {
       deleteJob(jobId).then(response => {
-        this.fetch()
+        getJobs().then(res => {
+          this.jobList = { ...res.data.data }
+        }).catch(err => {
+          console.log(err)
+        })
       }).catch(err => {
         console.log(err)
       })

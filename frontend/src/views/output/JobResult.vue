@@ -44,7 +44,6 @@ export default {
       var resdata
       getList(this.job_id).then(response => {
         resdata = { ...response.data }
-        console.log(resdata.status)
         if (resdata.status === 3) {
           this.datalists = resdata.results
           this.listLoading = false
