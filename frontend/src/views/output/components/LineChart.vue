@@ -74,7 +74,7 @@ export default {
       }
       return series
     },
-    setOptions({ predictions, timestamps } = {}) {
+    setOptions({ hisLength, predictions, timestamps } = {}) {
       this.chart.setOption({
         // option中的每个属性是一类组件
         // 如果有多个同类组件 就是一个数组
@@ -107,9 +107,17 @@ export default {
             return value.min
           }
         },
-        // legend: {
-        //   data: legend
-        // },
+        visualMap: {
+          show: false,
+          dimension: 0,
+          pieces: [{
+            lte: hisLength,
+            color: 'green'
+          }, {
+            gt: hisLength,
+            color: 'red'
+          }]
+        },
         series: [{
           name: 'Predicitons',
           type: 'line',

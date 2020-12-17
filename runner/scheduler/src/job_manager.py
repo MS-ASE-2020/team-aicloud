@@ -1,5 +1,5 @@
 import settings
-from utils.rediswq import RedisWQ
+from common.rediswq import RedisWQ
 
 
 class JobManager:

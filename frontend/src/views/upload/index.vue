@@ -24,7 +24,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-upload class="upload-demo" drag action="/invalid" accept=".csv" :on-success="onSuccess" :auto-upload="true" :before-upload="BeforeUpload" :http-request="UploadData" style="margin:30px auto">
+    <el-upload class="upload" drag action="/invalid" accept=".csv" :on-success="onSuccess" :auto-upload="true" :before-upload="BeforeUpload" :http-request="UploadData" style="margin:30px auto">
       <i class="el-icon-upload" />
       <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
       <div slot="tip" class="el-upload__tip">只能上传csv文件</div>

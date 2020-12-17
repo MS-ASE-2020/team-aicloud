@@ -1,21 +1,21 @@
 version: "3.2"
-volumes: 
+volumes:
   mysql-data-volume:
   backend-static-volume:
 
-services: 
+services:
   backend:
     build: ./restful_backend/
-    environment: 
+    environment:
       DATABASE_NAME: rishi
       MYSQL_USER: root
       MYSQL_PWD: 66666666
       MYSQL_HOST: mysql
-    volumes: 
+    volumes:
       - backend-static-volume:/app/backend/static
-    ports: 
+    ports:
       - 8000
-    depends_on: 
+    depends_on:
       - mysql
 
   mysql:
@@ -25,19 +25,24 @@ services:
       MYSQL_ROOT_PASSWORD: 66666666
       MYSQL_DATABASE: rishi
       MYSQL_ROOT_HOST: "%"
-    ports: 
+    ports:
       - 3306:3306
-    volumes: 
+    volumes:
       - mysql-data-volume:/var/lib/mysql
 
   nginx:
     build: ./
-    links: 
+    links:
       - backend
-    volumes: 
+    volumes:
       - ./docker/nginx:/etc/nginx/conf.d
       - backend-static-volume:/app/backend/static
     ports:
       - 2000:80
-    environment: 
+    environment:
       NODE_ENV: production
+
+  scheduler:
+    build:
+      context: ./runner
+      dockerfile: Dockerfile_scheduler

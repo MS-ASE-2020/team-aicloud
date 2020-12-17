@@ -1,5 +1,5 @@
 import rpyc
-from scheduler.job_manager import JobManager
+from job_manager import JobManager
 import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
