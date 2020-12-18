@@ -136,13 +136,14 @@ class JobViewSet(
                 model_path = dataset_utils.model_file_path(
                     self.request.user.id, predictor.id, predictor.name)
                 path = model.save(model_path)
-                if predictor.name == 'LstmLongModel' or predictor.name == 'LstmModel':
-                    path = model_path + '/'  + predictor.name + '.h5'
+                if predictor.name == 'LstmLong' or predictor.name == 'Lstm':
+                    path = model_path + '/'  + predictor.name + 'Model.h5'
+                print(path)
                 if path is not None:
                     print('exist')
                     with open(path, "rb") as fd:
                         with ContentFile(fd.read()) as file_content:
-                            predictor.model_save.save(model_path, file_content)
+                            predictor.model_save.save(path, file_content, save=True)
                             predictor.save()
 
                 # save into predictors
@@ -294,9 +295,11 @@ class JobViewSet(
         except ValueError:
             path = None
         if path is not None:
-            with open(path, 'rb') as fd:
-                print('exist')
-                return FileResponse(fd)
+            return FileResponse(open(path, 'rb'))
+            print(path)
+            # with open(path, 'rb') as fd:
+            #     print('exist')
+            #     return FileResponse(model_file_path)
         else:
             return Response(
                 status=status.HTTP_204_NO_CONTENT

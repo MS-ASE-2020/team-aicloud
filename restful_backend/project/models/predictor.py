@@ -21,7 +21,7 @@ class Predictor(models.Model):
     )
     model_save = models.FileField(
         verbose_name='data file',
-        upload_to=model_file_path,  # TODO: path <user>/<project>/
+        # upload_to='',  # TODO: path <user>/<project>/
         null=True,
         blank=True
     )
