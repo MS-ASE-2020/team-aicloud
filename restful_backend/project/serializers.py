@@ -11,11 +11,12 @@ class DatasetSerializer(serializers.ModelSerializer):
         lookup_field = 'id'
 
 class JobSerializer(serializers.ModelSerializer):
+    progress = serializers.ReadOnlyField()
     class Meta:
         model = models.Job
         db_table = 't_job'
         fields = '__all__'
-        read_only_fields = ['time_created', 'progress']
+        read_only_fields = ['time_created']
         lookup_field = 'id'
 
 class SeriesSerializer(serializers.ModelSerializer):

@@ -64,8 +64,8 @@ class Job(models.Model):
     def progress(self):
         all = 0
         executed = 0
-        for series in self.series:
-            for predictor in series.predictor:
+        for series in self.series.all():
+            for predictor in series.predictor.all():
                 all += 1
                 if predictor.status == CmdStatus.EXCEPTION:
                     return -1
