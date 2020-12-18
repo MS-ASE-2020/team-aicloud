@@ -134,5 +134,7 @@ class LstmLongModel(BaseModel):
         return pred
 
     def save(self, path):
+        if not os.path.exists(path):
+            os.makedirs(path)
         self.model.save(path + 'LstmLongModel.h5')
         return path + 'LstmLongModel.h5'

@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from .BaseModel import BaseModel
+import os
 
 class LstmModel(BaseModel):
     def __init__(self, round_non_negative_int_func, lstm_cells_per_layer_used=100, loss_used='mean_squared_error', optimizer_used='adam', epochs_used=100, batch_size_used=5, random_seed_used=1, sample_num=5, feature_length_used=5):
@@ -131,5 +132,8 @@ class LstmModel(BaseModel):
         return pred
 
     def save(self, path):
-        self.model.save(path + 'LstmLongModel.h5')
-        return path + 'LstmLongModel.h5'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        self.model.save(path + '/LstmModel.h5')
+        print(path + '/LstmModel.h5')
+        return path + '/LstmModel.h5'

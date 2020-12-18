@@ -136,8 +136,11 @@ class JobViewSet(
                 model_path = dataset_utils.model_file_path(
                     self.request.user.id, predictor.id, predictor.name)
                 path = model.save(model_path)
+                if predictor.name == 'LstmLongModel' or predictor.name == 'LstmModel':
+                    path = model_path + '/'  + predictor.name + '.h5'
                 if path is not None:
-                    with open(model_path, "rb") as fd:
+                    print('exist')
+                    with open(path, "rb") as fd:
                         with ContentFile(fd.read()) as file_content:
                             predictor.model_save.save(model_path, file_content)
                             predictor.save()
@@ -263,6 +266,7 @@ class JobViewSet(
                     model_file["ts_id"] = ts.id
                     model_file["model_name"] = predictor.name
                     model_file["ts_history"] = ts_history
+                    model_file["model_id"] = predictor.id
                     ts_results.append(model_file)
 
             results.append({
@@ -282,10 +286,16 @@ class JobViewSet(
         return super().destroy(request, *args, **kwargs)
 
     @action(methods=['get'], detail=True, url_path='export_model', url_name='export_model')
-    def export_model(self, request, ts_id=None):
-        path = self.get_object().series.objects.filter(pk=ts_id).predictor.model_save.path
+    def export_model(self, request, pk=None):
+        # path = self.get_object().series.all().filter(pk=pk).get().predictor.all().get().model_save.path
+        try:
+            path = models.Predictor.objects.all().filter(pk=pk).get().model_save.path
+            print(path)
+        except ValueError:
+            path = None
         if path is not None:
             with open(path, 'rb') as fd:
+                print('exist')
                 return FileResponse(fd)
         else:
             return Response(
@@ -294,7 +304,7 @@ class JobViewSet(
 
     @action(methods=['get'], detail=True, url_path='export_settings', url_name='export_settings')
     def export_settings(self, request, ts_id=None):
-        model = self.get_object().series.objects.filter(
+        model = self.get_object().series.all().filter(
             pk=ts_id).predictor
         hyper_param = model.model_file
         model_name = model.name
@@ -303,8 +313,6 @@ class JobViewSet(
             json.dump(hyper_param, f)
             return FileResponse(f)
         
-
-
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
     mixins.ListModelMixin, # .list(request) for listing all datasets of the user

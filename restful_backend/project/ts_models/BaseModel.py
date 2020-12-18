@@ -20,7 +20,6 @@ class BaseModel:
             with open(path + '/model.pkl', 'wb') as fd:
                 pickle.dump(self.model, fd)
             return path
-
         # Models without parameters
         return None
 
