@@ -5,7 +5,6 @@ class UnobservedComponentModel(BaseModel):
     def __init__(self, round_non_negative_int_func):
         self.model_name = "UnobservedComponentModel"
         self.round_non_negative_int_func = round_non_negative_int_func
-        return
 
     def fit(self, ts):
         unrestricted_model = {

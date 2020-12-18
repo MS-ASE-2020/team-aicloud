@@ -3,7 +3,7 @@ from .BaseModel import BaseModel
 
 # FIXME: how to pass arima_order
 class ARIMAModel(BaseModel):
-    def __init__(self, add_std_factor=0):
+    def __init__(self, round_non_negative_int_func, add_std_factor=0):
         # FIXME: fix arima_order type
         super.__init__()
         self.arima_order = (6, 0, 2)
