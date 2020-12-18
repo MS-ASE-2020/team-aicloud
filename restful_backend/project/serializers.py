@@ -15,7 +15,7 @@ class JobSerializer(serializers.ModelSerializer):
         model = models.Job
         db_table = 't_job'
         fields = '__all__'
-        read_only_fields = ['time_created']
+        read_only_fields = ['time_created', 'progress']
         lookup_field = 'id'
 
 class SeriesSerializer(serializers.ModelSerializer):
