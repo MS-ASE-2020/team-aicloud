@@ -70,22 +70,15 @@ export default {
     downloadsetting(model_id) {
       downloadsetting(model_id).then(res => {
         var fileDownload = require('js-file-download')
-        fileDownload(res, 'filename.csv')
-        var blob = new Blob([res], { type: 'application/json' })
-        var Temp = document.createElement('a')
-        Temp.href = window.URL.createObjectURL(blob)
-        Temp.download = new Date().getTime()
-        document.body.append(Temp)
-        Temp.click()
+        fileDownload(JSON.stringify(res.data), 'setting' + String(model_id) + '.json')
       })
     },
     download(model_id) {
       download(model_id).then(res => {
-        console.log(res)
-        var blob = new Blob([res], { type: 'application/octet-stream' })
+        var blob = new Blob([res.data], { type: 'application/octet-stream' })
         var Temp = document.createElement('a')
         Temp.href = window.URL.createObjectURL(blob)
-        Temp.download = new Date().getTime()
+        Temp.download = new Date().getTime() + '.h5'
         document.body.append(Temp)
         Temp.click()
       })

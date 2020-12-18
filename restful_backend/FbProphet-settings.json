@@ -1,0 +1,1 @@
+{"predictions": [234], "timestamps": ["2020-09-08 00:00:00"], "metrics": {"rmse": 8.660254037844387, "mse": 75.0}, "config": [{"name": "changepoint_prior_scale", "type": "float", "val": 0.3}, {"name": "add_std_factor", "type": "float", "val": 0.25}]}
