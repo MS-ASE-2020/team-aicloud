@@ -68,7 +68,7 @@ class JobViewSet(
         group_by_vals = dataset_utils.slice_dataset(dataset_path, group_by_indices)
         # create series
         for val in group_by_vals:
-            dataset = dataset_utils.get_sliced_dataset(dataset_path, group_by_indices, val)
+            dataset = dataset_utils.get_sliced_dataset(dataset_path.path, group_by_indices, val)
             ts = models.Series.objects.create(
                 cluster_key=val,
                 related_job=self.get_object(),
