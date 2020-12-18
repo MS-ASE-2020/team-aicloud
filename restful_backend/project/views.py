@@ -188,7 +188,7 @@ class JobViewSet(
         groupby_key, target_idx, ts_idx = dataset_utils.str2list(job_obj)
         if job_obj.status != models.CmdStatus.DONE:
             return Response(
-                status=status.HTTP_200_ok,
+                status=status.HTTP_200_OK,
                 data={
                     'stauts': job_obj.status
                 }
