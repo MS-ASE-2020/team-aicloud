@@ -10,6 +10,7 @@ from . import models
 from . import serializers
 from .utils import *
 import json
+import pickle
 from . import trainer
 import rishi.settings as settings
 
@@ -306,15 +307,17 @@ class JobViewSet(
             )
 
     @action(methods=['get'], detail=True, url_path='export_settings', url_name='export_settings')
-    def export_settings(self, request, ts_id=None):
-        model = self.get_object().series.all().filter(
-            pk=ts_id).predictor
+    def export_settings(self, request, pk=None):
+        model = models.Predictor.objects.all().filter(pk=pk).get()
+        # model = self.get_object().series.all().filter(
+        #     pk=ts_id).predictor
         hyper_param = model.model_file
         model_name = model.name
         # FIXME: add media root here in production
-        with open(model_name + '-settings.json', 'wb') as f:
-            json.dump(hyper_param, f)
-            return FileResponse(f)
+        f = open(model_name + '-settings.json', 'w')
+        json.dump(hyper_param, f)
+        fd = open(model_name + '-settings.json', 'rb')
+        return FileResponse(fd)
         
 class DatasetViewSet(
     mixins.CreateModelMixin, # .create(request) for creating a dataset for the user
