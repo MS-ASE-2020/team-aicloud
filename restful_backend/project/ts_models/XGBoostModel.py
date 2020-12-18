@@ -2,8 +2,8 @@ from .BaseModel import BaseModel
 import xgboost as xgb
 
 class XGBoostModel(BaseModel):
-    def __init__(self, metric, **kwargs):
-        super.__init__(features=True)
+    def __init__(self, round_non_negative_int_func, metric, **kwargs):
+        super(XGBoostModel, self).__init__(features=True)
         self.model = xgb.XGBRegressor(objective=metric, **kwargs)
         self.features = True
 
