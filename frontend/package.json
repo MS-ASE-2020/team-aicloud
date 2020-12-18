@@ -19,6 +19,7 @@
     "echarts": "^4.9.0",
     "element-ui": "2.13.2",
     "js-cookie": "2.2.0",
+    "js-file-download": "^0.4.12",
     "nginx": "0.0.0",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",

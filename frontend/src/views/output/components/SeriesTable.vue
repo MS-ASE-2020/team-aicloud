@@ -28,13 +28,23 @@
           <line-chart :chart-data="predictList[props.row.id]" />
         </template>
       </el-table-column>
+      <el-table-column label="Model Donwload">
+        <template slot-scope="props">
+          <el-button icon="el-icon-download" circle @click="download(props.row.model_id)" />
+        </template>
+      </el-table-column>
+      <el-table-column label="Setting Donwload">
+        <template slot-scope="props">
+          <el-button icon="el-icon-download" circle @click="downloadsetting(props.row.model_id)" />
+        </template>
+      </el-table-column>
     </el-table>
-    <el-button icon="el-icon-download" type="primary" style="display: block; margin: 10px auto" circle @click="download()" />
   </div>
 </template>
 
 <script>
 import LineChart from './LineChart'
+import { download, downloadsetting } from '@/api/table'
 export default {
   components: {
     LineChart
@@ -49,25 +59,40 @@ export default {
     return {
       tableData: [],
       predictList: [],
-      metricName: []
+      metricName: [],
+      ts_id: 0
     }
   },
   created() {
     this.createTable()
   },
   methods: {
-    download() {
-      download().then(res => {
-        var blob = new Blob([res], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"})
-        var Temp = document.createElement("a")
+    downloadsetting(model_id) {
+      downloadsetting(model_id).then(res => {
+        var fileDownload = require('js-file-download')
+        fileDownload(res, 'filename.csv')
+        var blob = new Blob([res], { type: 'application/json' })
+        var Temp = document.createElement('a')
         Temp.href = window.URL.createObjectURL(blob)
-        Temp.download =new Date().getTime()+'excel'
+        Temp.download = new Date().getTime()
+        document.body.append(Temp)
+        Temp.click()
+      })
+    },
+    download(model_id) {
+      download(model_id).then(res => {
+        console.log(res)
+        var blob = new Blob([res], { type: 'application/octet-stream' })
+        var Temp = document.createElement('a')
+        Temp.href = window.URL.createObjectURL(blob)
+        Temp.download = new Date().getTime()
         document.body.append(Temp)
         Temp.click()
       })
     },
     createTable() {
       // Union metric name
+      this.ts_id = this.results[0].ts_id
       this.results.forEach(element => {
         const arr = Object.keys(element.metrics)
         this.metricName = this.metricName.concat(arr.filter(v => !this.metricName.includes(v)))
@@ -76,6 +101,7 @@ export default {
       this.results.forEach(element => {
         const config = { 'id': i }
         config['model'] = element.model_name// name undefine
+        config['model_id'] = element.model_id
         let str = JSON.stringify(element.config)
         str = str.substring(1, str.length - 1)
         str = str.replace(',', '\n')

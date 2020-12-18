@@ -20,3 +20,17 @@ export function deleteJob(id) {
     method: 'delete'
   })
 }
+
+export function download(modelId) {
+  return request({
+    url: '/job/' + String(modelId) + '/export_model/',
+    method: 'get'
+  })
+}
+
+export function downloadsetting(modelId) {
+  return request({
+    url: '/job/' + String(modelId) + '/export_settings/',
+    method: 'get'
+  })
+}
