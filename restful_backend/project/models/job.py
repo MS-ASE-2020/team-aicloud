@@ -59,3 +59,19 @@ class Job(models.Model):
         help_text='The data this job hold',
         null=False,
     )
+
+    @property
+    def progress(self):
+        all = 0
+        executed = 0
+        for series in self.series.all():
+            for predictor in series.predictor.all():
+                all += 1
+                if predictor.status == CmdStatus.EXCEPTION:
+                    return -1
+                elif predictor.status == CmdStatus.DONE:
+                    executed += 1
+        if all != 0:
+            return executed / all
+        else:
+            return 1

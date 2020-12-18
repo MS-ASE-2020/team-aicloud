@@ -11,6 +11,7 @@ class DatasetSerializer(serializers.ModelSerializer):
         lookup_field = 'id'
 
 class JobSerializer(serializers.ModelSerializer):
+    progress = serializers.ReadOnlyField()
     class Meta:
         model = models.Job
         db_table = 't_job'
