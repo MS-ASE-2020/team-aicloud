@@ -19,7 +19,7 @@ def get_sliced_dataset(path, group_by_key, group_by_val):
     if group_by_key == '[]':
         return df
     group_by_indices = list(map(lambda x: col[int(x)], group_by_key.strip('][').split(',')))
-    return df.take(df.groupby(group_by_indices).groups[group_by_val])
+    return df.take(df.groupby(group_by_indices).groups[eval(group_by_val)])
 
 def preview(path, num=5):
     df = pd.read_csv(path)
